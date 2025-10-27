@@ -7,6 +7,7 @@ namespace iSpyApplication.Controls
     {
         public objectsCameraAlerts CamalertSettings;
         public objectsMicrophoneAlerts MicalertSettings;
+
         public AlertSettings()
         {
             InitializeComponent();
@@ -21,14 +22,13 @@ namespace iSpyApplication.Controls
             label2.Text = LocRm.GetString("ResetAlertInterval");
             label1.Text = LocRm.GetString("DistinctAlertInterval");
             linkLabel1.Text = LocRm.GetString("Help");
-
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (CamalertSettings != null)
             {
-                CamalertSettings.minimuminterval = (int) numDistinctInterval.Value;
+                CamalertSettings.minimuminterval = (int)numDistinctInterval.Value;
                 CamalertSettings.resetinterval = (int)numResetInterval.Value;
                 CamalertSettings.groupname = cmbGroup.Text.Trim().ToLower();
             }
@@ -64,7 +64,6 @@ namespace iSpyApplication.Controls
                     if (!cmbGroup.Items.Contains(gn))
                         cmbGroup.Items.Add(gn);
                 }
-
             }
             foreach (var mic in MainForm.Microphones)
             {

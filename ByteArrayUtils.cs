@@ -12,7 +12,7 @@ namespace iSpyApplication
     /// <summary>
     /// Some internal utilities for handling arrays.
     /// </summary>
-    /// 
+    ///
     internal static class ByteArrayUtils
     {
         public static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
@@ -31,17 +31,18 @@ namespace iSpyApplication
                 return true;
             }
         }
+
         /// <summary>
         /// Check if the array contains needle at specified position.
         /// </summary>
-        /// 
+        ///
         /// <param name="array">Source array to check for needle.</param>
         /// <param name="needle">Needle we are searching for.</param>
         /// <param name="startIndex">Start index in source array.</param>
-        /// 
+        ///
         /// <returns>Returns <b>true</b> if the source array contains the needle at
         /// the specified index. Otherwise it returns <b>false</b>.</returns>
-        /// 
+        ///
         public static bool Compare(byte[] array, byte[] needle, int startIndex)
         {
             int needleLen = needle.Length;
@@ -59,14 +60,14 @@ namespace iSpyApplication
         /// <summary>
         /// Find subarray in the source array.
         /// </summary>
-        /// 
+        ///
         /// <param name="array">Source array to search for needle.</param>
         /// <param name="needle">Needle we are searching for.</param>
         /// <param name="startIndex">Start index in source array.</param>
         /// <param name="sourceLength">Number of bytes in source array, where the needle is searched for.</param>
-        /// 
+        ///
         /// <returns>Returns starting position of the needle if it was found or <b>-1</b> otherwise.</returns>
-        /// 
+        ///
         public static int Find(byte[] array, byte[] needle, int startIndex, int sourceLength)
         {
             int needleLen = needle.Length;

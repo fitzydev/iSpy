@@ -3,9 +3,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using FFmpeg.AutoGen;
+using FFMpegCore.Helpers;
 using iSpyApplication.Sources.Video;
 using iSpyApplication.Utilities;
 
@@ -226,6 +225,7 @@ namespace iSpyApplication.Realtime
             DoClose();
         }
 
+        [Obsolete]
         private void DoClose()
         {
             Program.MutexHelper.Wait();
@@ -295,7 +295,7 @@ namespace iSpyApplication.Realtime
                     for (var i = j - 1; i >= 0; i--)
                     {
                         var stream = _formatContext->streams[i];
-                        if (stream != null && stream->codec != null)
+                        if (stream != null && stream->codecpar != null)
                         {
                             if (stream->codecpar != null && stream->codecpar->extradata_size > 0)
                                 ffmpeg.av_free(stream->codecpar->extradata);
@@ -578,8 +578,7 @@ namespace iSpyApplication.Realtime
                         _audioCodecContext->sample_fmt, 0);
 
                     if (Log("FILL_AUDIO",
-                        ffmpeg.avcodec_fill_audio_frame(_audioFrame, _audioCodecContext->channels,
-                            _audioCodecContext->sample_fmt, convOutPointerLocal, dstSamplesSize, 0)))
+                        ffmpeg.avcodec_fill_audio_frame(_audioFrame, _audioCodecContext->channels, _audioCodecContext->sample_fmt, convOutPointerLocal, dstSamplesSize, 0)))
                     {
                         ffmpeg.av_packet_unref(&packet);
                         _ignoreAudio = true;

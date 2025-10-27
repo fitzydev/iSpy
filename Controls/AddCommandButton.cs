@@ -16,7 +16,6 @@ namespace iSpyApplication.Controls
         {
             InitializeComponent();
             RenderResources();
-
         }
 
         private void RenderResources()
@@ -39,7 +38,6 @@ namespace iSpyApplication.Controls
                 color = fd.Color;
                 ValidateSize();
             }
-
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -62,11 +60,9 @@ namespace iSpyApplication.Controls
             cd.Dispose();
         }
 
-        
-
         private void EditCommandButton_Load(object sender, EventArgs e)
         {
-            foreach (var c in MainForm.RemoteCommands.Where(p=>!p.inwindow))
+            foreach (var c in MainForm.RemoteCommands.Where(p => !p.inwindow))
             {
                 var n = c.name;
                 if (n.StartsWith("cmd_"))
@@ -90,7 +86,6 @@ namespace iSpyApplication.Controls
             backColor = Color.White;
             CustomFont = MainForm.Drawfont;
             ddlCommand.SelectedIndex = 0;
-
         }
 
         private void EditONVIFCommandButton_Load(object sender, EventArgs e)
@@ -119,12 +114,10 @@ namespace iSpyApplication.Controls
             backColor = Color.White;
             CustomFont = MainForm.Drawfont;
             ddlCommand.SelectedIndex = 0;
-
         }
 
         private void EditCommandButton_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -141,7 +134,6 @@ namespace iSpyApplication.Controls
                 DialogResult = DialogResult.OK;
             }
             Close();
-
         }
 
         private void ddlCommand_SelectedIndexChanged(object sender, EventArgs e)

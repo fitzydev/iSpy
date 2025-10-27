@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
 {
     public sealed partial class ScheduleRow : UserControl
     {
-
         public new static int Height = 31;
         public objectsScheduleEntry Ose;
 
         public event EventHandler ScheduleEntryDelete;
-        public event EventHandler ScheduleEntryEdit;
-        public event EventHandler MouseOver;
 
+        public event EventHandler ScheduleEntryEdit;
+
+        public event EventHandler MouseOver;
 
         public ScheduleRow(objectsScheduleEntry ose)
         {
@@ -31,7 +30,6 @@ namespace iSpyApplication.Controls
             return FormatTime(se.time) + " \t" + FormatDays(se.daysofweek.Split(',')) + " \t" +
                        Helper.ScheduleDescription(se.typeid);
         }
-
 
         private static string FormatTime(int t)
         {
@@ -55,21 +53,27 @@ namespace iSpyApplication.Controls
                     case "1":
                         r += "Mon,";
                         break;
+
                     case "2":
                         r += "Tue,";
                         break;
+
                     case "3":
                         r += "Wed,";
                         break;
+
                     case "4":
                         r += "Thu,";
                         break;
+
                     case "5":
                         r += "Fri,";
                         break;
+
                     case "6":
                         r += "Sat,";
                         break;
+
                     case "0":
                         r += "Sun,";
                         break;

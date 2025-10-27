@@ -7,11 +7,14 @@ namespace iSpyApplication.Controls
     {
         private int _id;
         private bool _input;
+
         public event EventHandler GetInput;
+
         public int ID
         {
             get { return _id; }
-            set { 
+            set
+            {
                 _id = value;
                 if (_id > 0)
                 {
@@ -38,7 +41,6 @@ namespace iSpyApplication.Controls
 
         private void jbutton_Load(object sender, EventArgs e)
         {
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -51,13 +53,12 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            if (GetInput!=null)
+            if (GetInput != null)
                 GetInput(this, EventArgs.Empty);
 
             LocRm.SetString(lblButton, "PressButton");
             LocRm.SetString(button1, "Clear");
             _input = true;
-
         }
     }
 }

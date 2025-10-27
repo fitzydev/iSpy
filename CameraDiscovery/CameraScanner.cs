@@ -1,10 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Onvif;
+using iSpyApplication.Server;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using iSpyApplication.Onvif;
-using iSpyApplication.Server;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.CameraDiscovery
 {
@@ -20,7 +20,9 @@ namespace iSpyApplication.CameraDiscovery
         private List<Uri> _lp = new List<Uri>();
 
         public event EventHandler ScanComplete;
+
         public event EventHandler URLScan;
+
         public event EventHandler<ConnectionOptionEventArgs> URLFound;
 
         private URLDiscovery _discoverer;
@@ -39,7 +41,7 @@ namespace iSpyApplication.CameraDiscovery
             _lp = new List<Uri>();
             _quit = false;
             Finished.Reset();
-            
+
             Urlscanner = new Thread(() => ListCameras(l, Model));
             Urlscanner.Start();
         }
@@ -56,7 +58,6 @@ namespace iSpyApplication.CameraDiscovery
 
         public bool Running => Helper.ThreadRunning(Urlscanner);
 
-
         private void ListCameras(IEnumerable<ManufacturersManufacturer> mm, string model)
         {
             model = (model ?? "").ToLowerInvariant();
@@ -69,7 +70,7 @@ namespace iSpyApplication.CameraDiscovery
             {
                 var httpUri = _discoverer.BaseUri.SetPort(_discoverer.HttpPort);
 
-                //check for this devices 
+                //check for this devices
                 foreach (var d in Discovery.DiscoveredDevices)
                 {
                     if (d.DnsSafeHost == Uri.DnsSafeHost)
@@ -80,7 +81,7 @@ namespace iSpyApplication.CameraDiscovery
                 }
 
                 var onvifurl = httpUri + "onvif/device_service";
-                var dev = new ONVIFDevice(onvifurl, Username, Password,0,8);
+                var dev = new ONVIFDevice(onvifurl, Username, Password, 0, 8);
                 if (dev.Profiles != null)
                 {
                     foreach (var p in dev.Profiles)
@@ -157,10 +158,7 @@ namespace iSpyApplication.CameraDiscovery
                     return;
             }
         }
-
     }
-
-
 
     public class ConnectionOptionEventArgs : EventArgs
     {

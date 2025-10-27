@@ -9,7 +9,6 @@ namespace iSpyApplication.Controls
         public configurationDirectory Config;
         public FolderSelectDialog Fsd = new FolderSelectDialog();
 
-
         public MediaDirectoryConfig()
         {
             InitializeComponent();
@@ -42,8 +41,8 @@ namespace iSpyApplication.Controls
             {
                 Config.Enable_Storage_Management = chkStorage.Checked;
                 Config.Entry = txtMediaDirectory.Text;
-                Config.MaxMediaFolderSizeMB = (int) txtMaxMediaSize.Value;
-                Config.DeleteFilesOlderThanDays = (int) txtDaysDelete.Value;
+                Config.MaxMediaFolderSizeMB = (int)txtMaxMediaSize.Value;
+                Config.DeleteFilesOlderThanDays = (int)txtDaysDelete.Value;
                 Config.StopSavingOnStorageLimit = chkStopRecording.Checked;
                 Config.archive = chkArchive.Checked;
                 if (!Config.Enable_Storage_Management)
@@ -55,7 +54,6 @@ namespace iSpyApplication.Controls
             {
                 MessageBox.Show(this, LocRm.GetString("MediaDirectoryNotFound"));
             }
-            
         }
 
         private void MediaDirectoryConfig_Load(object sender, EventArgs e)
@@ -86,11 +84,9 @@ namespace iSpyApplication.Controls
                 }
                 catch
                 {
-
                 }
             }
-            
-            
+
             if (Fsd.ShowDialog(Handle))
             {
                 bool success = false;
@@ -112,7 +108,6 @@ namespace iSpyApplication.Controls
                     f = Fsd.FileName;
                     if (!f.EndsWith(@"\"))
                         f += @"\";
-
                 }
             }
             return f;

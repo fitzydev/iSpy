@@ -34,7 +34,7 @@
     [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
     Guid("C6E13360-30AC-11d0-A18C-00A0C9118956"),
     InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    interface IAMVideoProcAmp
+    internal interface IAMVideoProcAmp
     {
         [PreserveSig]
         int GetRange(

@@ -14,7 +14,6 @@ namespace iSpyApplication.Controls
         {
             InitializeComponent();
             RenderResources();
-
         }
 
         private void RenderResources()
@@ -58,11 +57,8 @@ namespace iSpyApplication.Controls
             cd.Dispose();
         }
 
-        
-
         private void EditCommandButton_Load(object sender, EventArgs e)
         {
-            
             CustomFont = FontXmlConverter.ConvertToFont(CMD.font);
             color = CMD.color.ToColor();
             backColor = CMD.backcolor.ToColor();
@@ -77,12 +73,10 @@ namespace iSpyApplication.Controls
             if (n.StartsWith("cmd_"))
                 n = LocRm.GetString(n);
             lblCommand.Text = n;
-
         }
 
         private void EditCommandButton_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
         }
 
         private void button1_Click(object sender, EventArgs e)

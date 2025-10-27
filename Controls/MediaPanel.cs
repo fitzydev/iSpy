@@ -10,7 +10,6 @@ namespace iSpyApplication.Controls
         public bool Loading = false;
         public Point SelectStart = Point.Empty;
         public Point SelectEnd = Point.Empty;
-        
 
         public MediaPanel()
         {
@@ -21,9 +20,8 @@ namespace iSpyApplication.Controls
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
         }
 
-        void MediaPanelKeyDown(object sender, KeyEventArgs e)
+        private void MediaPanelKeyDown(object sender, KeyEventArgs e)
         {
-            
         }
 
         protected override void OnScroll(ScrollEventArgs se)
@@ -66,9 +64,6 @@ namespace iSpyApplication.Controls
                 b.Dispose();
                 p.Dispose();
             }
-            
-            
-
         }
 
         private void MediaPanel_MouseDown(object sender, MouseEventArgs e)
@@ -96,7 +91,6 @@ namespace iSpyApplication.Controls
                             pb.Invalidate();
                         }
                     }
-
                 }
                 SelectStart = Point.Empty;
                 Invalidate();
@@ -118,7 +112,7 @@ namespace iSpyApplication.Controls
 
         private void MediaPanel_MouseMove(object sender, MouseEventArgs e)
         {
-            if (SelectStart != Point.Empty && e.Button== MouseButtons.Left)
+            if (SelectStart != Point.Empty && e.Button == MouseButtons.Left)
             {
                 SelectEnd = e.Location;
                 Invalidate();
@@ -127,7 +121,6 @@ namespace iSpyApplication.Controls
 
         protected override void OnMouseLeave(EventArgs e)
         {
-
             if (ClientRectangle.Contains(PointToClient(MousePosition)))
                 return;
             base.OnMouseLeave(e);

@@ -1,18 +1,18 @@
-﻿using System;
+﻿using iSpyApplication.Properties;
+using iSpyApplication.Utilities;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Properties;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Controls
 {
-    public class PreviewBox: PictureBox
+    public class PreviewBox : PictureBox
     {
-        private readonly Brush _bPlay = new SolidBrush(Color.FromArgb(90,0,0,0));
+        private readonly Brush _bPlay = new SolidBrush(Color.FromArgb(90, 0, 0, 0));
         public bool Selected;
         public string FileName = "";
         public string DisplayName;
@@ -20,7 +20,7 @@ namespace iSpyApplication.Controls
         public int Duration;
         private bool _linkPlay, _linkHover;
         public bool ShowThumb = true;
-        public int Otid,Oid;
+        public int Otid, Oid;
         public MainForm MainClass;
         public bool IsMerged;
 
@@ -47,6 +47,7 @@ namespace iSpyApplication.Controls
                     case 1:
                         var vl = MainClass.GetVolumeLevel(Oid);
                         return vl?.FileList.FirstOrDefault(p => p.Filename == fn);
+
                     case 2:
                         var cw = MainClass.GetCameraWindow(Oid);
                         return cw?.FileList.FirstOrDefault(p => p.Filename == fn);
@@ -72,7 +73,7 @@ namespace iSpyApplication.Controls
             {
                 if (IsMerged)
                 {
-                    g.DrawImage(Resources.merged,Width-Resources.merged.Width-2,Height-22-Resources.merged.Height,Resources.merged.Width,Resources.merged.Height);
+                    g.DrawImage(Resources.merged, Width - Resources.merged.Width - 2, Height - 22 - Resources.merged.Height, Resources.merged.Width, Resources.merged.Height);
                 }
 
                 if (_linkPlay)
@@ -93,15 +94,15 @@ namespace iSpyApplication.Controls
 
                 if (_linkPlay)
                 {
-                    g.DrawString(">", MainForm.DrawfontBig, Brushes.White, Width/2 - 10, 20);
+                    g.DrawString(">", MainForm.DrawfontBig, Brushes.White, Width / 2 - 10, 20);
                 }
 
-                
                 g.DrawString(
                     CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + ":" + ZeroPad(CreatedDate.Second) + " (" +
                     RecordTime(Duration) + ")", MainForm.Drawfont, Brushes.White, 0, Height - 18);
             }
         }
+
         private static string RecordTime(decimal sec)
         {
             var hr = Math.Floor(sec / 3600);
@@ -111,16 +112,17 @@ namespace iSpyApplication.Controls
             string s = sec.ToString(CultureInfo.InvariantCulture);
             while (m.Length < 2) { m = "0" + m; }
             while (s.Length < 2) { s = "0" + s; }
-            string h = (hr!=0) ? hr + ":" : "";
+            string h = (hr != 0) ? hr + ":" : "";
             return h + m + ':' + s;
         }
+
         private static string ZeroPad(int i)
         {
             if (i < 10)
                 return "0" + i;
             return i.ToString(CultureInfo.InvariantCulture);
         }
-        
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -131,6 +133,7 @@ namespace iSpyApplication.Controls
             if (last != _linkPlay || last2 != _linkHover)
                 Invalidate();
         }
+
         protected override void OnMouseLeave(EventArgs e)
         {
             _linkPlay = false;
@@ -141,13 +144,13 @@ namespace iSpyApplication.Controls
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
-            if (e.Button== MouseButtons.Left)
+            if (e.Button == MouseButtons.Left)
                 PlayMedia((Enums.PlaybackMode)MainForm.Conf.PlaybackMode);
         }
 
-        protected override void  OnMouseClick(MouseEventArgs e)
+        protected override void OnMouseClick(MouseEventArgs e)
         {
- 	        base.OnMouseClick(e);
+            base.OnMouseClick(e);
             if (e.Button == MouseButtons.Left)
             {
                 if (e.Y > Height - 20)
@@ -167,7 +170,6 @@ namespace iSpyApplication.Controls
                 else
                 {
                     PlayMedia((Enums.PlaybackMode)MainForm.Conf.PlaybackMode);
-                    
                 }
             }
         }
@@ -188,12 +190,11 @@ namespace iSpyApplication.Controls
                 mode = Enums.PlaybackMode.Website;
             }
 
-           
             string movie = FileName;
             if (!File.Exists(movie))
             {
                 MessageBox.Show(this, LocRm.GetString("FileNotFound"));
-                return;                
+                return;
             }
             if (MainForm.Conf.PlaybackMode == 0 && movie.EndsWith(".avi"))
             {
@@ -202,7 +203,7 @@ namespace iSpyApplication.Controls
 
             string[] parts = FileName.Split('\\');
             string fn = parts[parts.Length - 1];
-            if (mode== Enums.PlaybackMode.Website && (WsWrapper.LoginFailed || WsWrapper.Expired))
+            if (mode == Enums.PlaybackMode.Website && (WsWrapper.LoginFailed || WsWrapper.Expired))
             {
                 mode = Enums.PlaybackMode.Default;
             }
@@ -210,7 +211,7 @@ namespace iSpyApplication.Controls
             switch (mode)
             {
                 case Enums.PlaybackMode.Website:
-                    string url = MainForm.Webserver.Replace("https://","http://") + "/MediaViewer.aspx?oid=" + Oid + "&ot="+ Otid + "&fn=" + fn + "&port=" + MainForm.Conf.ServerPort;
+                    string url = MainForm.Webserver.Replace("https://", "http://") + "/MediaViewer.aspx?oid=" + Oid + "&ot=" + Otid + "&fn=" + fn + "&port=" + MainForm.Conf.ServerPort;
                     if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
                     {
                         MainForm.OpenUrl(url);
@@ -227,6 +228,7 @@ namespace iSpyApplication.Controls
                         }
                     }
                     break;
+
                 case Enums.PlaybackMode.iSpy:
                     try
                     {
@@ -234,10 +236,10 @@ namespace iSpyApplication.Controls
                     }
                     catch (Exception ex)
                     {
-
                     }
 
                     break;
+
                 case Enums.PlaybackMode.Default:
                     try
                     {
@@ -251,6 +253,5 @@ namespace iSpyApplication.Controls
                     break;
             }
         }
-        
     }
 }

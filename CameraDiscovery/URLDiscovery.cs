@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.CameraDiscovery
 {
@@ -24,7 +24,6 @@ namespace iSpyApplication.CameraDiscovery
                 _httpPorts.Insert(0, baseUri.Port);
                 _httpPorts = _httpPorts.Distinct().ToList();
             }
-
         }
 
         private readonly List<int> _httpPorts = new List<int> { 80, 8080, 443 };
@@ -75,6 +74,7 @@ namespace iSpyApplication.CameraDiscovery
         }
 
         private readonly Dictionary<int, bool> _testedPorts = new Dictionary<int, bool>();
+
         private bool TestPort(int port)
         {
             if (_testedPorts.ContainsKey(port))
@@ -93,7 +93,6 @@ namespace iSpyApplication.CameraDiscovery
                 {
                     if (TestPort(s.port))
                         return s.port;
-
                 }
                 return HttpPort;
             }
@@ -102,7 +101,6 @@ namespace iSpyApplication.CameraDiscovery
             {
                 if (TestPort(s.port))
                     return s.port;
-
             }
 
             return MediaPort;
@@ -123,13 +121,11 @@ namespace iSpyApplication.CameraDiscovery
                 else
                     urlStart += ":";
                 urlStart += "@";
-
             }
 
             string url = !audio ? s.url : s.AudioURL;
             if (!url.StartsWith("/"))
                 url = "/" + url;
-
 
             url = url.Replace("[USERNAME]", Uri.EscapeDataString(username)).Replace("[PASSWORD]", Uri.EscapeDataString(password));
             url = url.Replace("[CHANNEL]", channel.ToString(CultureInfo.InvariantCulture).Trim());
@@ -151,7 +147,6 @@ namespace iSpyApplication.CameraDiscovery
             Uri.TryCreate(connectUrl, UriKind.Absolute, out uri);
             return uri;
         }
-
 
         private bool TestHttpUrl(Uri source, string cookies, string username, string password)
         {
@@ -180,7 +175,6 @@ namespace iSpyApplication.CameraDiscovery
         {
             try
             {
-
                 var request = "OPTIONS " + uri + " RTSP/1.0\r\n" +
                     "CSeq: 1\r\n" +
                     "User-Agent: iSpy\r\n" +
@@ -218,7 +212,6 @@ namespace iSpyApplication.CameraDiscovery
                         }
                     }
                 }
-
             }
             catch
             {
@@ -258,15 +251,16 @@ namespace iSpyApplication.CameraDiscovery
                 case "https://":
                     found = TestHttpUrl(addr, "", username, password);
                     break;
+
                 case "rtsp://":
                     found = TestRtspUrl(addr, username, password);
                     break;
+
                 default:
                     found = true;
                     break;
             }
             return found;
         }
-
     }
 }

@@ -17,24 +17,22 @@ namespace iSpyApplication.Controls
         {
             Servers = ae;
             Init();
-
         }
 
-        private void Init() {
-           
+        private void Init()
+        {
             flpServers.VerticalScroll.Visible = true;
             flpServers.HorizontalScroll.Visible = false;
             button1.Text = LocRm.GetString("Add");
             RenderServerList();
         }
 
-        void RenderServerList()
+        private void RenderServerList()
         {
             flpServers.Controls.Clear();
             int vertScrollWidth = SystemInformation.VerticalScrollBarWidth;
 
             var w = flpServers.Width - 2;
-
 
             if (Servers != null)
             {
@@ -43,7 +41,7 @@ namespace iSpyApplication.Controls
                 int i = 0;
                 foreach (var e in Servers)
                 {
-                    var c = new ServerEventRow(e, i) {Width = w};
+                    var c = new ServerEventRow(e, i) { Width = w };
                     c.EntryDelete += CDirectoryEntryDelete;
                     c.EntryEdit += CDirectoryEntryEdit;
                     c.MouseOver += CMouseOver;
@@ -52,40 +50,37 @@ namespace iSpyApplication.Controls
                     i++;
                 }
             }
-            
+
             flpServers.PerformLayout();
             flpServers.HorizontalScroll.Visible = flpServers.HorizontalScroll.Enabled = false;
-            
         }
 
-        void CMouseOver(object sender, EventArgs e)
+        private void CMouseOver(object sender, EventArgs e)
         {
             foreach (var c in flpServers.Controls)
             {
                 var o = c as ServerEventRow;
-                if (o!=sender)
+                if (o != sender)
                 {
                     if (o != null) o.RevertBackground();
                 }
             }
         }
 
-        void CDirectoryEntryEdit(object sender, EventArgs e)
-        {       
+        private void CDirectoryEntryEdit(object sender, EventArgs e)
+        {
             var oe = ((ServerEventRow)sender);
-            var c = new FTPConfig {FTP = oe.Server};
-            if (c.ShowDialog(this)==DialogResult.OK)
+            var c = new FTPConfig { FTP = oe.Server };
+            if (c.ShowDialog(this) == DialogResult.OK)
             {
                 Servers[oe.Index] = c.FTP;
             }
             c.Dispose();
 
-
             RenderServerList();
         }
 
-
-        void CDirectoryEntryDelete(object sender, EventArgs e)
+        private void CDirectoryEntryDelete(object sender, EventArgs e)
         {
             var oe = ((ServerEventRow)sender);
             var l = Servers.ToList();
@@ -93,7 +88,6 @@ namespace iSpyApplication.Controls
             Servers = l.ToArray();
             RenderServerList();
         }
-
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -105,12 +99,11 @@ namespace iSpyApplication.Controls
                 Servers = l.ToArray();
                 f.Dispose();
                 RenderServerList();
-            } 
+            }
         }
 
         private void flpDirectories_Paint(object sender, PaintEventArgs e)
         {
-
         }
     }
 }

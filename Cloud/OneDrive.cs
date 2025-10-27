@@ -1,12 +1,12 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using iSpyApplication.Utilities;
-using Newtonsoft.Json;
 
 namespace iSpyApplication.Cloud
 {
@@ -18,7 +18,7 @@ namespace iSpyApplication.Cloud
 
         private static volatile bool _uploading;
 
-        private static string _accessToken="";
+        private static string _accessToken = "";
 
         private static List<UploadEntry> UploadList { get; set; } = new List<UploadEntry>();
 
@@ -74,7 +74,7 @@ namespace iSpyApplication.Cloud
                 }
                 return "";
             }
-        }       
+        }
 
         private class UploadEntry
         {
@@ -99,8 +99,7 @@ namespace iSpyApplication.Cloud
             if (UploadList.Count >= CloudGateway.MaxUploadQueue)
                 return "UploadQueueFull";
 
-
-			UploadList.Add(new UploadEntry { DestinationPath = "iSpy" +"\\"+ path.Replace("/", "\\").Trim(Path.DirectorySeparatorChar), SourceFilename = filename });
+            UploadList.Add(new UploadEntry { DestinationPath = "iSpy" + "\\" + path.Replace("/", "\\").Trim(Path.DirectorySeparatorChar), SourceFilename = filename });
             if (!_uploading)
             {
                 _uploading = true;
@@ -108,7 +107,6 @@ namespace iSpyApplication.Cloud
             }
             success = true;
             return "AddedToQueue";
-
         }
 
         public static bool Authorised
@@ -124,13 +122,13 @@ namespace iSpyApplication.Cloud
                     (HttpWebRequest)
                         WebRequest.Create("https://login.live.com/oauth20_token.srf?client_id=" + ApplicationID + "&redirect_uri=https://www.ispyconnect.com/responsecode.aspx&client_secret=" +
                                Secret + "&code=" + code + "&grant_type=authorization_code");
-                
+
                 request.Method = "GET";
                 request.AllowAutoRedirect = true;
-                
+
                 var response = (HttpWebResponse)request.GetResponse();
                 Stream s = response.GetResponseStream();
-                if (s==null)
+                if (s == null)
                     throw new Exception("null response stream");
                 var responseString = new StreamReader(s).ReadToEnd();
 
@@ -151,7 +149,8 @@ namespace iSpyApplication.Cloud
 
         private static void Upload(object state)
         {
-            try { 
+            try
+            {
                 if (UploadList.Count == 0)
                 {
                     _uploading = false;
@@ -179,7 +178,6 @@ namespace iSpyApplication.Cloud
                     return;
                 }
 
-
                 FileInfo fi;
                 byte[] byteArray;
                 try
@@ -194,17 +192,18 @@ namespace iSpyApplication.Cloud
                     return;
                 }
 
-                try { 
+                try
+                {
                     var path = entry.DestinationPath.Replace(@"\", "/");
-        //            var drive = Get("drive");
+                    //            var drive = Get("drive");
                     var url = $"{baseURL}drive/root:/{path}/{fi.Name}:/content";
                     //PUT /drive/root:/{parent-path}/{filename}:/content
                     var request =
                             (HttpWebRequest)
                                 WebRequest.Create(url);
 
-                    request.Headers.Add("Authorization","bearer "+ AccessToken);
-            
+                    request.Headers.Add("Authorization", "bearer " + AccessToken);
+
                     request.Method = "PUT";
                     request.ContentType = "application/octet-stream";
                     request.ContentLength = byteArray.Length;
@@ -215,13 +214,13 @@ namespace iSpyApplication.Cloud
                     }
 
                     var response = (HttpWebResponse)request.GetResponse();
-                    var  s = response.GetResponseStream();
+                    var s = response.GetResponseStream();
                     if (s == null)
                         throw new Exception("null response stream");
                     var responseString = new StreamReader(s).ReadToEnd();
 
                     dynamic d = JsonConvert.DeserializeObject(responseString);
-                    Logger.LogMessage("File uploaded to onedrive: "+d.name+" ("+d.id+")");
+                    Logger.LogMessage("File uploaded to onedrive: " + d.name + " (" + d.id + ")");
                 }
                 catch (Exception ex)
                 {
@@ -253,7 +252,5 @@ namespace iSpyApplication.Cloud
 
         //    return JsonConvert.DeserializeObject(responseString);
         //}
-
-        
     }
 }

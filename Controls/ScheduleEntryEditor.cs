@@ -42,21 +42,27 @@ namespace iSpyApplication.Controls
                         case "1":
                             chkMon.Checked = true;
                             break;
+
                         case "2":
                             chkTue.Checked = true;
                             break;
+
                         case "3":
                             chkWed.Checked = true;
                             break;
+
                         case "4":
                             chkThu.Checked = true;
                             break;
+
                         case "5":
                             chkFri.Checked = true;
                             break;
+
                         case "6":
                             chkSat.Checked = true;
                             break;
+
                         case "0":
                             chkSun.Checked = true;
                             break;
@@ -71,6 +77,7 @@ namespace iSpyApplication.Controls
                     case 1:
                         actions = actions.Where(p => p.TypeID != Helper.ScheduleAction.ActionTypeID.CameraOnly).ToList();
                         break;
+
                     case 4:
                         actions = actions.Where(p => p.TypeID == Helper.ScheduleAction.ActionTypeID.All).ToList();
                         break;
@@ -106,6 +113,7 @@ namespace iSpyApplication.Controls
         {
             public string Ident;
             public string Text;
+
             public ParamDisplay(string text, string ident)
             {
                 Ident = ident;
@@ -120,10 +128,9 @@ namespace iSpyApplication.Controls
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            
             DateTime dt = Convert.ToDateTime(dtWhen.Value);
             ose.time = Convert.ToInt32(dt.TimeOfDay.TotalMinutes);
-            
+
             string days = "";
             if (chkMon.Checked)
             {
@@ -157,7 +164,7 @@ namespace iSpyApplication.Controls
             ose.daysofweek = days.Trim(',');
             var sa = ((Helper.ScheduleAction)ddlAction.SelectedItem);
             ose.typeid = sa.ID;
-            
+
             if (ddlAlertAction.Visible)
             {
                 if (sa.ParameterName == "Action")

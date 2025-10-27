@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -20,10 +19,10 @@ namespace iSpyApplication.Controls
 
         public void RenderResources()
         {
-            toolTip1.SetToolTip(mpcbSelect,LocRm.GetString("SelectAll"));
-            toolTip1.SetToolTip(mpcbArchive,LocRm.GetString("Archive"));
-            toolTip1.SetToolTip(mpcbDelete,LocRm.GetString("Delete"));
-            toolTip1.SetToolTip(mpcbFilter,LocRm.GetString("Filter"));
+            toolTip1.SetToolTip(mpcbSelect, LocRm.GetString("SelectAll"));
+            toolTip1.SetToolTip(mpcbArchive, LocRm.GetString("Archive"));
+            toolTip1.SetToolTip(mpcbDelete, LocRm.GetString("Delete"));
+            toolTip1.SetToolTip(mpcbFilter, LocRm.GetString("Filter"));
             toolTip1.SetToolTip(mpcbNext, LocRm.GetString("Next"));
             toolTip1.SetToolTip(mpcbPrevious, LocRm.GetString("Previous"));
             toolTip1.SetToolTip(mpcbCloud, LocRm.GetString("UploadToCloud"));

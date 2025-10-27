@@ -1,7 +1,7 @@
+using iSpyApplication.Utilities;
 using System;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -12,7 +12,7 @@ namespace iSpyApplication
             InitializeComponent();
             RenderResources();
         }
-        
+
         private void DoCheckPassword()
         {
             var g = MainForm.Conf.Permissions.First(p => p.name == ddlAccount.SelectedItem.ToString());
@@ -22,14 +22,14 @@ namespace iSpyApplication
                     MainForm.NeedsResourceUpdate = true;
                 MainForm.Group = g.name;
                 DialogResult = DialogResult.OK;
-                Logger.LogMessage("Login: "+g.name);
+                Logger.LogMessage("Login: " + g.name);
                 Close();
                 return;
             }
-            
+
             DialogResult = DialogResult.Cancel;
             MessageBox.Show(LocRm.GetString("PasswordIncorrect"), LocRm.GetString("Note"));
-            
+
             Close();
         }
 
@@ -58,14 +58,13 @@ namespace iSpyApplication
             txtPassword.Focus();
         }
 
-        private void RenderResources() {
-            
+        private void RenderResources()
+        {
             Text = LocRm.GetString("ApplicationHasBeenLocked");
             button1.Text = LocRm.GetString("Unlock");
             lblPassword.Text = LocRm.GetString("Password");
             lblAccount.Text = LocRm.GetString("Account");
         }
-
 
         private void TxtPasswordKeyDown(object sender, KeyEventArgs e)
         {

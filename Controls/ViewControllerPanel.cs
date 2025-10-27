@@ -24,7 +24,6 @@ namespace iSpyApplication.Controls
             UpdateStyles();
         }
 
-
         protected override void OnPaint(PaintEventArgs pe)
         {
             Graphics gLayout = pe.Graphics;
@@ -52,7 +51,6 @@ namespace iSpyApplication.Controls
                     }
                 }
 
-
                 rects.Add(new AlertRectangle(
                               new Rectangle(c.Location.X + xOff, c.Location.Y + yOff, c.Width, c.Height), alert,
                               LayoutTarget.Controls.GetChildIndex(c)));
@@ -62,7 +60,6 @@ namespace iSpyApplication.Controls
                     xMax = c.Width + c.Location.X + xOff;
             }
             rects = rects.OrderByDescending(p => p.ChildIndex).ToList();
-
 
             if (xMax > 0 && yMax > 0)
             {
@@ -85,24 +82,23 @@ namespace iSpyApplication.Controls
                     _vScrollBound += SystemInformation.HorizontalScrollBarHeight;
                 }
 
-                _xRat = Convert.ToDouble(Width)/xMax;
-                _yRat = Convert.ToDouble(Height)/yMax;
+                _xRat = Convert.ToDouble(Width) / xMax;
+                _yRat = Convert.ToDouble(Height) / yMax;
 
                 foreach (AlertRectangle r in rects)
                 {
-                    gLayout.DrawRectangle(!r.Alert ? Pens.White : Pens.Red, (float) _xRat*r.Rect.X,
-                        (float) _yRat*r.Rect.Y,
-                        (float) _xRat*r.Rect.Width,
-                        (float) _yRat*r.Rect.Height);
+                    gLayout.DrawRectangle(!r.Alert ? Pens.White : Pens.Red, (float)_xRat * r.Rect.X,
+                        (float)_yRat * r.Rect.Y,
+                        (float)_xRat * r.Rect.Width,
+                        (float)_yRat * r.Rect.Height);
                 }
 
-                gLayout.DrawRectangle(Pens.Orange, (float) _xRat*rc.X, (float) _yRat*rc.Y, (float) _xRat*rc.Width,
-                                      (float) _yRat*rc.Height);
+                gLayout.DrawRectangle(Pens.Orange, (float)_xRat * rc.X, (float)_yRat * rc.Y, (float)_xRat * rc.Width,
+                                      (float)_yRat * rc.Height);
             }
 
             base.OnPaint(pe);
         }
-
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
@@ -117,8 +113,8 @@ namespace iSpyApplication.Controls
             {
                 int dx = e.Location.X - _startPoint.X;
                 int dy = e.Location.Y - _startPoint.Y;
-                double mx = dx/_xRat;
-                double my = dy/_yRat;
+                double mx = dx / _xRat;
+                double my = dy / _yRat;
 
                 double hScroll = _hscrolloffset + mx;
                 double vScroll = _vscrolloffset + my;
@@ -128,7 +124,6 @@ namespace iSpyApplication.Controls
 
                 if (hScroll < 0) hScroll = 0;
                 if (vScroll < 0) vScroll = 0;
-
 
                 LayoutTarget.HorizontalScroll.Value = Convert.ToInt32(hScroll);
                 LayoutTarget.VerticalScroll.Value = Convert.ToInt32(vScroll);
@@ -160,6 +155,6 @@ namespace iSpyApplication.Controls
             }
         }
 
-        #endregion
+        #endregion Nested type: AlertRectangle
     }
 }

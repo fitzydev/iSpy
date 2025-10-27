@@ -10,9 +10,10 @@ namespace iSpyApplication.Controls
         public int Index;
 
         public event EventHandler EntryDelete;
-        public event EventHandler EntryEdit;
-        public event EventHandler MouseOver;
 
+        public event EventHandler EntryEdit;
+
+        public event EventHandler MouseOver;
 
         public ServerEventRow(configurationServer server, int index)
         {
@@ -20,13 +21,11 @@ namespace iSpyApplication.Controls
             Index = index;
             InitializeComponent();
             if (server.sftp)
-                lblSummary.Text = "SFTP: "+server.name;
+                lblSummary.Text = "SFTP: " + server.name;
             else
                 lblSummary.Text = server.name;
             BackColor = DefaultBackColor;
         }
-
-       
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -52,6 +51,5 @@ namespace iSpyApplication.Controls
             tableLayoutPanel1.BackColor = DefaultBackColor;
             Invalidate();
         }
-
     }
 }

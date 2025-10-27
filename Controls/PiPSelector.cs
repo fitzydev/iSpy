@@ -20,13 +20,14 @@ namespace iSpyApplication.Controls
 
         private Bitmap _lastFrame;
         private readonly object _lockobject = new object();
+
         public Bitmap LastFrame
         {
             get
             {
                 lock (_lockobject)
                 {
-                    return (Bitmap) _lastFrame?.Clone();
+                    return (Bitmap)_lastFrame?.Clone();
                 }
             }
             set
@@ -45,7 +46,6 @@ namespace iSpyApplication.Controls
             }
         }
 
-
         private int _rectIndex = -1;
         private Rectangle _rectOrig;
 
@@ -54,12 +54,12 @@ namespace iSpyApplication.Controls
             base.OnMouseDown(e);
             _bMouseDown = true;
 
-            if (_hoverPoint!=Point.Empty)
+            if (_hoverPoint != Point.Empty)
             {
                 return;
             }
             //clicked on an existing rectangle?
-            
+
             int startX = Convert.ToInt32((e.X * 1.0) / (Width * 1.0) * 100);
             int startY = Convert.ToInt32((e.Y * 1.0) / (Height * 1.0) * 100);
 
@@ -92,14 +92,14 @@ namespace iSpyApplication.Controls
             base.OnMouseUp(e);
             int endX = Convert.ToInt32((e.X * 1.0) / (Width * 1.0) * 100);
             int endY = Convert.ToInt32((e.Y * 1.0) / (Height * 1.0) * 100);
-            
+
             _rectStop = new Point(endX, endY);
             _bMouseDown = false;
-            if (_rectIndex>-1)
+            if (_rectIndex > -1)
             {
                 _rectStart = Point.Empty;
                 _rectStop = Point.Empty;
-                if (endX>100 || endY>100 || endX<0 || endY<0)
+                if (endX > 100 || endY > 100 || endX < 0 || endY < 0)
                 {
                     _configs.RemoveAt(_rectIndex);
                 }
@@ -141,14 +141,13 @@ namespace iSpyApplication.Controls
                 var m = _configs.FirstOrDefault(p => p.CameraID == CurrentCameraID);
                 if (m == null)
                 {
-                    m = new Pipconfig {CameraID = CurrentCameraID, Rect = new Rectangle(start, size)};
+                    m = new Pipconfig { CameraID = CurrentCameraID, Rect = new Rectangle(start, size) };
                     _configs.Add(m);
                 }
                 else
                 {
                     m.Rect = new Rectangle(start, size);
                 }
-
             }
             _rectStart = Point.Empty;
             _rectStop = Point.Empty;
@@ -166,21 +165,21 @@ namespace iSpyApplication.Controls
 
             if (_bMouseDown)
             {
-                if (_hoverPoint!=Point.Empty)
+                if (_hoverPoint != Point.Empty)
                 {
                     var r = _configs[_rectIndex];
 
                     Rectangle rnew = Rectangle.Empty;
-                    if (_hoverPoint.X==r.Rect.Left)
+                    if (_hoverPoint.X == r.Rect.Left)
                     {
                         rnew = _hoverPoint.Y == r.Rect.Top ? NormRect(new Point(p.X, p.Y), new Point(r.Rect.Right, r.Rect.Bottom)) : NormRect(new Point(p.X, r.Rect.Top), new Point(r.Rect.Right, p.Y));
                     }
                     if (_hoverPoint.X == r.Rect.Right)
                     {
-                        rnew = _hoverPoint.Y == r.Rect.Top ? NormRect(new Point(r.Rect.X, p.Y), new Point(p.X, r.Rect.Bottom)) : NormRect(new Point(r.Rect.X, r.Rect.Y), new Point(p.X, p.Y));                        
+                        rnew = _hoverPoint.Y == r.Rect.Top ? NormRect(new Point(r.Rect.X, p.Y), new Point(p.X, r.Rect.Bottom)) : NormRect(new Point(r.Rect.X, r.Rect.Y), new Point(p.X, p.Y));
                     }
-                    _hoverPoint = new Point(p.X,p.Y);
-                    _configs[_rectIndex] = new Pipconfig {CameraID = r.CameraID, Rect = rnew};
+                    _hoverPoint = new Point(p.X, p.Y);
+                    _configs[_rectIndex] = new Pipconfig { CameraID = r.CameraID, Rect = rnew };
                     Invalidate();
                     return;
                 }
@@ -192,7 +191,7 @@ namespace iSpyApplication.Controls
                     endY = 100;
 
                 _rectStop = new Point(endX, endY);
-                if (_rectIndex>-1)
+                if (_rectIndex > -1)
                 {
                     var mz = _configs[_rectIndex];
                     mz.Rect.X = _rectOrig.X + (_rectStop.X - _rectStart.X);
@@ -251,7 +250,6 @@ namespace iSpyApplication.Controls
 
         private double CalcDist(int x, int y, Point p)
         {
-
             return Math.Sqrt(Math.Pow(x - p.X, 2) + Math.Pow(y - p.Y, 2));
         }
 
@@ -272,6 +270,7 @@ namespace iSpyApplication.Controls
             _configs = new List<Pipconfig>();
             BackgroundImageLayout = ImageLayout.Stretch;
         }
+
         public string Areas
         {
             get
@@ -289,11 +288,11 @@ namespace iSpyApplication.Controls
                     {
                         var t = s.Split(',');
                         if (t.Length != 5) continue;
-                        int cid,x, y, w, h;
+                        int cid, x, y, w, h;
                         if (int.TryParse(t[0], out cid) && int.TryParse(t[1], out x) && int.TryParse(t[2], out y) && int.TryParse(t[3], out w) &&
                             int.TryParse(t[4], out h))
                         {
-                            _configs.Add(new Pipconfig {CameraID = cid, Rect = new Rectangle(x, y, w, h)});
+                            _configs.Add(new Pipconfig { CameraID = cid, Rect = new Rectangle(x, y, w, h) });
                         }
                     }
                 }
@@ -304,14 +303,13 @@ namespace iSpyApplication.Controls
         {
             public int CameraID;
             public Rectangle Rect;
-
         }
 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            // lock           
+            // lock
             var g = pe.Graphics;
-            var c = Color.FromArgb(128, 255,255,255);
+            var c = Color.FromArgb(128, 255, 255, 255);
             var h = new SolidBrush(c);
             var p = new Pen(Color.DarkGray);
             try
@@ -324,7 +322,7 @@ namespace iSpyApplication.Controls
                 double hmulti = Convert.ToDouble(Height) / Convert.ToDouble(100);
                 if (!Enabled)
                 {
-                    var d = new SolidBrush(Color.FromArgb(160,255,255,255));
+                    var d = new SolidBrush(Color.FromArgb(160, 255, 255, 255));
                     g.FillRectangle(d, ClientRectangle);
                     d.Dispose();
                 }
@@ -354,17 +352,15 @@ namespace iSpyApplication.Controls
                         g.FillPolygon(h, ps);
                         g.DrawPolygon(p, ps);
 
-                    
                         var n = MainForm.Cameras.FirstOrDefault(q => q.id == CurrentCameraID);
                         if (n != null)
                             g.DrawString(n.name, MainForm.Drawfont, MainForm.OverlayBrush,
-                                Convert.ToInt32(_rectStart.X*wmulti) + 2,
-                                Convert.ToInt32(_rectStart.Y*hmulti) + 2);
-                    
+                                Convert.ToInt32(_rectStart.X * wmulti) + 2,
+                                Convert.ToInt32(_rectStart.Y * hmulti) + 2);
                     }
 
-                    if (_hoverPoint!=Point.Empty)
-                        g.FillEllipse(Brushes.DeepSkyBlue,Convert.ToInt32(_hoverPoint.X * wmulti)-5,Convert.ToInt32(_hoverPoint.Y*hmulti)-5,10,10);
+                    if (_hoverPoint != Point.Empty)
+                        g.FillEllipse(Brushes.DeepSkyBlue, Convert.ToInt32(_hoverPoint.X * wmulti) - 5, Convert.ToInt32(_hoverPoint.Y * hmulti) - 5, 10, 10);
                 }
             }
             catch
@@ -373,9 +369,10 @@ namespace iSpyApplication.Controls
             }
             p.Dispose();
             h.Dispose();
-            g.DrawRectangle(Pens.DarkGray,0,0,Width-1,Height-1);
+            g.DrawRectangle(Pens.DarkGray, 0, 0, Width - 1, Height - 1);
             base.OnPaint(pe);
         }
+
         public event EventHandler BoundsChanged;
 
         private void OnBoundsChanged()

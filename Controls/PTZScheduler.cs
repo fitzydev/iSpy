@@ -8,6 +8,7 @@ namespace iSpyApplication.Controls
     public partial class PTZScheduler : Form
     {
         internal CameraWindow CameraControl;
+
         public PTZScheduler()
         {
             InitializeComponent();
@@ -41,7 +42,7 @@ namespace iSpyApplication.Controls
                     var cmd = commandItem.ToString();
                     var tkn = commandItem.Value.ToString();
                     var time = dtpSchedulePTZ.Value;
-                    var s = new objectsCameraPtzscheduleEntry { command = cmd, token = tkn,  time = time };
+                    var s = new objectsCameraPtzscheduleEntry { command = cmd, token = tkn, time = time };
                     List<objectsCameraPtzscheduleEntry> scheds = CameraControl.Camobject.ptzschedule.entries.ToList();
                     scheds.Add(s);
                     CameraControl.Camobject.ptzschedule.entries = scheds.ToArray();
@@ -133,7 +134,6 @@ namespace iSpyApplication.Controls
                 {
                     ddlScheduleCommand.Items.Add(new MainForm.ListItem(cmd, cmd));
                 }
-
             }
 
             if (CameraControl.Camobject.ptz == -5)

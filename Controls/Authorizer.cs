@@ -7,6 +7,7 @@ namespace iSpyApplication.Controls
     {
         public string AuthCode = "";
         public string URL = "";
+
         public Authorizer()
         {
             InitializeComponent();

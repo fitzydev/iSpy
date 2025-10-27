@@ -30,7 +30,7 @@ namespace iSpyApplication.Controls
         private void GridViewCamera_Load(object sender, EventArgs e)
         {
             numDelay.Value = Delay;
-            foreach(var c in MainForm.Cameras)
+            foreach (var c in MainForm.Cameras)
             {
                 lbCameras.Items.Add(new GridViewItem(c.name, c.id, 2));
             }
@@ -41,12 +41,12 @@ namespace iSpyApplication.Controls
             foreach (var c in MainForm.FloorPlans)
             {
                 lbCameras.Items.Add(new GridViewItem(c.name, c.id, 3));
-            }        
+            }
 
-            for(int j=0;j<lbCameras.Items.Count;j++)
+            for (int j = 0; j < lbCameras.Items.Count; j++)
             {
                 var li = (GridViewItem)lbCameras.Items[j];
-                for(int i=0;i<SelectedIDs.Count;i++)
+                for (int i = 0; i < SelectedIDs.Count; i++)
                 {
                     if (SelectedIDs[i].ObjectID == li.ObjectID && SelectedIDs[i].TypeID == li.TypeID)
                     {
@@ -55,7 +55,7 @@ namespace iSpyApplication.Controls
                     }
                 }
             }
-        }       
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -71,9 +71,6 @@ namespace iSpyApplication.Controls
             LocRm.SetString(label2, "CycleDelay");
             LocRm.SetString(button1, "ClearAll");
             LocRm.SetString(btnOK, "OK");
-
         }
     }
-
-
 }

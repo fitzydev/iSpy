@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 
-
 namespace iSpyApplication.Controls
 {
     public partial class IntervalConfig : UserControl
@@ -29,7 +28,6 @@ namespace iSpyApplication.Controls
 
         private void IntervalConfig_Load(object sender, EventArgs e)
         {
-            
         }
 
         public void Init(CameraWindow cw)
@@ -67,15 +65,12 @@ namespace iSpyApplication.Controls
             {
                 if (ri > 0)
                 {
-                    t += gn+ " ("+ri+"s "+LocRm.GetString("Reset")+"), ";
+                    t += gn + " (" + ri + "s " + LocRm.GetString("Reset") + "), ";
                 }
             }
-            t += di + "s "+LocRm.GetString("Interval");
+            t += di + "s " + LocRm.GetString("Interval");
 
             lblInterval.Text = t;
-
         }
-
-
     }
 }

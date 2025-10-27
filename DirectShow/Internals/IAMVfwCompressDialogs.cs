@@ -22,7 +22,7 @@ namespace iSpyPRO.DirectShow.Internals
     /// <summary>
     /// The interface indicates that an object supports property pages.
     /// </summary>
-    /// 
+    ///
     [ComVisible(true), ComImport,
     Guid("D8D715A3-6E5E-11D0-B3F0-00AA003761C5"),
     InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -31,8 +31,8 @@ namespace iSpyPRO.DirectShow.Internals
         [PreserveSig]
         // Bring up a dialog for this codec
         int ShowDialog(
-            [In]  VfwCompressDialogs iDialog,
-            [In]  IntPtr hwnd);
+            [In] VfwCompressDialogs iDialog,
+            [In] IntPtr hwnd);
 
         // Calls ICGetState and gives you the result
         int GetState(

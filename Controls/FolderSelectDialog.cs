@@ -23,13 +23,13 @@ namespace iSpyApplication.Controls
         public FolderSelectDialog()
         {
             _ofd = new OpenFileDialog
-                      {
-                          Filter = "Folders|\n",
-                          AddExtension = false,
-                          CheckFileExists = false,
-                          DereferenceLinks = true,
-                          Multiselect = false
-                      };
+            {
+                Filter = "Folders|\n",
+                AddExtension = false,
+                CheckFileExists = false,
+                DereferenceLinks = true,
+                Multiselect = false
+            };
         }
 
         #region Properties
@@ -60,7 +60,7 @@ namespace iSpyApplication.Controls
             get { return _ofd.FileName; }
         }
 
-        #endregion
+        #endregion Properties
 
         #region Methods
 
@@ -91,17 +91,17 @@ namespace iSpyApplication.Controls
                 object dialog = r.Call(_ofd, "CreateVistaDialog");
                 r.Call(_ofd, "OnBeforeVistaDialog", dialog);
 
-                var options = (uint) r.CallAs(typeof (FileDialog), _ofd, "GetOptions");
-                options |= (uint) r.GetEnum("FileDialogNative.FOS", "FOS_PICKFOLDERS");
+                var options = (uint)r.CallAs(typeof(FileDialog), _ofd, "GetOptions");
+                options |= (uint)r.GetEnum("FileDialogNative.FOS", "FOS_PICKFOLDERS");
                 r.CallAs(typeIFileDialog, dialog, "SetOptions", options);
 
                 object pfde = r.New("FileDialog.VistaDialogEvents", _ofd);
-                var parameters = new[] {pfde, num};
+                var parameters = new[] { pfde, num };
                 r.CallAs2(typeIFileDialog, dialog, "Advise", parameters);
-                num = (uint) parameters[1];
+                num = (uint)parameters[1];
                 try
                 {
-                    var num2 = (int) r.CallAs(typeIFileDialog, dialog, "Show", hWndOwner);
+                    var num2 = (int)r.CallAs(typeIFileDialog, dialog, "Show", hWndOwner);
                     flag = 0 == num2;
                 }
                 finally
@@ -113,7 +113,7 @@ namespace iSpyApplication.Controls
             else
             {
                 var fbd = new FolderBrowserDialog
-                              {Description = Title, SelectedPath = InitialDirectory, ShowNewFolderButton = true};
+                { Description = Title, SelectedPath = InitialDirectory, ShowNewFolderButton = true };
                 if (fbd.ShowDialog(new WindowWrapper(hWndOwner)) != DialogResult.OK) return false;
                 _ofd.FileName = fbd.SelectedPath;
                 flag = true;
@@ -122,7 +122,7 @@ namespace iSpyApplication.Controls
             return flag;
         }
 
-        #endregion
+        #endregion Methods
     }
 
     /// <summary>
@@ -151,6 +151,6 @@ namespace iSpyApplication.Controls
             get { return _hwnd; }
         }
 
-        #endregion
+        #endregion IWin32Window Members
     }
 }

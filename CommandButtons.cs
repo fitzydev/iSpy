@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -15,11 +10,11 @@ namespace iSpyApplication
         public CommandButtons()
         {
             InitializeComponent();
-            
+
             Resize += CommandButtonsResize;
         }
 
-        void CommandButtonsResize(object sender, EventArgs e)
+        private void CommandButtonsResize(object sender, EventArgs e)
         {
             cb.Invalidate();
         }
@@ -71,6 +66,7 @@ namespace iSpyApplication
         }
 
         private Point p;
+
         private void cb_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -81,7 +77,6 @@ namespace iSpyApplication
 
         private void cb_MouseClick(object sender, MouseEventArgs e)
         {
-
         }
 
         private void repositionToolStripMenuItem_Click(object sender, EventArgs e)

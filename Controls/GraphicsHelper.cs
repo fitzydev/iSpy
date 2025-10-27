@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AForge.Imaging;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using AForge.Imaging;
 
 namespace iSpyApplication.Controls
 {
@@ -11,7 +11,6 @@ namespace iSpyApplication.Controls
 
         public static void GdiDrawImage(this Graphics graphics, UnmanagedImage image, int x, int y, int w, int h)
         {
-            
             IntPtr hdc = graphics.GetHdc();
             IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
             IntPtr bmp = image.ImageData;
@@ -21,7 +20,6 @@ namespace iSpyApplication.Controls
             GdiInterop.DeleteObject(bmp);
             GdiInterop.DeleteDC(memdc);
             graphics.ReleaseHdc(hdc);
-
         }
 
         public static void GdiDrawImage(this Graphics graphics, Bitmap image, Rectangle r)
@@ -45,7 +43,6 @@ namespace iSpyApplication.Controls
 
         public static void GdiDrawImage(this Graphics graphics, UnmanagedImage image, Rectangle r)
         {
-
             IntPtr hdc = graphics.GetHdc();
             IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
             IntPtr bmp = image.ImageData;
@@ -56,6 +53,7 @@ namespace iSpyApplication.Controls
             GdiInterop.DeleteDC(memdc);
             graphics.ReleaseHdc(hdc);
         }
+
         //public static void GdiDrawImage(this Graphics graphics, Bitmap image, Rectangle rectangleDst, int nXSrc, int nYSrc, int nWidth, int nHeight)
         //{
         //    IntPtr hdc = graphics.GetHdc();
@@ -98,7 +96,7 @@ namespace iSpyApplication.Controls
         };
 
         /// <summary>
-        /// Enumeration to be used for those Win32 function 
+        /// Enumeration to be used for those Win32 function
         /// that return BOOL
         /// </summary>
         public enum Bool

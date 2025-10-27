@@ -1,7 +1,7 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
@@ -65,14 +65,13 @@ namespace iSpyApplication
 
         private void button4_Click(object sender, EventArgs e)
         {
-            var fd = new FontDialog {ShowColor = false, Font = CustomFont.FontValue,Color = TimestampForeColor, ShowEffects = true};
+            var fd = new FontDialog { ShowColor = false, Font = CustomFont.FontValue, Color = TimestampForeColor, ShowEffects = true };
 
             if (fd.ShowDialog() != DialogResult.Cancel)
             {
                 CustomFont = new SerializableFont(fd.Font);
                 TimestampForeColor = fd.Color;
             }
-
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -87,12 +86,11 @@ namespace iSpyApplication
 
         private void button5_Click(object sender, EventArgs e)
         {
-
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            using (TagConfigure tc = new TagConfigure {TagsNV = TagsNV, Owner = this})
+            using (TagConfigure tc = new TagConfigure { TagsNV = TagsNV, Owner = this })
             {
                 if (tc.ShowDialog() == DialogResult.OK)
                 {

@@ -9,16 +9,16 @@
 namespace iSpyPRO.DirectShow.Internals
 {
     using System;
-    using System.Runtime.InteropServices;
     using System.Drawing;
+    using System.Runtime.InteropServices;
 
     // PIN_DIRECTION
 
     /// <summary>
     /// This enumeration indicates a pin's direction.
     /// </summary>
-    /// 
-    [ComVisible( false )]
+    ///
+    [ComVisible(false)]
     internal enum PinDirection
     {
         /// <summary>
@@ -37,9 +37,9 @@ namespace iSpyPRO.DirectShow.Internals
     /// <summary>
     /// The structure describes the format of a media sample.
     /// </summary>
-    /// 
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential )]
+    ///
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential)]
     internal class AMMediaType : IDisposable
     {
         /// <summary>
@@ -55,13 +55,13 @@ namespace iSpyPRO.DirectShow.Internals
         /// <summary>
         /// If <b>true</b>, samples are of a fixed size.
         /// </summary>
-        [MarshalAs( UnmanagedType.Bool )]
+        [MarshalAs(UnmanagedType.Bool)]
         public bool FixedSizeSamples = true;
 
         /// <summary>
         /// If <b>true</b>, samples are compressed using temporal (interframe) compression.
         /// </summary>
-        [MarshalAs( UnmanagedType.Bool )]
+        [MarshalAs(UnmanagedType.Bool)]
         public bool TemporalCompression;
 
         /// <summary>
@@ -92,54 +92,53 @@ namespace iSpyPRO.DirectShow.Internals
         /// <summary>
         /// Destroys the instance of the <see cref="AMMediaType"/> class.
         /// </summary>
-        /// 
-        ~AMMediaType( )
+        ///
+        ~AMMediaType()
         {
-            Dispose( false );
+            Dispose(false);
         }
 
         /// <summary>
         /// Dispose the object.
         /// </summary>
         ///
-        public void Dispose( )
+        public void Dispose()
         {
-            Dispose( true );
-            // remove me from the Finalization queue 
-            GC.SuppressFinalize( this );
+            Dispose(true);
+            // remove me from the Finalization queue
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Dispose the object
         /// </summary>
-        /// 
+        ///
         /// <param name="disposing">Indicates if disposing was initiated manually.</param>
-        /// 
-        protected virtual void Dispose( bool disposing )
+        ///
+        protected virtual void Dispose(bool disposing)
         {
-            if ( ( FormatSize != 0 ) && ( FormatPtr != IntPtr.Zero ) )
+            if ((FormatSize != 0) && (FormatPtr != IntPtr.Zero))
             {
-                Marshal.FreeCoTaskMem( FormatPtr );
+                Marshal.FreeCoTaskMem(FormatPtr);
                 FormatSize = 0;
             }
 
-            if ( unkPtr != IntPtr.Zero )
+            if (unkPtr != IntPtr.Zero)
             {
-                Marshal.Release( unkPtr );
+                Marshal.Release(unkPtr);
                 unkPtr = IntPtr.Zero;
             }
         }
     }
-
 
     // PIN_INFO
 
     /// <summary>
     /// The structure contains information about a pin.
     /// </summary>
-    /// 
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode )]
+    ///
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
     internal struct PinInfo
     {
         /// <summary>
@@ -155,19 +154,19 @@ namespace iSpyPRO.DirectShow.Internals
         /// <summary>
         /// Name of the pin.
         /// </summary>
-        [MarshalAs( UnmanagedType.ByValTStr, SizeConst = 128 )]
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
         public string Name;
     }
 
     // FILTER_INFO
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode )]
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
     internal struct FilterInfo
     {
         /// <summary>
         /// Filter's name.
         /// </summary>
-        [MarshalAs( UnmanagedType.ByValTStr, SizeConst = 128 )]
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
         public string Name;
 
         /// <summary>
@@ -181,9 +180,9 @@ namespace iSpyPRO.DirectShow.Internals
     /// <summary>
     /// The structure describes the bitmap and color information for a video image.
     /// </summary>
-    /// 
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential )]
+    ///
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential)]
     internal struct VideoInfoHeader
     {
         /// <summary>
@@ -222,9 +221,9 @@ namespace iSpyPRO.DirectShow.Internals
     /// <summary>
     /// The structure describes the bitmap and color information for a video image (v2).
     /// </summary>
-    /// 
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential )]
+    ///
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential)]
     internal struct VideoInfoHeader2
     {
         /// <summary>
@@ -278,7 +277,7 @@ namespace iSpyPRO.DirectShow.Internals
         public int Reserved1;
 
         /// <summary>
-        /// Reserved for future use. 
+        /// Reserved for future use.
         /// </summary>
         public int Reserved2;
 
@@ -291,9 +290,9 @@ namespace iSpyPRO.DirectShow.Internals
     /// <summary>
     /// The structure contains information about the dimensions and color format of a device-independent bitmap (DIB).
     /// </summary>
-    /// 
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential, Pack = 2 )]
+    ///
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential, Pack = 2)]
     internal struct BitmapInfoHeader
     {
         /// <summary>
@@ -357,9 +356,9 @@ namespace iSpyPRO.DirectShow.Internals
     /// <summary>
     /// The structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
     /// </summary>
-    /// 
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential )]
+    ///
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential)]
     internal struct RECT
     {
         /// <summary>
@@ -368,7 +367,7 @@ namespace iSpyPRO.DirectShow.Internals
         public int Left;
 
         /// <summary>
-        /// Specifies the y-coordinate of the upper-left corner of the rectangle. 
+        /// Specifies the y-coordinate of the upper-left corner of the rectangle.
         /// </summary>
         public int Top;
 
@@ -388,9 +387,9 @@ namespace iSpyPRO.DirectShow.Internals
     /// <summary>
     /// The CAUUID structure is a Counted Array of UUID or GUID types.
     /// </summary>
-    /// 
-    [ComVisible( false ),
-    StructLayout( LayoutKind.Sequential )]
+    ///
+    [ComVisible(false),
+    StructLayout(LayoutKind.Sequential)]
     internal struct CAUUID
     {
         /// <summary>
@@ -406,17 +405,17 @@ namespace iSpyPRO.DirectShow.Internals
         /// <summary>
         /// Performs manual marshaling of <b>pElems</b> to retrieve an array of Guid objects.
         /// </summary>
-        /// 
+        ///
         /// <returns>A managed representation of <b>pElems</b>.</returns>
-        /// 
-        public Guid[] ToGuidArray( )
+        ///
+        public Guid[] ToGuidArray()
         {
             Guid[] retval = new Guid[cElems];
 
-            for ( int i = 0; i < cElems; i++ )
+            for (int i = 0; i < cElems; i++)
             {
-                IntPtr ptr = new IntPtr( pElems.ToInt64( ) + i * Marshal.SizeOf( typeof( Guid ) ) );
-                retval[i] = (Guid) Marshal.PtrToStructure( ptr, typeof( Guid ) );
+                IntPtr ptr = new IntPtr(pElems.ToInt64() + i * Marshal.SizeOf(typeof(Guid)));
+                retval[i] = (Guid)Marshal.PtrToStructure(ptr, typeof(Guid));
             }
 
             return retval;
@@ -429,70 +428,70 @@ namespace iSpyPRO.DirectShow.Internals
     internal enum DsEvCode
     {
         None,
-        Complete   = 0x01,      // EC_COMPLETE
+        Complete = 0x01,      // EC_COMPLETE
         DeviceLost = 0x1F,      // EC_DEVICE_LOST
         //(...) not yet interested in other events
     }
 
-    [Flags, ComVisible( false )]
+    [Flags, ComVisible(false)]
     internal enum AnalogVideoStandard
     {
-        None        = 0x00000000,   // This is a digital sensor
-        NTSC_M      = 0x00000001,   //        75 IRE Setup
-        NTSC_M_J    = 0x00000002,   // Japan,  0 IRE Setup
-        NTSC_433    = 0x00000004,
-        PAL_B       = 0x00000010,
-        PAL_D       = 0x00000020,
-        PAL_G       = 0x00000040,
-        PAL_H       = 0x00000080,
-        PAL_I       = 0x00000100,
-        PAL_M       = 0x00000200,
-        PAL_N       = 0x00000400,
-        PAL_60      = 0x00000800,
-        SECAM_B     = 0x00001000,
-        SECAM_D     = 0x00002000,
-        SECAM_G     = 0x00004000,
-        SECAM_H     = 0x00008000,
-        SECAM_K     = 0x00010000,
-        SECAM_K1    = 0x00020000,
-        SECAM_L     = 0x00040000,
-        SECAM_L1    = 0x00080000,
+        None = 0x00000000,   // This is a digital sensor
+        NTSC_M = 0x00000001,   //        75 IRE Setup
+        NTSC_M_J = 0x00000002,   // Japan,  0 IRE Setup
+        NTSC_433 = 0x00000004,
+        PAL_B = 0x00000010,
+        PAL_D = 0x00000020,
+        PAL_G = 0x00000040,
+        PAL_H = 0x00000080,
+        PAL_I = 0x00000100,
+        PAL_M = 0x00000200,
+        PAL_N = 0x00000400,
+        PAL_60 = 0x00000800,
+        SECAM_B = 0x00001000,
+        SECAM_D = 0x00002000,
+        SECAM_G = 0x00004000,
+        SECAM_H = 0x00008000,
+        SECAM_K = 0x00010000,
+        SECAM_K1 = 0x00020000,
+        SECAM_L = 0x00040000,
+        SECAM_L1 = 0x00080000,
         PAL_N_COMBO = 0x00100000    // Argentina
     }
 
-    [Flags, ComVisible( false )]
+    [Flags, ComVisible(false)]
     internal enum VideoControlFlags
     {
-        FlipHorizontal        = 0x0001,
-        FlipVertical          = 0x0002,
+        FlipHorizontal = 0x0001,
+        FlipVertical = 0x0002,
         ExternalTriggerEnable = 0x0004,
-        Trigger               = 0x0008
+        Trigger = 0x0008
     }
 
-    [StructLayout( LayoutKind.Sequential ), ComVisible( false )]
+    [StructLayout(LayoutKind.Sequential), ComVisible(false)]
     internal class VideoStreamConfigCaps		// VIDEO_STREAM_CONFIG_CAPS
     {
-        public Guid                 Guid;
-        public AnalogVideoStandard  VideoStandard;
-        public Size                 InputSize;
-        public Size                 MinCroppingSize;
-        public Size                 MaxCroppingSize;
-        public int                  CropGranularityX;
-        public int                  CropGranularityY;
-        public int                  CropAlignX;
-        public int                  CropAlignY;
-        public Size                 MinOutputSize;
-        public Size                 MaxOutputSize;
-        public int                  OutputGranularityX;
-        public int                  OutputGranularityY;
-        public int                  StretchTapsX;
-        public int                  StretchTapsY;
-        public int                  ShrinkTapsX;
-        public int                  ShrinkTapsY;
-        public long                 MinFrameInterval;
-        public long                 MaxFrameInterval;
-        public int                  MinBitsPerSecond;
-        public int                  MaxBitsPerSecond;
+        public Guid Guid;
+        public AnalogVideoStandard VideoStandard;
+        public Size InputSize;
+        public Size MinCroppingSize;
+        public Size MaxCroppingSize;
+        public int CropGranularityX;
+        public int CropGranularityY;
+        public int CropAlignX;
+        public int CropAlignY;
+        public Size MinOutputSize;
+        public Size MaxOutputSize;
+        public int OutputGranularityX;
+        public int OutputGranularityY;
+        public int StretchTapsX;
+        public int StretchTapsY;
+        public int ShrinkTapsX;
+        public int ShrinkTapsY;
+        public long MinFrameInterval;
+        public long MaxFrameInterval;
+        public int MinBitsPerSecond;
+        public int MaxBitsPerSecond;
     }
 
     /// <summary>

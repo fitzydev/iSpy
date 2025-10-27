@@ -47,7 +47,7 @@
 //            {
 //                return "AlreadyUploaded";
 //            }
-            
+
 //            var us = new UserState(objectId, filename);
 //            UploadList.Add(us);
 
@@ -148,7 +148,7 @@
 
 //        private static void Upload(object state)
 //        {
-//            try { 
+//            try {
 //                if (UploadList.Count == 0)
 //                {
 //                    _uploading = false;
@@ -203,12 +203,10 @@
 //                            }
 //                    };
 
-            
 //                try
 //                {
 //                    using (var fileStream = new FileStream(us.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 //                    {
-
 //                        var videosInsertRequest = s.Videos.Insert(video, "snippet,status", fileStream, "video/*");
 //                        videosInsertRequest.ProgressChanged += VideosInsertRequestProgressChanged;
 //                        videosInsertRequest.ResponseReceived += VideosInsertRequestResponseReceived;
@@ -264,7 +262,6 @@
 //            private readonly int _objectid;
 //            public string Filename;
 
-
 //            internal UserState(int objectId, string filename)
 //            {
 //                _objectid = objectId;
@@ -280,11 +277,9 @@
 
 //            internal long CurrentPosition { get; set; }
 
-
 //            internal string Error { get; set; }
 
 //            internal int RetryCounter { get; set; }
-
 
 //            internal string HttpVerb { get; set; }
 

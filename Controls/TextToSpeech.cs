@@ -1,8 +1,8 @@
-﻿using System;
+﻿using iSpyApplication.Sources.Audio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Sources.Audio;
 
 namespace iSpyApplication.Controls
 {

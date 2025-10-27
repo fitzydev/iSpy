@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Collections;
 
 namespace iSpyApplication
 {
-    class C2BpProcessor
+    internal class C2BpProcessor
     {
         // First position rectangles more than half as wide as the bin.
         // Then position the remaining rectangles in two columns.
@@ -217,7 +217,7 @@ namespace iSpyApplication
         //       xmin, xmax, etc.    - Bounds of the rectangle we are trying to fill.
         //       num_unpositioned    - The number of rectangles not yet positioned in this solution.
         //                             Used to control the recursion.
-        //       rects()             - All rectangles for the problem, some positioned and others not. 
+        //       rects()             - All rectangles for the problem, some positioned and others not.
         //                             Initially this is the partial solution we are working from.
         //                             At end, this is the best solution we could find.
         //       is_positioned()     - Indicates which rectangles are positioned in this solution.
@@ -317,7 +317,7 @@ namespace iSpyApplication
         //       xmin, xmax, etc.    - Bounds of the rectangle we are trying to fill.
         //       num_unpositioned    - The number of rectangles not yet positioned in this solution.
         //                             Used to control the recursion.
-        //       rects()             - All rectangles for the problem, some positioned and others not. 
+        //       rects()             - All rectangles for the problem, some positioned and others not.
         //                             Initially this is the partial solution we are working from.
         //                             At end, this is the best solution we could find.
         //       is_positioned()     - Indicates which rectangles are positioned in this solution.
@@ -429,7 +429,6 @@ namespace iSpyApplication
                 if (isPositioned[i] && (maxY < rects[i].Bottom)) maxY = rects[i].Bottom;
             return maxY;
         }
-
 
         // Find the density of the rectangles in the given areas for this solution.
         private double SolutionDensity(

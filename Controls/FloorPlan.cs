@@ -1,3 +1,5 @@
+using AForge.Imaging.Filters;
+using iSpyApplication.Utilities;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -5,8 +7,6 @@ using System.Drawing.Text;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using AForge.Imaging.Filters;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Controls
 {
@@ -59,28 +59,24 @@ namespace iSpyApplication.Controls
                 {
                     w = ButtonCount * 31 + 3;
                     h = 34;
-
                 }
                 return new Rectangle(Width / 2 - w / 2, Height - 25 - h, w, h);
-
             }
         }
 
         public void Alert(object sender, EventArgs e)
         {
-
         }
+
         public void Detect(object sender, EventArgs e)
         {
-
         }
+
         public Bitmap ImgPlan
         {
-            
             get
             {
                 return _imgplan;
-
             }
             set
             {
@@ -89,7 +85,7 @@ namespace iSpyApplication.Controls
                     _imgview?.Dispose();
                     _imgplan?.Dispose();
                     _imgplan = value;
-                    if (_imgplan!=null)
+                    if (_imgplan != null)
                         _imgview = (Bitmap)_imgplan.Clone();
                 }
             }
@@ -97,7 +93,6 @@ namespace iSpyApplication.Controls
 
         public void ReloadSchedule()
         {
-
         }
 
         public int Order
@@ -110,10 +105,11 @@ namespace iSpyApplication.Controls
 
         public bool NeedsRefresh = true, RefreshImage = true;
 
+        #endregion Public
 
-        #endregion
         private DateTime _mouseMove = DateTime.MinValue;
         private Bitmap _imgplan, _imgview;
+
         #region SizingControls
 
         public void UpdatePosition()
@@ -168,13 +164,12 @@ namespace iSpyApplication.Controls
             _drawBrush.Dispose();
             _sbTs.Dispose();
             _drawFont.Dispose();
-            
+
             base.Dispose(disposing);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-
             base.OnMouseUp(e);
 
             switch (e.Button)
@@ -183,7 +178,6 @@ namespace iSpyApplication.Controls
                     ((LayoutPanel)Parent).ISpyControlUp(new Point(this.Left + e.X, this.Top + e.Y));
                     break;
             }
-
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -195,11 +189,11 @@ namespace iSpyApplication.Controls
             {
                 hwnd = Parent.Handle;
             }
-            
+
             if (e.Button == MouseButtons.Left)
             {
                 MousePos mousePos = GetMousePos(e.Location);
-                if (mousePos== MousePos.NoWhere)
+                if (mousePos == MousePos.NoWhere)
                 {
                     if (MainForm.Conf.ShowOverlayControls)
                     {
@@ -210,9 +204,11 @@ namespace iSpyApplication.Controls
                                 var layoutPanel = (LayoutPanel)Parent;
                                 layoutPanel?.ISpyControlDown(new Point(this.Left + e.X, this.Top + e.Y));
                                 break;
+
                             case 0:
-                               MainClass.EditFloorplan(Fpobject);
+                                MainClass.EditFloorplan(Fpobject);
                                 break;
+
                             case 1:
                                 if (Helper.HasFeature(Enums.Features.Access_Media))
                                 {
@@ -237,12 +233,14 @@ namespace iSpyApplication.Controls
                             NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeE, IntPtr.Zero);
                         }
                         break;
+
                     case MousePos.Bottom:
                         {
                             NativeCalls.ReleaseCapture(hwnd);
                             NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeS, IntPtr.Zero);
                         }
                         break;
+
                     case MousePos.BottomRight:
                         {
                             NativeCalls.ReleaseCapture(hwnd);
@@ -265,12 +263,15 @@ namespace iSpyApplication.Controls
                 case MousePos.Right:
                     Cursor = Cursors.SizeWE;
                     break;
+
                 case MousePos.Bottom:
                     Cursor = Cursors.SizeNS;
                     break;
+
                 case MousePos.BottomRight:
                     Cursor = Cursors.SizeNWSE;
                     break;
+
                 default:
                     Cursor = Cursors.Hand;
 
@@ -284,9 +285,10 @@ namespace iSpyApplication.Controls
                             switch (bpi)
                             {
                                 case 0:
-                                    _toolTipFp.Show(LocRm.GetString("Edit"), this,toolTipLocation, 1000);
+                                    _toolTipFp.Show(LocRm.GetString("Edit"), this, toolTipLocation, 1000);
                                     _ttind = 0;
                                     break;
+
                                 case 1:
                                     if (Helper.HasFeature(Enums.Features.Access_Media))
                                     {
@@ -306,17 +308,16 @@ namespace iSpyApplication.Controls
         {
             if ((ModifierKeys & Keys.Shift) == Keys.Shift)
             {
-                double ar = Convert.ToDouble(MinimumSize.Width)/Convert.ToDouble(MinimumSize.Height);
+                double ar = Convert.ToDouble(MinimumSize.Width) / Convert.ToDouble(MinimumSize.Height);
                 if (ImgPlan != null)
-                    ar = Convert.ToDouble(ImgPlan.Width)/Convert.ToDouble(ImgPlan.Height);
-                Width = Convert.ToInt32(ar*Height);
+                    ar = Convert.ToDouble(ImgPlan.Width) / Convert.ToDouble(ImgPlan.Height);
+                Width = Convert.ToInt32(ar * Height);
             }
 
             base.OnResize(eventargs);
             if (Width < MinimumSize.Width) Width = MinimumSize.Width;
             if (Height < MinimumSize.Height) Height = MinimumSize.Height;
             _minimised = Size.Equals(MinimumSize);
-
         }
 
         private bool _minimised;
@@ -346,12 +347,12 @@ namespace iSpyApplication.Controls
             BottomRight
         }
 
-        #endregion
+        #endregion Nested type: MousePos
 
-        
-        #endregion
+        #endregion SizingControls
 
         public string Folder { get; set; }
+
         public FloorPlanControl(objectsFloorplan ofp, MainForm mainForm)
         {
             MainClass = mainForm;
@@ -373,14 +374,13 @@ namespace iSpyApplication.Controls
         private void FloorPlanControlClick(object sender, MouseEventArgs e)
         {
             var local = new Point(e.X, e.Y);
-            double xRat = Convert.ToDouble(Width)/ImageWidth;
-            double yRat = Convert.ToDouble(Height)/ImageHeight;
-            double hittargetw = 22*xRat;
-            double hittargeth = 22*yRat;
+            double xRat = Convert.ToDouble(Width) / ImageWidth;
+            double yRat = Convert.ToDouble(Height) / ImageHeight;
+            double hittargetw = 22 * xRat;
+            double hittargeth = 22 * yRat;
 
             double wrat = Convert.ToDouble(ImageWidth) / 533d;
             double hrat = Convert.ToDouble(ImageHeight) / 400d;
-
 
             bool changeHighlight = true;
 
@@ -388,8 +388,8 @@ namespace iSpyApplication.Controls
             {
                 foreach (objectsFloorplanObjectsEntry fpoe in Fpobject.objects.@object)
                 {
-                    if (((fpoe.x*wrat) - hittargetw)*xRat <= local.X && ((fpoe.x*wrat) + hittargetw)*xRat > local.X &&
-                        ((fpoe.y*hrat) - hittargeth)*yRat <= local.Y && ((fpoe.y*hrat) + hittargeth)*yRat > local.Y)
+                    if (((fpoe.x * wrat) - hittargetw) * xRat <= local.X && ((fpoe.x * wrat) + hittargetw) * xRat > local.X &&
+                        ((fpoe.y * hrat) - hittargeth) * yRat <= local.Y && ((fpoe.y * hrat) + hittargeth) * yRat > local.Y)
                     {
                         switch (fpoe.type)
                         {
@@ -404,6 +404,7 @@ namespace iSpyApplication.Controls
 
                                 changeHighlight = false;
                                 break;
+
                             case "microphone":
                                 VolumeLevel vl = MainClass.GetVolumeLevel(fpoe.id);
                                 if (vl != null)
@@ -417,7 +418,7 @@ namespace iSpyApplication.Controls
                                 break;
                         }
                         break;
-                    }                   
+                    }
                 }
             }
 
@@ -436,12 +437,13 @@ namespace iSpyApplication.Controls
                     {
                         case "camera":
                             CameraWindow cw = MainClass.GetCameraWindow(fpoe.id);
-                            if (cw!=null)
+                            if (cw != null)
                                 cw.Highlighted = true;
                             break;
+
                         case "microphone":
                             VolumeLevel vl = MainClass.GetVolumeLevel(fpoe.id);
-                            if (vl!=null)
+                            if (vl != null)
                                 vl.Highlighted = true;
 
                             break;
@@ -488,7 +490,6 @@ namespace iSpyApplication.Controls
                     return MainForm.BorderHighlightColor;
 
                 return MainForm.BorderDefaultColor;
-
             }
         }
 
@@ -498,18 +499,11 @@ namespace iSpyApplication.Controls
         {
             Graphics gPlan = pe.Graphics;
             Rectangle rc = ClientRectangle;
-           
+
             int textpos = rc.Height - 20;
 
-           
-            
-            
-            
             try
             {
-                
-
-
                 if (_imgview != null)
                 {
                     if (!_minimised)
@@ -545,7 +539,6 @@ namespace iSpyApplication.Controls
                                             new Point(rc.Width, rc.Height)
                                         };
                     gPlan.FillPolygon(grabBrush, borderPoints);
-                    
                 }
             }
 
@@ -577,6 +570,7 @@ namespace iSpyApplication.Controls
                 case 0://edit
                     rSrc = MainForm.REdit;
                     break;
+
                 case 1://web
                     rSrc = Helper.HasFeature(Enums.Features.Access_Media) ? MainForm.RWeb : MainForm.RWebOff;
                     break;
@@ -593,7 +587,6 @@ namespace iSpyApplication.Controls
             return rSrc;
         }
 
-
         private void DrawButton(Graphics gCam, int buttonIndex)
         {
             Rectangle rDest;
@@ -609,7 +602,6 @@ namespace iSpyApplication.Controls
             for (int i = 0; i < ButtonCount; i++)
                 DrawButton(gCam, i);
         }
-
 
         public int ImageWidth
         {
@@ -645,7 +637,7 @@ namespace iSpyApplication.Controls
                 {
                     if (RefreshImage || (_imgplan == null && !string.IsNullOrEmpty(Fpobject.image)))
                     {
-                        if (_imgplan!=null)
+                        if (_imgplan != null)
                         {
                             try
                             {
@@ -669,10 +661,10 @@ namespace iSpyApplication.Controls
                             }
                             _imgview = null;
                         }
-                        Bitmap img=null;
+                        Bitmap img = null;
                         try
                         {
-                            img = (Bitmap) Image.FromFile(Fpobject.image);
+                            img = (Bitmap)Image.FromFile(Fpobject.image);
                         }
                         catch
                         {
@@ -684,12 +676,12 @@ namespace iSpyApplication.Controls
                             {
                                 var rf = new ResizeBilinear(533, 400);
                                 _imgplan = rf.Apply(img);
-                                _imgview = (Bitmap) _imgplan.Clone();
+                                _imgview = (Bitmap)_imgplan.Clone();
                             }
                             else
                             {
                                 _imgplan = img;
-                                _imgview = (Bitmap) _imgplan.Clone();
+                                _imgview = (Bitmap)_imgplan.Clone();
                             }
                         }
                         RefreshImage = false;
@@ -697,11 +689,8 @@ namespace iSpyApplication.Controls
                     if (_imgplan == null)
                         return;
 
-                    
-                    
-
                     Graphics gLf = Graphics.FromImage(_imgview);
-                    gLf.DrawImage(_imgplan, 0, 0,_imgplan.Width,_imgplan.Height);
+                    gLf.DrawImage(_imgplan, 0, 0, _imgplan.Width, _imgplan.Height);
 
                     bool itemRemoved = false;
                     double wrat = Convert.ToDouble(ImageWidth) / 533d;
@@ -712,8 +701,8 @@ namespace iSpyApplication.Controls
                         var p = new Point(fpoe.x, fpoe.y);
                         if (Fpobject.originalsize)
                         {
-                            p.X = Convert.ToInt32(p.X*wrat);
-                            p.Y = Convert.ToInt32(p.Y*hrat);
+                            p.X = Convert.ToInt32(p.X * wrat);
+                            p.Y = Convert.ToInt32(p.Y * hrat);
                         }
                         if (fpoe.fov == 0)
                             fpoe.fov = 135;
@@ -756,7 +745,6 @@ namespace iSpyApplication.Controls
                                         {
                                             gLf.FillPolygon(_offlineBrush, points);
                                         }
-
                                     }
                                     else
                                     {
@@ -765,6 +753,7 @@ namespace iSpyApplication.Controls
                                     }
                                 }
                                 break;
+
                             case "microphone":
                                 {
                                     var vw = MainClass.GetVolumeLevel(fpoe.id);
@@ -799,7 +788,6 @@ namespace iSpyApplication.Controls
 
                     if (itemRemoved)
                         Fpobject.objects.@object = Fpobject.objects.@object.Where(fpoe => fpoe.id > -2).ToArray();
-                    
 
                     gLf.Dispose();
                 }
@@ -819,6 +807,7 @@ namespace iSpyApplication.Controls
         public class ThreadSafeCommand : EventArgs
         {
             public string Command;
+
             // Constructor
             public ThreadSafeCommand(string command)
             {
@@ -826,7 +815,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        #endregion
+        #endregion Nested type: ThreadSafeCommand
 
         public bool IsEnabled => true;
         public bool Talking => false;

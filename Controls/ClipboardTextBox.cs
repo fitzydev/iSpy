@@ -14,8 +14,10 @@ namespace iSpyApplication.Controls
 
         [Category("Clipboard")]
         public event ClipboardEventHandler CutText;
+
         [Category("Clipboard")]
         public event ClipboardEventHandler CopiedText;
+
         [Category("Clipboard")]
         public event ClipboardEventHandler PastedText;
 

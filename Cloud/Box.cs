@@ -1,4 +1,6 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -6,8 +8,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using iSpyApplication.Utilities;
-using Newtonsoft.Json;
 
 namespace iSpyApplication.Cloud
 {
@@ -18,7 +18,7 @@ namespace iSpyApplication.Cloud
 
         private static volatile bool _uploading;
 
-        private static string _accessToken="";
+        private static string _accessToken = "";
 
         private static List<UploadEntry> UploadList { get; set; } = new List<UploadEntry>();
 
@@ -74,7 +74,7 @@ namespace iSpyApplication.Cloud
                 }
                 return "";
             }
-        }       
+        }
 
         private class UploadEntry
         {
@@ -99,8 +99,7 @@ namespace iSpyApplication.Cloud
             if (UploadList.Count >= CloudGateway.MaxUploadQueue)
                 return "UploadQueueFull";
 
-
-			UploadList.Add(new UploadEntry { DestinationPath = "iSpy" +"\\"+ path.Replace("/", "\\").Trim(Path.DirectorySeparatorChar), SourceFilename = filename });
+            UploadList.Add(new UploadEntry { DestinationPath = "iSpy" + "\\" + path.Replace("/", "\\").Trim(Path.DirectorySeparatorChar), SourceFilename = filename });
             if (!_uploading)
             {
                 _uploading = true;
@@ -108,7 +107,6 @@ namespace iSpyApplication.Cloud
             }
             success = true;
             return "AddedToQueue";
-
         }
 
         public static bool Authorised
@@ -143,7 +141,7 @@ namespace iSpyApplication.Cloud
 
                 var response = (HttpWebResponse)request.GetResponse();
                 Stream s = response.GetResponseStream();
-                if (s==null)
+                if (s == null)
                     throw new Exception("null response stream");
                 var responseString = new StreamReader(s).ReadToEnd();
 
@@ -191,28 +189,27 @@ namespace iSpyApplication.Cloud
                 return;
             }
 
-
             try
             {
                 var fi = new FileInfo(entry.SourceFilename);
                 NameValueCollection values = new NameValueCollection();
                 NameValueCollection files = new NameValueCollection();
                 string fid = GetOrCreateFolder(entry.DestinationPath);
-                values.Add("attributes", "{\"name\":\"" + fi.Name + "\", \"parent\":{\"id\":\""+fid+"\"}}");
+                values.Add("attributes", "{\"name\":\"" + fi.Name + "\", \"parent\":{\"id\":\"" + fid + "\"}}");
                 files.Add("file", fi.FullName);
                 var responseString = SendHttpRequest("https://upload.box.com/api/2.0/files/content", values, files);
 
                 dynamic d = JsonConvert.DeserializeObject(responseString);
-                Logger.LogMessage("File uploaded to box: "+d.entries[0].id);
+                Logger.LogMessage("File uploaded to box: " + d.entries[0].id);
             }
             catch (Exception ex)
             {
                 Logger.LogException(ex, "Box");
             }
 
-            Upload(null);            
-
+            Upload(null);
         }
+
         private class LookupPair
         {
             public string ID;
@@ -224,6 +221,7 @@ namespace iSpyApplication.Cloud
                 this.ID = ID;
             }
         }
+
         private static readonly List<LookupPair> Lookups = new List<LookupPair>();
 
         private static string GetOrCreateFolder(string path)
@@ -237,7 +235,7 @@ namespace iSpyApplication.Cloud
             var partialPath = "";
             foreach (var f in l)
             {
-                partialPath+=f + Path.DirectorySeparatorChar;
+                partialPath += f + Path.DirectorySeparatorChar;
 
                 c = Lookups.FirstOrDefault(p => p.Path == partialPath);
                 if (c == null)
@@ -251,7 +249,7 @@ namespace iSpyApplication.Cloud
                             if (d.name == f)
                             {
                                 id = d.id;
-                                Lookups.Add(new LookupPair(partialPath,id));
+                                Lookups.Add(new LookupPair(partialPath, id));
                                 found = true;
                                 break;
                             }
@@ -270,14 +268,13 @@ namespace iSpyApplication.Cloud
                 }
             }
             return id;
-            
         }
 
         private static dynamic POSTData(string path, string postData)
         {
             var request =
                     (HttpWebRequest)
-                        WebRequest.Create("https://api.box.com/2.0/"+path);
+                        WebRequest.Create("https://api.box.com/2.0/" + path);
 
             request.Headers.Add("Authorization", "Bearer " + AccessToken);
             var dp = Encoding.ASCII.GetBytes(postData);
@@ -299,11 +296,12 @@ namespace iSpyApplication.Cloud
 
             return JsonConvert.DeserializeObject(responseString);
         }
+
         private static dynamic GetData(string path)
         {
             var request =
                 (HttpWebRequest)
-                    WebRequest.Create("https://api.box.com/2.0/"+path);
+                    WebRequest.Create("https://api.box.com/2.0/" + path);
 
             request.Headers.Add("Authorization", "Bearer " + AccessToken);
             request.Method = "GET";
@@ -378,7 +376,8 @@ namespace iSpyApplication.Cloud
             using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream()))
             {
                 return reader.ReadToEnd();
-            };
+            }
+            ;
         }
     }
 }

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+﻿using iSpyApplication.Controls;
+using System;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
@@ -27,7 +22,6 @@ namespace iSpyApplication
             radioButton2.Text = LocRm.GetString("Current");
             radioButton3.Text = LocRm.GetString("New");
             Text = LocRm.GetString("Addmicrophone");
-
         }
 
         private void CameraMicSource_Load(object sender, EventArgs e)
@@ -61,8 +55,6 @@ namespace iSpyApplication
             _loaded = true;
         }
 
-
-
         #region Nested type: ListItem
 
         private struct ListItem
@@ -82,12 +74,12 @@ namespace iSpyApplication
             }
         }
 
-        #endregion
+        #endregion Nested type: ListItem
 
         private void button1_Click(object sender, EventArgs e)
         {
             VolumeLevel vl = CameraControl.VolumeControl;
-            
+
             if (radioButton1.Checked)
             {
                 CameraControl.Camobject.settings.micpair = -1;
@@ -101,17 +93,17 @@ namespace iSpyApplication
             if (radioButton3.Checked)
             {
                 int micid = ((MainForm)this.Owner.Owner).AddMicrophone(0);
-                if (micid!=-1)
+                if (micid != -1)
                 {
                     CameraControl.Camobject.settings.micpair = micid;
                     LayoutPanel.NeedsRedraw = true;
                 }
             }
-            if (vl!=null && vl!=CameraControl.VolumeControl)
+            if (vl != null && vl != CameraControl.VolumeControl)
             {
                 vl.IsEdit = false;
             }
-            if (CameraControl.VolumeControl!=null)
+            if (CameraControl.VolumeControl != null)
                 CameraControl.VolumeControl.IsEdit = true;
             Close();
             return;
@@ -120,7 +112,7 @@ namespace iSpyApplication
         private void ddlMic_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_loaded && ddlMic.SelectedIndex > -1)
-                    radioButton2.Checked = true;
+                radioButton2.Checked = true;
         }
     }
 }

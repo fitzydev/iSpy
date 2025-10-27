@@ -23,7 +23,7 @@ namespace iSpyApplication
 
         private void ForSecondsLoad(object sender, EventArgs e)
         {
-            try {txtSeconds.Value = Convert.ToDecimal(Seconds);} catch{}
+            try { txtSeconds.Value = Convert.ToDecimal(Seconds); } catch { }
         }
 
         private void Button1Click(object sender, EventArgs e)

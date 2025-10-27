@@ -38,6 +38,4 @@ namespace iSpyApplication
 
         public delegate void SimpleDelegate();
     }
-
-    
 }

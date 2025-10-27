@@ -4,7 +4,7 @@
 // Copyright © Andrew Kirillov, 2010
 // andrew.kirillov@gmail.com
 //
-// Written by Jeremy Noring 
+// Written by Jeremy Noring
 // kidjan@gmail.com
 
 namespace iSpyPRO.DirectShow.Internals
@@ -13,7 +13,7 @@ namespace iSpyPRO.DirectShow.Internals
     using System.Runtime.InteropServices;
 
     /// <summary>
-    /// Provides the CLSID of an object that can be stored persistently in the system. Allows the object to specify which object 
+    /// Provides the CLSID of an object that can be stored persistently in the system. Allows the object to specify which object
     /// handler to use in the client process, as it is used in the default implementation of marshaling.
     /// </summary>
     [ComImport,

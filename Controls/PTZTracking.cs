@@ -18,13 +18,13 @@ namespace iSpyApplication.Controls
         {
             rdoAny.Text = LocRm.GetString("AnyDirection");
             rdoVert.Text = LocRm.GetString("VertOnly");
-            rdoHor.Text = LocRm.GetString("HorOnly"); 
-            label5.Text = LocRm.GetString("homedelay"); 
+            rdoHor.Text = LocRm.GetString("HorOnly");
+            label5.Text = LocRm.GetString("homedelay");
             chkAutoHome.Text = LocRm.GetString("AutoHome");
             label87.Text = LocRm.GetString("TimeToHome");
-            chkTrack.Text = LocRm.GetString("TrackObjects"); 
+            chkTrack.Text = LocRm.GetString("TrackObjects");
             label59.Text = LocRm.GetString("Command");
-            Text = LocRm.GetString("TrackObjects"); 
+            Text = LocRm.GetString("TrackObjects");
         }
 
         private void PTZTracking_Load(object sender, EventArgs e)
@@ -69,7 +69,6 @@ namespace iSpyApplication.Controls
                         ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
                     }
                 }
-
             }
 
             if (CameraControl.Camobject.ptz == -5)
@@ -82,7 +81,7 @@ namespace iSpyApplication.Controls
                     {
                         ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
                     }
-                }        
+                }
             }
 
             if (ddlHomeCommand.SelectedIndex == -1 && ddlHomeCommand.Items.Count > 0)
@@ -95,7 +94,6 @@ namespace iSpyApplication.Controls
         private void chkTrack_CheckedChanged(object sender, EventArgs e)
         {
             pnlTrack.Enabled = chkTrack.Checked;
-            
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -122,7 +120,6 @@ namespace iSpyApplication.Controls
             {
                 CameraControl.Camobject.settings.ptzautotrack = true;
                 CameraControl.Camobject.detector.highlight = false;
-
             }
             CameraControl.Camobject.settings.ptzautotrackreverse = chkReverseTracking.Checked;
 
@@ -131,7 +128,6 @@ namespace iSpyApplication.Controls
 
         private void ddlHomeCommand_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
         }
 
         private void chkAutoHome_CheckedChanged(object sender, EventArgs e)

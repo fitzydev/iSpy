@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -9,6 +7,7 @@ namespace iSpyApplication.Controls
     public sealed class WinFormsAppIdleHandler
     {
         private readonly object _completedEventLock = new object();
+
         private event EventHandler AppLoopDoWork;
 
         public WinFormsAppIdleHandler()
@@ -18,7 +17,6 @@ namespace iSpyApplication.Controls
 
         private static readonly Lazy<WinFormsAppIdleHandler> Lazy = new Lazy<WinFormsAppIdleHandler>(() => new WinFormsAppIdleHandler());
         public static WinFormsAppIdleHandler Instance => Lazy.Value;
-
 
         private bool Enabled
         {
@@ -35,7 +33,6 @@ namespace iSpyApplication.Controls
         }
 
         private int _refCount = 0;
-
 
         public event EventHandler ApplicationLoopDoWork
         {
@@ -65,7 +62,6 @@ namespace iSpyApplication.Controls
         {
             AppLoopDoWork?.Invoke(this, e);
         }
-        
 
         public static bool IsAppIdle()
         {
@@ -77,15 +73,16 @@ namespace iSpyApplication.Controls
             }
             catch
             {
-
             }
             return isIdle;
         }
 
-        #region  Unmanaged Get PeekMessage
+        #region Unmanaged Get PeekMessage
+
         [System.Security.SuppressUnmanagedCodeSecurity]
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern bool PeekMessage(out Message msg, IntPtr hWnd, uint messageFilterMin, uint messageFilterMax, uint flags);
-        #endregion
+
+        #endregion Unmanaged Get PeekMessage
     }
 }

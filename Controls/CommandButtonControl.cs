@@ -24,7 +24,7 @@ namespace iSpyApplication.Controls
             _tmrRefresh.Start();
         }
 
-        void TmrRefreshTick(object sender, EventArgs e)
+        private void TmrRefreshTick(object sender, EventArgs e)
         {
             if (_flashButton != null)
             {
@@ -33,12 +33,12 @@ namespace iSpyApplication.Controls
                     _flashButton = null;
                     Invalidate();
                 }
-
             }
         }
+
         public objectsCommand CurButton = null;
 
-        void CommandButtonsMouseMove(object sender, MouseEventArgs e)
+        private void CommandButtonsMouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left)
             {
@@ -66,31 +66,27 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                if (_resizing!=null)
+                if (_resizing != null)
                 {
                     var loc = _resizing.location.Split(',');
                     var x = Convert.ToInt32(loc[0]);
                     var y = Convert.ToInt32(loc[1]);
-                    _resizing.size = Math.Max(Math.Min(e.Location.X,Width) - x,10) + "x" + Math.Max((Math.Min(e.Location.Y,Height) - y),10);
+                    _resizing.size = Math.Max(Math.Min(e.Location.X, Width) - x, 10) + "x" + Math.Max((Math.Min(e.Location.Y, Height) - y), 10);
                     Constrain(_resizing);
                 }
                 else
                 {
-                    if (_editing!=null)
+                    if (_editing != null)
                     {
                         var nx = (e.Location.X - _dx);
                         var ny = (e.Location.Y - _dy);
                         _editing.location = nx + "," + ny;
                         Constrain(_editing);
-                        
-                        
                     }
                 }
-                   
-                Invalidate();
 
+                Invalidate();
             }
-   
         }
 
         private void Constrain(objectsCommand cmd)
@@ -109,14 +105,12 @@ namespace iSpyApplication.Controls
             nx = Math.Min(nx, Width - w);
             ny = Math.Min(ny, Height - h);
 
-
             //snap w/h to nearest grid
 
-            w = Convert.ToInt32(((int)Math.Round(w/SnapGrid)) * SnapGrid);
+            w = Convert.ToInt32(((int)Math.Round(w / SnapGrid)) * SnapGrid);
             h = Convert.ToInt32(((int)Math.Round(h / SnapGrid)) * SnapGrid);
             nx = Convert.ToInt32(((int)Math.Round(nx / SnapGrid)) * SnapGrid);
             ny = Convert.ToInt32(((int)Math.Round(ny / SnapGrid)) * SnapGrid);
-            
 
             cmd.location = nx + "," + ny;
             cmd.size = w + "x" + h;
@@ -124,7 +118,7 @@ namespace iSpyApplication.Controls
 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            // lock           
+            // lock
             var g = pe.Graphics;
             var bText = new SolidBrush(Color.DarkGray);
             int nb = 0;
@@ -135,7 +129,7 @@ namespace iSpyApplication.Controls
                     if (btn.inwindow)
                     {
                         nb++;
-                        if (btn!=CurButton)
+                        if (btn != CurButton)
                             DrawButton(btn, g);
                     }
                 }
@@ -148,10 +142,10 @@ namespace iSpyApplication.Controls
                 if (nb == 0)
                 {
                     const string txt = "Right click to add buttons";
-                    var f = new Font(FontFamily.GenericSansSerif,12);
+                    var f = new Font(FontFamily.GenericSansSerif, 12);
                     var ts = g.MeasureString(txt, f);
-                    var fx = Convert.ToInt32(Width/2d - ts.Width/2);
-                    var fy = Convert.ToInt32(Height/2d - ts.Height/2);
+                    var fx = Convert.ToInt32(Width / 2d - ts.Width / 2);
+                    var fy = Convert.ToInt32(Height / 2d - ts.Height / 2);
                     g.DrawString(txt, f, bText, fx, fy);
                 }
             }
@@ -186,8 +180,8 @@ namespace iSpyApplication.Controls
             if (n.StartsWith("cmd_"))
                 n = LocRm.GetString(n);
             var ts = g.MeasureString(n, f);
-            var fx = Convert.ToInt32(w/2d - ts.Width/2);
-            var fy = Convert.ToInt32(h/2d - ts.Height/2);
+            var fx = Convert.ToInt32(w / 2d - ts.Width / 2);
+            var fy = Convert.ToInt32(h / 2d - ts.Height / 2);
 
             using (var b = new SolidBrush(btn.color.ToColor()))
             {
@@ -210,7 +204,6 @@ namespace iSpyApplication.Controls
 
         private objectsCommand _cmdDown;
 
-
         private void CommandButtonsMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -229,7 +222,7 @@ namespace iSpyApplication.Controls
                         _resizing = _editing;
                         return;
                     }
-                    _resizing = null;                    
+                    _resizing = null;
                 }
 
                 if (CurButton != _editing)
@@ -241,18 +234,16 @@ namespace iSpyApplication.Controls
                 }
                 else
                 {
-                    if (_editing!=null && CurButton == _editing)
+                    if (_editing != null && CurButton == _editing)
                     {
                         var loc = _editing.location.Split(',');
                         var x = Convert.ToInt32(loc[0]);
                         var y = Convert.ToInt32(loc[1]);
                         _dx = e.Location.X - x;
                         _dy = e.Location.Y - y;
-
-                    }    
+                    }
                 }
             }
-            
         }
 
         public void Add(Point p)
@@ -312,7 +303,7 @@ namespace iSpyApplication.Controls
                 if (!over)
                     CurButton = null;
 
-                if (CurButton == _cmdDown && CurButton!=null)
+                if (CurButton == _cmdDown && CurButton != null)
                 {
                     _flashButton = CurButton;
                     _flashTime = DateTime.UtcNow;
@@ -321,6 +312,5 @@ namespace iSpyApplication.Controls
                 }
             }
         }
-
     }
 }

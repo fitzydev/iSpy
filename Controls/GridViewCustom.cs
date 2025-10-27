@@ -27,7 +27,6 @@ namespace iSpyApplication.Controls
 
         private void button1_Click(object sender, EventArgs e)
         {
-
             if (GridName == null && (string.IsNullOrEmpty(txtName.Text.Trim()) || MainForm.Conf.GridViews.Any(p => p.name.ToLower() == txtName.Text.Trim().ToLower())))
             {
                 MessageBox.Show(this, LocRm.GetString("validate_uniquename"));
@@ -68,15 +67,15 @@ namespace iSpyApplication.Controls
 
             if (!string.IsNullOrEmpty(txtName.Text))
                 return;
-            
+
             int i = 1;
             bool cont = false;
-            while(!cont)
+            while (!cont)
             {
                 cont = true;
                 foreach (var g in MainForm.Conf.GridViews)
                 {
-                    if (g.name == "Grid "+i)
+                    if (g.name == "Grid " + i)
                         cont = false;
                 }
                 if (!cont)
@@ -87,7 +86,7 @@ namespace iSpyApplication.Controls
 
         private void RenderResources()
         {
-            LocRm.SetString(this,"CustomiseGrid");
+            LocRm.SetString(this, "CustomiseGrid");
             LocRm.SetString(label3, "Name");
             LocRm.SetString(label1, "Mode");
             LocRm.SetString(label6, "Columns");
@@ -98,9 +97,8 @@ namespace iSpyApplication.Controls
             LocRm.SetString(label5, "Framerate");
             LocRm.SetString(label4, "Display");
             LocRm.SetString(chkShowOnLoad, "ShowOnLoad");
-            LocRm.SetString(chkOverlays,"Overlays");
-            LocRm.SetString(button1,"OK");
-
+            LocRm.SetString(chkOverlays, "Overlays");
+            LocRm.SetString(button1, "OK");
         }
 
         private void ddlMode_SelectedIndexChanged(object sender, EventArgs e)

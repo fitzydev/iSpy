@@ -22,12 +22,10 @@ namespace iSpyApplication.Controls
         }
 
         public string TagValue;
-        
 
         public TagEntry()
         {
             InitializeComponent();
-            
         }
 
         protected override void OnPaint(PaintEventArgs pe)

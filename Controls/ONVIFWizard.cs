@@ -1,10 +1,9 @@
-﻿using System;
+﻿using iSpyApplication.Onvif;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using iSpyApplication.Onvif;
-using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
 
 namespace iSpyApplication.Controls
 {
@@ -24,8 +23,6 @@ namespace iSpyApplication.Controls
             btnConnect.Text = LocRm.GetString("Next");
             btnBack.Text = LocRm.GetString("Back");
             lblURL.Text = LocRm.GetString("URL");
-
-            
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -43,7 +40,6 @@ namespace iSpyApplication.Controls
             lblStep.Text = "1.";
             if (p == pnlStep2)
                 lblStep.Text = "2.";
-
         }
 
         private void HidePanel(Panel p)
@@ -76,9 +72,8 @@ namespace iSpyApplication.Controls
                     ddlConnectWith.SelectedItem = conn;
                 chkOverrideRTSPPort.Checked = numRTSP.Value != 0;
             }
-
-
         }
+
         #region Nested type: UISync
 
         private class UISync
@@ -102,11 +97,10 @@ namespace iSpyApplication.Controls
             }
         }
 
-        #endregion
+        #endregion Nested type: UISync
 
         public void Deinit()
         {
-
         }
 
         private void BindDevices()
@@ -119,7 +113,6 @@ namespace iSpyApplication.Controls
             if (ddlDeviceURL.Items.Count > 0)
                 ddlDeviceURL.SelectedIndex = 0;
         }
-
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -141,7 +134,6 @@ namespace iSpyApplication.Controls
             {
                 url += "onvif/device_service";
             }
-
 
             var dev = url;
             var urls = new List<object>();

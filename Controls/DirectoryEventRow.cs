@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -11,9 +10,10 @@ namespace iSpyApplication.Controls
         public int Index;
 
         public event EventHandler DirectoryEntryDelete;
-        public event EventHandler DirectoryEntryEdit;
-        public event EventHandler MouseOver;
 
+        public event EventHandler DirectoryEntryEdit;
+
+        public event EventHandler MouseOver;
 
         public DirectoryEventRow(configurationDirectory directory, int index)
         {
@@ -23,8 +23,6 @@ namespace iSpyApplication.Controls
             lblSummary.Text = directory.Entry;
             BackColor = DefaultBackColor;
         }
-
-       
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -50,6 +48,5 @@ namespace iSpyApplication.Controls
             tableLayoutPanel1.BackColor = DefaultBackColor;
             Invalidate();
         }
-
     }
 }

@@ -7,6 +7,7 @@ namespace iSpyApplication.Controls
     public partial class GridViewModeConfig : Form
     {
         public string ModeConfig;
+
         public GridViewModeConfig()
         {
             InitializeComponent();
@@ -16,7 +17,7 @@ namespace iSpyApplication.Controls
         private void RenderResources()
         {
             Text = LocRm.GetString("Configuration");
-            LocRm.SetString(label1,"DefaultCamera");
+            LocRm.SetString(label1, "DefaultCamera");
             LocRm.SetString(label2, "RemoveDelay");
             LocRm.SetString(label3, "MaxItems");
             LocRm.SetString(chkRestore, "MaximseAndRestore");
@@ -35,7 +36,7 @@ namespace iSpyApplication.Controls
                 if (cfg.Length >= 2)
                 {
                     rd = Convert.ToInt32(cfg[0]);
-                    if (cfg[1]!="")
+                    if (cfg[1] != "")
                         id = Convert.ToInt32(cfg[1]);
                 }
                 if (cfg.Length >= 3)
@@ -64,9 +65,6 @@ namespace iSpyApplication.Controls
 
         private void GridViewModeConfig_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
-
-
         }
 
         private void button1_Click(object sender, EventArgs e)

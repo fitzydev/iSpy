@@ -8,8 +8,9 @@ namespace iSpyApplication.Controls
     {
         public objectsCamera OC;
         public objectsMicrophone OM;
+
         private object[] cameraSettings = {
-                                        "Groups", 
+                                        "Groups",
                                         "Transform",
                                         "Timestamp",
                                         "Mask Image",
@@ -28,8 +29,9 @@ namespace iSpyApplication.Controls
                                         "Schedule",
                                         "Storage Settings (excluding directory)"
                                     };
+
         private object[] micSettings = {
-                                        "Groups", 
+                                        "Groups",
                                         "Sound Detector Settings",
                                         "Alert Intervals",
                                         "Actions: Alert",
@@ -40,6 +42,7 @@ namespace iSpyApplication.Controls
                                         "Schedule",
                                         "Storage Settings (excluding directory)"
                                     };
+
         public CopyTo()
         {
             InitializeComponent();
@@ -48,7 +51,6 @@ namespace iSpyApplication.Controls
             label1.Text = LocRm.GetString("Settings");
             label2.Text = LocRm.GetString("To");
             button1.Text = LocRm.GetString("OK");
-
         }
 
         private void CopyTo_Load(object sender, EventArgs e)
@@ -68,7 +70,6 @@ namespace iSpyApplication.Controls
                         clbObjects.Items.Add(new MainForm.ListItem(c.name, c.id));
                     }
                 }
-            
             }
             if (OM != null)
             {
@@ -117,15 +118,14 @@ namespace iSpyApplication.Controls
                         }
                     }
                 }
-
             }
             MessageBox.Show(this, LocRm.GetString("OK"));
         }
 
         private void CopyActions(int OID, int oid, int otid, string mode)
         {
-            MainForm.Actions.RemoveAll(p => p.objectid == oid && p.objecttypeid == otid && p.mode==mode);
-            var l = MainForm.Actions.Where(p => p.objectid == OID && p.objecttypeid == otid && p.mode==mode).ToList();
+            MainForm.Actions.RemoveAll(p => p.objectid == oid && p.objecttypeid == otid && p.mode == mode);
+            var l = MainForm.Actions.Where(p => p.objectid == OID && p.objecttypeid == otid && p.mode == mode).ToList();
             foreach (var oa in l)
             {
                 var oae = new objectsActionsEntry
@@ -151,9 +151,11 @@ namespace iSpyApplication.Controls
                 case "Groups":
                     oc.settings.accessgroups = OC.settings.accessgroups;
                     break;
+
                 case "Transform":
                     oc.rotateMode = OC.rotateMode;
                     break;
+
                 case "Timestamp":
                     oc.settings.timestampbackcolor = OC.settings.timestampbackcolor;
                     oc.settings.timestampfont = OC.settings.timestampfont;
@@ -164,13 +166,16 @@ namespace iSpyApplication.Controls
                     oc.settings.timestampoffset = OC.settings.timestampoffset;
                     oc.settings.timestampshowback = OC.settings.timestampshowback;
                     break;
+
                 case "Mask Image":
                     oc.settings.maskimage = OC.settings.maskimage;
                     break;
+
                 case "Frame Rates":
                     oc.settings.maxframerate = OC.settings.maxframerate;
                     oc.settings.framerate = OC.settings.framerate;
                     break;
+
                 case "Motion Detector Settings":
                     oc.detector.autooff = OC.detector.autooff;
                     oc.detector.calibrationdelay = OC.detector.autooff;
@@ -193,9 +198,11 @@ namespace iSpyApplication.Controls
                     oc.detector.postprocessor = OC.detector.postprocessor;
                     oc.settings.suppressnoise = OC.settings.suppressnoise;
                     break;
+
                 case "Motion Detector Zones":
                     oc.detector.motionzones = OC.detector.motionzones.ToArray();
                     break;
+
                 case "Alert Settings":
                     oc.alerts.active = OC.alerts.active;
                     oc.alerts.mode = OC.alerts.mode;
@@ -203,25 +210,30 @@ namespace iSpyApplication.Controls
                     oc.alerts.resetinterval = OC.alerts.resetinterval;
                     oc.alerts.minimuminterval = OC.alerts.minimuminterval;
                     break;
+
                 case "Actions: Alert":
-                {
-                    CopyActions(OC.id, oc.id, 2, "alert");
-                }
+                    {
+                        CopyActions(OC.id, oc.id, 2, "alert");
+                    }
                     break;
+
                 case "Actions: Connection Lost":
-                {
-                    CopyActions(OC.id, oc.id, 2, "disconnect");
-                }
+                    {
+                        CopyActions(OC.id, oc.id, 2, "disconnect");
+                    }
                     break;
+
                 case "Actions: Reconnect":
-                {
-                    CopyActions(OC.id, oc.id, 2, "reconnect");
-                }
+                    {
+                        CopyActions(OC.id, oc.id, 2, "reconnect");
+                    }
                     break;
+
                 case "Recording Mode":
                     oc.detector.recordonalert = OC.detector.recordonalert;
                     oc.detector.recordondetect = OC.detector.recordondetect;
                     break;
+
                 case "Recording Settings (excluding triggers)":
                     oc.recorder.bufferseconds = OC.recorder.bufferseconds;
                     oc.recorder.crf = OC.recorder.crf;
@@ -231,6 +243,7 @@ namespace iSpyApplication.Controls
                     oc.recorder.profile = OC.recorder.profile;
                     oc.recorder.quality = OC.recorder.quality;
                     break;
+
                 case "Timelapse Settings":
                     oc.recorder.timelapse = OC.recorder.timelapse;
                     oc.recorder.timelapseenabled = OC.recorder.timelapseenabled;
@@ -238,6 +251,7 @@ namespace iSpyApplication.Controls
                     oc.recorder.timelapseframes = OC.recorder.timelapseframes;
                     oc.recorder.timelapsesave = OC.recorder.timelapsesave;
                     break;
+
                 case "Image Settings":
                     oc.savelocal.enabled = OC.savelocal.enabled;
                     oc.savelocal.filename = OC.savelocal.filename;
@@ -248,6 +262,7 @@ namespace iSpyApplication.Controls
                     oc.savelocal.quality = OC.savelocal.quality;
                     oc.savelocal.text = OC.savelocal.text;
                     break;
+
                 case "FTP Upload Settings":
                     oc.ftp.server = OC.ftp.server;
                     oc.ftp.countermax = OC.ftp.countermax;
@@ -258,12 +273,14 @@ namespace iSpyApplication.Controls
                     oc.ftp.quality = OC.ftp.quality;
                     oc.ftp.text = OC.ftp.text;
                     break;
+
                 case "Schedule":
-                {
-                    oc.schedule.entries = OC.schedule.entries.ToArray();
-                    oc.schedule.active = OC.schedule.active;
-                }
+                    {
+                        oc.schedule.entries = OC.schedule.entries.ToArray();
+                        oc.schedule.active = OC.schedule.active;
+                    }
                     break;
+
                 case "Storage Settings (excluding directory)":
                     oc.settings.storagemanagement.archive = OC.settings.storagemanagement.archive;
                     oc.settings.storagemanagement.enabled = OC.settings.storagemanagement.enabled;
@@ -280,12 +297,14 @@ namespace iSpyApplication.Controls
                 case "Groups":
                     om.settings.accessgroups = OM.settings.accessgroups;
                     break;
+
                 case "Sound Detector Settings":
                     om.detector.gain = OM.detector.gain;
                     om.detector.maxsensitivity = OM.detector.maxsensitivity;
                     om.detector.minsensitivity = OM.detector.minsensitivity;
                     om.detector.sensitivity = OM.detector.sensitivity;
                     break;
+
                 case "Alert Settings":
                     om.alerts.active = OM.alerts.active;
                     om.alerts.mode = OM.alerts.mode;
@@ -293,25 +312,30 @@ namespace iSpyApplication.Controls
                     om.alerts.resetinterval = OM.alerts.resetinterval;
                     om.alerts.minimuminterval = OM.alerts.minimuminterval;
                     break;
+
                 case "Actions: Alert":
                     {
                         CopyActions(OM.id, om.id, 1, "alert");
                     }
                     break;
+
                 case "Actions: Connection Lost":
                     {
                         CopyActions(OM.id, om.id, 1, "disconnect");
                     }
                     break;
+
                 case "Actions: Reconnect":
                     {
                         CopyActions(OM.id, om.id, 1, "reconnect");
                     }
                     break;
+
                 case "Recording Mode":
                     om.detector.recordonalert = OM.detector.recordonalert;
                     om.detector.recordondetect = OM.detector.recordondetect;
                     break;
+
                 case "Recording Settings (excluding triggers)":
                     om.settings.buffer = OM.settings.buffer;
                     om.detector.recordondetect = OM.detector.recordondetect;
@@ -320,12 +344,14 @@ namespace iSpyApplication.Controls
                     om.recorder.maxrecordtime = OM.recorder.maxrecordtime;
                     om.recorder.minrecordtime = OM.recorder.minrecordtime;
                     break;
+
                 case "Schedule":
                     {
                         om.schedule.entries = OM.schedule.entries.ToArray();
                         om.schedule.active = OM.schedule.active;
                     }
                     break;
+
                 case "Storage Settings (excluding directory)":
                     om.settings.storagemanagement.archive = OM.settings.storagemanagement.archive;
                     om.settings.storagemanagement.enabled = OM.settings.storagemanagement.enabled;

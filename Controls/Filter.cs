@@ -16,7 +16,6 @@ namespace iSpyApplication.Controls
         {
             InitializeComponent();
 
-
             RenderResources();
         }
 
@@ -33,16 +32,16 @@ namespace iSpyApplication.Controls
         {
             CheckedCameraIDs = new List<int>();
             CheckedMicIDs = new List<int>();
-            for(int i=0;i<clbObjects.Items.Count;i++)
+            for (int i = 0; i < clbObjects.Items.Count; i++)
             {
                 var o = (Li)clbObjects.Items[i];
-                if (clbObjects.GetItemCheckState(i)== CheckState.Checked)
+                if (clbObjects.GetItemCheckState(i) == CheckState.Checked)
                 {
-                    if (o.Ot==1)
+                    if (o.Ot == 1)
                     {
                         CheckedMicIDs.Add(o.ID);
                     }
-                    if (o.Ot==2)
+                    if (o.Ot == 2)
                     {
                         CheckedCameraIDs.Add(o.ID);
                     }
@@ -57,9 +56,9 @@ namespace iSpyApplication.Controls
 
         private void Filter_Load(object sender, EventArgs e)
         {
-            foreach(var c in MainForm.Cameras)
+            foreach (var c in MainForm.Cameras)
             {
-                var l = new Li {Name = c.name, Ot = 2, Selected = false, ID=c.id};
+                var l = new Li { Name = c.name, Ot = 2, Selected = false, ID = c.id };
                 if (CheckedCameraIDs.Contains(c.id))
                     l.Selected = true;
                 clbObjects.Items.Add(l);
@@ -67,19 +66,17 @@ namespace iSpyApplication.Controls
             }
             foreach (var c in MainForm.Microphones)
             {
-                var l = new Li { Name = c.name, Ot = 1, Selected = false, ID=c.id };
+                var l = new Li { Name = c.name, Ot = 1, Selected = false, ID = c.id };
                 if (CheckedMicIDs.Contains(c.id))
                     l.Selected = true;
                 clbObjects.Items.Add(l);
-                clbObjects.SetItemCheckState(clbObjects.Items.Count - 1, l.Selected?CheckState.Checked : CheckState.Unchecked);
-                
+                clbObjects.SetItemCheckState(clbObjects.Items.Count - 1, l.Selected ? CheckState.Checked : CheckState.Unchecked);
             }
 
             dateTimePicker1.Value = StartDate;
             dateTimePicker2.Value = EndDate;
             chkFilter.Checked = Filtered;
             tlpFilter.Enabled = chkFilter.Checked;
-
         }
 
         private struct Li
@@ -88,12 +85,11 @@ namespace iSpyApplication.Controls
             public int Ot;
             public int ID;
             public bool Selected;
+
             public override string ToString()
             {
                 return Name;
             }
-
-
         }
 
         private void chkFilter_CheckedChanged(object sender, EventArgs e)

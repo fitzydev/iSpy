@@ -1,29 +1,29 @@
-﻿using System;
+﻿using AForge.Imaging;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using AForge.Imaging;
 
 namespace iSpyApplication.Controls
 {
     /// <summary>
     /// Hue picker control.
     /// </summary>
-    /// 
+    ///
     /// <remarks><para>The control allows selecting hue value (or range) from HSL color space. Hue values
     /// are integer values in the [0, 359] range.</para>
-    /// 
+    ///
     /// <para>If control's type is set to <see cref="HuePickerType.Value"/>, then it allows selecting single
     /// hue value and looks like this:<br />
     /// <img src="img/controls/hue_picker1.png" width="220" height="220" />
     /// </para>
-    /// 
+    ///
     /// <para>If control's type is set to <see cref="HuePickerType.Range"/>, then it allows selecting range
     /// of hue values and looks like this:<br />
     /// <img src="img/controls/hue_picker2.png" width="220" height="220" />
     /// </para>
     /// </remarks>
-    /// 
+    ///
     public class HuePicker : Control
     {
         private HuePickerType _type = HuePickerType.Value;
@@ -44,26 +44,26 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// An event, to notify about changes of <see cref="Min"/> or <see cref="Max"/> properties.
         /// </summary>
-        /// 
+        ///
         /// <remarks><para>The event is fired after changes of its <see cref="Value"/>, <see cref="Min"/> or
         /// <see cref="Max"/> properties, which is caused by user dragging the corresponding hue picker's bullets.</para>
         /// </remarks>
-        /// 
+        ///
         public event EventHandler ValuesChanged;
 
         /// <summary>
         /// Enumeration of hue picker types.
         /// </summary>
-        /// 
+        ///
         /// <remarks>
         /// <para>The <see cref="HuePickerType.Value"/> type provides single bullet to drag, which allows
         /// selecting single hue value. The value is accessible through <see cref="Value"/> property.</para>
-        /// 
+        ///
         /// <para>The <see cref="HuePickerType.Range"/> type provides two bullets to drag, which correspond
         /// to minimum and maximum values of the hue range. These values are accessible through
         /// <see cref="Min"/> and <see cref="Max"/> properties.</para>
         /// </remarks>
-        /// 
+        ///
         public enum HuePickerType
         {
             /// <summary>
@@ -131,9 +131,9 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Current type of the hue picker control.
         /// </summary>
-        /// 
+        ///
         /// <remarks><para>See <see cref="HuePickerType"/> enumeration for description of the available types.</para></remarks>
-        /// 
+        ///
         [DefaultValue(HuePickerType.Value)]
         public HuePickerType Type
         {
@@ -148,7 +148,7 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HuePicker"/> class.
         /// </summary>
-        /// 
+        ///
         public HuePicker()
         {
             InitializeComponent();
@@ -165,9 +165,9 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Dispose the object.
         /// </summary>
-        /// 
+        ///
         /// <param name="disposing">Specifies if disposing was invoked by user's code.</param>
-        /// 
+        ///
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -183,21 +183,20 @@ namespace iSpyApplication.Controls
         // Init component
         private void InitializeComponent()
         {
-            // 
+            //
             // HSLPicker
-            // 
+            //
             MouseUp += HSLPickerMouseUp;
             MouseMove += HSLPickerMouseMove;
             MouseDown += HSLPickerMouseDown;
-
         }
 
         /// <summary>
         /// Paint the controls.
         /// </summary>
-        /// 
+        ///
         /// <param name="pe">Paint event arguments.</param>
-        /// 
+        ///
         protected override void OnPaint(PaintEventArgs pe)
         {
             Graphics g = pe.Graphics;
@@ -257,43 +256,43 @@ namespace iSpyApplication.Controls
             }
 
             //
-            double halfWidth = (double) rcPie.Width/2;
-            double angleRad = -_min*Math.PI/180;
+            double halfWidth = (double)rcPie.Width / 2;
+            double angleRad = -_min * Math.PI / 180;
             double angleCos = Math.Cos(angleRad);
             double angleSin = Math.Sin(angleRad);
 
-            double x = halfWidth*angleCos;
-            double y = halfWidth*angleSin;
+            double x = halfWidth * angleCos;
+            double y = halfWidth * angleSin;
 
-            _ptCenter.X = rcPie.Left + (int) (halfWidth);
-            _ptCenter.Y = rcPie.Top + (int) (halfWidth);
-            _ptMin.X = rcPie.Left + (int) (halfWidth + x);
-            _ptMin.Y = rcPie.Top + (int) (halfWidth + y);
+            _ptCenter.X = rcPie.Left + (int)(halfWidth);
+            _ptCenter.Y = rcPie.Top + (int)(halfWidth);
+            _ptMin.X = rcPie.Left + (int)(halfWidth + x);
+            _ptMin.Y = rcPie.Top + (int)(halfWidth + y);
 
             // draw MIN pointer
             g.FillEllipse(_blackBrush,
-                rcPie.Left + (int) (halfWidth + x) - 4,
-                rcPie.Top + (int) (halfWidth + y) - 4,
+                rcPie.Left + (int)(halfWidth + x) - 4,
+                rcPie.Top + (int)(halfWidth + y) - 4,
                 8, 8);
             g.DrawLine(_blackPen, _ptCenter, _ptMin);
 
             // check picker type
             if (_type == HuePickerType.Range)
             {
-                angleRad = -_max*Math.PI/180;
+                angleRad = -_max * Math.PI / 180;
                 angleCos = Math.Cos(angleRad);
                 angleSin = Math.Sin(angleRad);
 
-                x = halfWidth*angleCos;
-                y = halfWidth*angleSin;
+                x = halfWidth * angleCos;
+                y = halfWidth * angleSin;
 
-                _ptMax.X = rcPie.Left + (int) (halfWidth + x);
-                _ptMax.Y = rcPie.Top + (int) (halfWidth + y);
+                _ptMax.X = rcPie.Left + (int)(halfWidth + x);
+                _ptMax.Y = rcPie.Top + (int)(halfWidth + y);
 
                 // draw MAX pointer
                 g.FillEllipse(_whiteBrush,
-                    rcPie.Left + (int) (halfWidth + x) - 4,
-                    rcPie.Top + (int) (halfWidth + y) - 4,
+                    rcPie.Left + (int)(halfWidth + x) - 4,
+                    rcPie.Top + (int)(halfWidth + y) - 4,
                     8, 8);
                 g.DrawLine(_whitePen, _ptCenter, _ptMax);
             }
@@ -351,7 +350,7 @@ namespace iSpyApplication.Controls
                 if (_trackMode == 1)
                 {
                     // MIN pointer tracking
-                    _min = (int) (Math.Atan2(-dy, dx)*180/Math.PI);
+                    _min = (int)(Math.Atan2(-dy, dx) * 180 / Math.PI);
                     if (_min < 0)
                     {
                         _min = 360 + _min;
@@ -360,7 +359,7 @@ namespace iSpyApplication.Controls
                 else
                 {
                     // MAX pointer tracking
-                    _max = (int) (Math.Atan2(-dy, dx)*180/Math.PI);
+                    _max = (int)(Math.Atan2(-dy, dx) * 180 / Math.PI);
                     if (_max < 0)
                     {
                         _max = 360 + _max;
@@ -387,7 +386,6 @@ namespace iSpyApplication.Controls
                         cursor = Cursors.Hand;
                     }
                 }
-
             }
 
             Cursor = cursor;

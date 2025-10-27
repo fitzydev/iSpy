@@ -1,9 +1,4 @@
-﻿using System.Deployment.Internal;
-using System.Drawing;
-using System.Windows.Forms;
-using iSpyApplication.Sources;
-
-namespace iSpyApplication.Controls
+﻿namespace iSpyApplication.Controls
 {
     public class GridViewItem
     {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Threading;
 
 namespace iSpyApplication.Controls
 {
@@ -17,6 +16,7 @@ namespace iSpyApplication.Controls
 
         private Bitmap _lastFrame;
         private readonly object _lockobject = new object();
+
         public Bitmap LastFrame
         {
             get
@@ -60,12 +60,12 @@ namespace iSpyApplication.Controls
             base.OnMouseDown(e);
             _bMouseDown = true;
 
-            if (_hoverPoint!=Point.Empty)
+            if (_hoverPoint != Point.Empty)
             {
                 return;
             }
             //clicked on an existing rectangle?
-            
+
             int startX = Convert.ToInt32((e.X * 1.0) / (Width * 1.0) * 100);
             int startY = Convert.ToInt32((e.Y * 1.0) / (Height * 1.0) * 100);
 
@@ -75,23 +75,22 @@ namespace iSpyApplication.Controls
                 startY = 100;
 
             int i = 0;
-            foreach(var r in _motionZonesRectangles)
+            foreach (var r in _motionZonesRectangles)
             {
-                if (startX>r.X && startX<r.X+r.Width && startY>r.Y && startY<r.Y+r.Height)
+                if (startX > r.X && startX < r.X + r.Width && startY > r.Y && startY < r.Y + r.Height)
                 {
                     _rectIndex = i;
-                    _rectOrig = new Rectangle(r.X,r.Y,r.Width,r.Height);
+                    _rectOrig = new Rectangle(r.X, r.Y, r.Width, r.Height);
                     _rectStart = new Point(startX, startY);
                     return;
                 }
                 i++;
             }
             _rectIndex = -1;
-            
+
             _rectStop = new Point(startX, startY);
             _rectStart = new Point(startX, startY);
             OnBoundsChanged();
-            
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -99,14 +98,14 @@ namespace iSpyApplication.Controls
             base.OnMouseUp(e);
             int endX = Convert.ToInt32((e.X * 1.0) / (Width * 1.0) * 100);
             int endY = Convert.ToInt32((e.Y * 1.0) / (Height * 1.0) * 100);
-            
+
             _rectStop = new Point(endX, endY);
             _bMouseDown = false;
-            if (_rectIndex>-1)
+            if (_rectIndex > -1)
             {
                 _rectStart = Point.Empty;
                 _rectStop = Point.Empty;
-                if (endX>100 || endY>100 || endX<0 || endY<0)
+                if (endX > 100 || endY > 100 || endX < 0 || endY < 0)
                 {
                     _motionZonesRectangles.RemoveAt(_rectIndex);
                 }
@@ -125,22 +124,22 @@ namespace iSpyApplication.Controls
             }
             var start = new Point();
             var stop = new Point();
-            
+
             start.X = _rectStart.X;
-            if (_rectStop.X<_rectStart.X)
+            if (_rectStop.X < _rectStart.X)
                 start.X = _rectStop.X;
             start.Y = _rectStart.Y;
-            if (_rectStop.Y<_rectStart.Y)
+            if (_rectStop.Y < _rectStart.Y)
                 start.Y = _rectStop.Y;
 
             stop.X = _rectStop.X;
-            if (_rectStop.X<_rectStart.X)
+            if (_rectStop.X < _rectStart.X)
                 stop.X = _rectStart.X;
             stop.Y = _rectStop.Y;
-            if (_rectStop.Y<_rectStart.Y)
+            if (_rectStop.Y < _rectStart.Y)
                 stop.Y = _rectStart.Y;
 
-            var size = new Size(stop.X-start.X,stop.Y-start.Y);
+            var size = new Size(stop.X - start.X, stop.Y - start.Y);
             _motionZonesRectangles.Add(new Rectangle(start, size));
             _rectStart = Point.Empty;
             _rectStop = Point.Empty;
@@ -158,12 +157,12 @@ namespace iSpyApplication.Controls
 
             if (_bMouseDown)
             {
-                if (_hoverPoint!=Point.Empty)
+                if (_hoverPoint != Point.Empty)
                 {
                     var r = _motionZonesRectangles[_rectIndex];
 
                     Rectangle rnew = Rectangle.Empty;
-                    if (_hoverPoint.X==r.Left)
+                    if (_hoverPoint.X == r.Left)
                     {
                         if (_hoverPoint.Y == r.Top)
                         {
@@ -174,7 +173,7 @@ namespace iSpyApplication.Controls
                             rnew = NormRect(new Point(p.X, r.Top), new Point(r.Right, p.Y));
                         }
                     }
-                    if (_hoverPoint.X==r.Right)
+                    if (_hoverPoint.X == r.Right)
                     {
                         if (_hoverPoint.Y == r.Top)
                         {
@@ -183,9 +182,9 @@ namespace iSpyApplication.Controls
                         else
                         {
                             rnew = NormRect(new Point(r.X, r.Y), new Point(p.X, p.Y));
-                        }                        
+                        }
                     }
-                    _hoverPoint = new Point(p.X,p.Y);
+                    _hoverPoint = new Point(p.X, p.Y);
                     _motionZonesRectangles[_rectIndex] = rnew;
                     Invalidate();
                     return;
@@ -198,7 +197,7 @@ namespace iSpyApplication.Controls
                     endY = 100;
 
                 _rectStop = new Point(endX, endY);
-                if (_rectIndex>-1)
+                if (_rectIndex > -1)
                 {
                     var mz = _motionZonesRectangles[_rectIndex];
                     mz.X = _rectOrig.X + (_rectStop.X - _rectStart.X);
@@ -208,32 +207,32 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                _hoverPoint = Point.Empty;               
+                _hoverPoint = Point.Empty;
 
-                for(int i=0;i<_motionZonesRectangles.Count;i++)
+                for (int i = 0; i < _motionZonesRectangles.Count; i++)
                 {
                     var r = _motionZonesRectangles[i];
-                    if (CalcDist(r.Left,r.Top, p)<5)
+                    if (CalcDist(r.Left, r.Top, p) < 5)
                     {
-                        _hoverPoint = new Point(r.Left,r.Top);
+                        _hoverPoint = new Point(r.Left, r.Top);
                         _rectIndex = i;
                         break;
                     }
-                    if (CalcDist( r.Right,r.Top, p) < 5)
+                    if (CalcDist(r.Right, r.Top, p) < 5)
                     {
-                        _hoverPoint = new Point(r.Right,r.Top);
+                        _hoverPoint = new Point(r.Right, r.Top);
                         _rectIndex = i;
                         break;
                     }
-                    if (CalcDist(r.Right,r.Bottom,  p) < 5)
+                    if (CalcDist(r.Right, r.Bottom, p) < 5)
                     {
                         _hoverPoint = new Point(r.Right, r.Bottom);
                         _rectIndex = i;
                         break;
                     }
-                    if (CalcDist(r.Left,r.Bottom,  p) < 5)
+                    if (CalcDist(r.Left, r.Bottom, p) < 5)
                     {
-                        _hoverPoint = new Point(r.Left, r.Bottom );
+                        _hoverPoint = new Point(r.Left, r.Bottom);
                         _rectIndex = i;
                         break;
                     }
@@ -257,7 +256,6 @@ namespace iSpyApplication.Controls
 
         private double CalcDist(int x, int y, Point p)
         {
-
             return Math.Sqrt(Math.Pow(x - p.X, 2) + Math.Pow(y - p.Y, 2));
         }
 
@@ -278,6 +276,7 @@ namespace iSpyApplication.Controls
             _motionZonesRectangles = new List<Rectangle>();
             BackgroundImageLayout = ImageLayout.Stretch;
         }
+
         public objectsCameraDetectorZone[] MotionZones
         {
             get
@@ -287,12 +286,12 @@ namespace iSpyApplication.Controls
                 {
                     Rectangle r = _motionZonesRectangles[index];
                     var ocdz = new objectsCameraDetectorZone
-                                   {
-                                       left = r.Left,
-                                       top = r.Top,
-                                       width = r.Width,
-                                       height = r.Height
-                                   };
+                    {
+                        left = r.Left,
+                        top = r.Top,
+                        width = r.Width,
+                        height = r.Height
+                    };
                     ocdzs.Add(ocdz);
                 }
                 return ocdzs.ToArray();
@@ -308,9 +307,9 @@ namespace iSpyApplication.Controls
 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            // lock           
+            // lock
             var g = pe.Graphics;
-            var c = Color.FromArgb(128, 255,255,255);
+            var c = Color.FromArgb(128, 255, 255, 255);
             var h = new SolidBrush(c);
             var p = new Pen(Color.DarkGray);
             try
@@ -334,30 +333,30 @@ namespace iSpyApplication.Controls
 
                 if (_rectIndex == -1)
                 {
-                    var p1 = new Point(Convert.ToInt32(_rectStart.X*wmulti), Convert.ToInt32(_rectStart.Y*hmulti));
-                    var p2 = new Point(Convert.ToInt32(_rectStop.X*wmulti), Convert.ToInt32(_rectStop.Y*hmulti));
+                    var p1 = new Point(Convert.ToInt32(_rectStart.X * wmulti), Convert.ToInt32(_rectStart.Y * hmulti));
+                    var p2 = new Point(Convert.ToInt32(_rectStop.X * wmulti), Convert.ToInt32(_rectStop.Y * hmulti));
 
-                    var ps = new[] {p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1};
+                    var ps = new[] { p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1 };
                     g.FillPolygon(h, ps);
                     g.DrawPolygon(p, ps);
                 }
-                if (_hoverPoint!=Point.Empty)
-                    g.FillEllipse(Brushes.DeepSkyBlue,Convert.ToInt32(_hoverPoint.X * wmulti)-5,Convert.ToInt32(_hoverPoint.Y*hmulti)-5,10,10);
-
+                if (_hoverPoint != Point.Empty)
+                    g.FillEllipse(Brushes.DeepSkyBlue, Convert.ToInt32(_hoverPoint.X * wmulti) - 5, Convert.ToInt32(_hoverPoint.Y * hmulti) - 5, 10, 10);
             }
             catch
             {
             }
             p.Dispose();
             h.Dispose();
-            g.DrawRectangle(Pens.DarkGray,0,0,Width-1,Height-1);
+            g.DrawRectangle(Pens.DarkGray, 0, 0, Width - 1, Height - 1);
             base.OnPaint(pe);
         }
+
         public event EventHandler BoundsChanged;
 
         private void OnBoundsChanged()
         {
-            if (BoundsChanged!=null)
+            if (BoundsChanged != null)
                 BoundsChanged(this, EventArgs.Empty);
         }
     }

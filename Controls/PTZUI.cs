@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -27,7 +22,6 @@ namespace iSpyApplication.Controls
 
         private void pnlPTZ_MouseEnter(object sender, EventArgs e)
         {
-
         }
 
         private void ProcessPtzInput(Point p)
@@ -60,8 +54,6 @@ namespace iSpyApplication.Controls
                 CameraControl.Calibrating = true;
                 CameraControl.PTZ.SendPTZDirection(angle);
             }
-
-
         }
 
         private void pnlPTZ_MouseDown(object sender, MouseEventArgs e)
@@ -76,7 +68,6 @@ namespace iSpyApplication.Controls
 
         private void pnlPTZ_MouseLeave(object sender, EventArgs e)
         {
-
         }
 
         private void pnlPTZ_MouseUp(object sender, MouseEventArgs e)

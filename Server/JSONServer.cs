@@ -487,14 +487,6 @@ namespace iSpyApplication.Server
                                             message = LocRm.GetString("Failed", lc);
                                     }
                                     break;
-                                case "flickr":
-                                    if (Flickr.Authorise(code))
-                                    {
-                                        message = LocRm.GetString("Authorised", lc);
-                                    }
-                                    else
-                                        message = LocRm.GetString("Failed", lc);
-                                    break;
                                 case "dropbox":
                                     if (Dropbox.Authorise(code))
                                     {
@@ -515,23 +507,6 @@ namespace iSpyApplication.Server
                                 //    break;
                             }
                         }
-
-                        resp = string.Format(t, provider, url, message, error);
-                    }
-                    break;
-                case "getauthoriseurl":
-                    {
-                        string provider = GetVar(sPhysicalFilePath, "provider");
-                        t = "{{\"provider\":\"{0}\",\"url\":\"{1}\",\"message\":\"{2}\",\"error\":\"{3}\"}}";
-                        string url = "", message = "", error = "";
-                        
-                        switch (provider.ToLower())
-                        {
-                            case "flickr":
-                                url = Flickr.GetAuthoriseURL(out error);
-                                break;
-                        }
-                        
 
                         resp = string.Format(t, provider, url, message, error);
                     }

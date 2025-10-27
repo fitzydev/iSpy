@@ -1,6 +1,6 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Linq;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Cloud
 {
@@ -13,6 +13,7 @@ namespace iSpyApplication.Cloud
             bool b;
             return Upload(otid, oid, srcPath, out b);
         }
+
         public static string Upload(int otid, int oid, string srcPath, out bool success)
         {
             success = false;
@@ -28,6 +29,7 @@ namespace iSpyApplication.Cloud
                 {
                     case 1:
                         break;
+
                     case 2:
                         var co = MainForm.Cameras.FirstOrDefault(p => p.id == oid);
                         if (co == null)
@@ -47,12 +49,13 @@ namespace iSpyApplication.Cloud
                 {
                     case "drive":
                         return Drive.Upload(srcPath, dstPath, out success);
+
                     case "dropbox":
                         return Dropbox.Upload(srcPath, dstPath, out success);
-                    case "flickr":
-                        return Flickr.Upload(srcPath, dstPath, out success);
+
                     case "onedrive":
                         return OneDrive.Upload(srcPath, dstPath, out success);
+
                     case "box":
                         return Box.Upload(srcPath, dstPath, out success);
                 }

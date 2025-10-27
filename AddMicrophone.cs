@@ -1,12 +1,11 @@
+using iSpyApplication.Controls;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
-using NAudio.Wave;
 
 namespace iSpyApplication
 {
@@ -32,7 +31,7 @@ namespace iSpyApplication
         private bool SelectSource()
         {
             bool success = false;
-            var ms = new MicrophoneSource {Mic = VolumeLevel.Micobject};
+            var ms = new MicrophoneSource { Mic = VolumeLevel.Micobject };
 
             ms.ShowDialog(this);
             if (ms.DialogResult == DialogResult.OK)
@@ -49,17 +48,17 @@ namespace iSpyApplication
             return success;
         }
 
-        void Ranger1ValueMinChanged()
+        private void Ranger1ValueMinChanged()
         {
             VolumeLevel.Micobject.detector.minsensitivity = ranger1.ValueMin;
         }
 
-        void Ranger1ValueMaxChanged()
+        private void Ranger1ValueMaxChanged()
         {
             VolumeLevel.Micobject.detector.maxsensitivity = ranger1.ValueMax;
         }
 
-        void Ranger1GainChanged()
+        private void Ranger1GainChanged()
         {
             VolumeLevel.Micobject.detector.gain = ranger1.Gain;
         }
@@ -81,7 +80,7 @@ namespace iSpyApplication
             VolumeLevel.IsEdit = true;
             if (VolumeLevel.CameraControl != null)
                 VolumeLevel.CameraControl.IsEdit = true;
-            
+
             btnBack.Enabled = false;
             txtMicrophoneName.Text = VolumeLevel.Micobject.name;
             //tbGain.Value = (int)(VolumeLevel.Micobject.settings.gain * 100);
@@ -113,9 +112,8 @@ namespace iSpyApplication
                         if (c != null)
                             lblAudioSource.Text = c.name;
                     }
-
                 }
-                if (lblAudioSource.Text=="")
+                if (lblAudioSource.Text == "")
                     lblAudioSource.Text = VolumeLevel.Micobject.settings.sourcename;
             }
             else
@@ -124,8 +122,6 @@ namespace iSpyApplication
                 chkActive.Checked = false;
             }
 
-
-            
             Text = LocRm.GetString("EditMicrophone");
             if (VolumeLevel.Micobject.id > -1)
                 Text += string.Format(" (ID: {0}, DIR: {1})", VolumeLevel.Micobject.id, VolumeLevel.Micobject.directory);
@@ -142,7 +138,6 @@ namespace iSpyApplication
 
             txtAccessGroups.Text = VolumeLevel.Micobject.settings.accessgroups;
             txtDirectory.Text = VolumeLevel.Micobject.directory;
-            
 
             tblStorage.Enabled = chkStorageManagement.Checked = VolumeLevel.Micobject.settings.storagemanagement.enabled;
             numMaxAge.Value = VolumeLevel.Micobject.settings.storagemanagement.maxage;
@@ -153,21 +148,20 @@ namespace iSpyApplication
             ddlCopyFrom.Items.Add(new ListItem(LocRm.GetString("CopyFrom"), "-1"));
             foreach (objectsMicrophone c in MainForm.Microphones)
             {
-                if (c.id!=VolumeLevel.Micobject.id)
+                if (c.id != VolumeLevel.Micobject.id)
                     ddlCopyFrom.Items.Add(new ListItem(c.name, c.id.ToString(CultureInfo.InvariantCulture)));
             }
             ddlCopyFrom.SelectedIndex = 0;
 
-
             int i = 0, j = 0;
-            foreach(var dev in DirectSoundOut.Devices)
+            foreach (var dev in DirectSoundOut.Devices)
             {
                 ddlPlayback.Items.Add(new ListItem(dev.Description, dev.Guid.ToString()));
                 if (dev.Guid.ToString() == VolumeLevel.Micobject.settings.deviceout)
                     i = j;
                 j++;
             }
-            if (ddlPlayback.Items.Count>0)
+            if (ddlPlayback.Items.Count > 0)
                 ddlPlayback.SelectedIndex = i;
             else
             {
@@ -185,14 +179,13 @@ namespace iSpyApplication
 
             string t2 = VolumeLevel.Micobject.recorder.trigger ?? "";
 
-            
             ddlTriggerRecording.Items.Add(new ListItem("None", ""));
 
-            foreach (var c in MainForm.Cameras.Where(p => p.settings.micpair!=VolumeLevel.Micobject.id))
-            {   
-                ddlTriggerRecording.Items.Add(new ListItem(c.name, "2," + c.id));   
+            foreach (var c in MainForm.Cameras.Where(p => p.settings.micpair != VolumeLevel.Micobject.id))
+            {
+                ddlTriggerRecording.Items.Add(new ListItem(c.name, "2," + c.id));
             }
-            foreach (var c in MainForm.Microphones.Where(p=>p.id != VolumeLevel.Micobject.id))
+            foreach (var c in MainForm.Microphones.Where(p => p.id != VolumeLevel.Micobject.id))
             {
                 ddlTriggerRecording.Items.Add(new ListItem(c.name, "1," + c.id));
             }
@@ -208,7 +201,7 @@ namespace iSpyApplication
             if (VolumeLevel.CameraControl != null)
             {
                 txtBuffer.Enabled = false;
-                toolTip1.SetToolTip(txtBuffer,"Change the buffer on the paired camera to update");
+                toolTip1.SetToolTip(txtBuffer, "Change the buffer on the paired camera to update");
             }
 
             actionEditor1.LoginRequested += ActionEditor1LoginRequested;
@@ -230,10 +223,9 @@ namespace iSpyApplication
 
             chkMessaging.Checked = VolumeLevel.Micobject.settings.messaging;
             _loaded = true;
-
         }
 
-        void ActionEditor1LoginRequested(object sender, EventArgs e)
+        private void ActionEditor1LoginRequested(object sender, EventArgs e)
         {
             Login();
         }
@@ -270,7 +262,7 @@ namespace iSpyApplication
             label48.Text = LocRm.GetString("Seconds");
             label5.Text = LocRm.GetString("Seconds");
             label15.Text = LocRm.GetString("Intervals");
-            
+
             lblAudioSource.Text = LocRm.GetString("Audiosource");
             rdoMovement.Text = LocRm.GetString("IsDetectedFor");
             rdoNoMovement.Text = LocRm.GetString("IsNotDetectedFor");
@@ -288,7 +280,7 @@ namespace iSpyApplication
             toolTip1.SetToolTip(ranger1, LocRm.GetString("ToolTip_MotionSensitivity"));
             label74.Text = LocRm.GetString("Directory");
 
-            LocRm.SetString(label23,"Listen");
+            LocRm.SetString(label23, "Listen");
             LocRm.SetString(label22, "TriggerRecording");
 
             label11.Text = LocRm.GetString("MediaLocation");
@@ -304,8 +296,6 @@ namespace iSpyApplication
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Scheduling));
             HideTab(tabPage5, Helper.HasFeature(Enums.Features.Storage));
             LocRm.SetString(linkLabel4, "CopyTo");
-
-
         }
 
         private void HideTab(TabPage t, bool show)
@@ -342,7 +332,6 @@ namespace iSpyApplication
                     p => p.name.ToLower() == name.ToLower() && p.id != VolumeLevel.Micobject.id) != null)
                 err += LocRm.GetString("Validate_Microphone_NameInUse") + Environment.NewLine;
 
-
             if (VolumeLevel.Micobject.settings.sourcename == "")
             {
                 err += LocRm.GetString("Validate_Microphone_SelectSource"); //"";
@@ -370,14 +359,13 @@ namespace iSpyApplication
                 return false;
 
             string err = "";
-                
+
             int nosoundinterval;
             if (!int.TryParse(txtNoSound.Text, out nosoundinterval))
                 err += LocRm.GetString("Validate_Microphone_NoSound") + Environment.NewLine;
             int soundinterval;
             if (!int.TryParse(txtSound.Text, out soundinterval))
                 err += LocRm.GetString("Validate_Microphone_Sound") + Environment.NewLine;
-
 
             if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 ||
                 txtMaxRecordTime.Text.Length < 1)
@@ -391,7 +379,6 @@ namespace iSpyApplication
                 return false;
             }
 
-
             VolumeLevel.Micobject.settings.buffer = Convert.ToInt32(txtBuffer.Value);
             VolumeLevel.Micobject.recorder.inactiverecord = Convert.ToInt32(txtInactiveRecord.Value);
             VolumeLevel.Micobject.recorder.maxrecordtime = Convert.ToInt32(txtMaxRecordTime.Value);
@@ -399,13 +386,13 @@ namespace iSpyApplication
             VolumeLevel.Micobject.name = txtMicrophoneName.Text.Trim();
 
             VolumeLevel.Micobject.alerts.active = chkSound.Checked;
-                
+
             VolumeLevel.Micobject.alerts.mode = "sound";
             if (rdoNoMovement.Checked)
                 VolumeLevel.Micobject.alerts.mode = "nosound";
             VolumeLevel.Micobject.detector.nosoundinterval = nosoundinterval;
             VolumeLevel.Micobject.detector.soundinterval = soundinterval;
-                
+
             VolumeLevel.Micobject.schedule.active = chkSchedule.Checked;
             VolumeLevel.Micobject.width = VolumeLevel.Width;
             VolumeLevel.Micobject.height = VolumeLevel.Height;
@@ -414,10 +401,9 @@ namespace iSpyApplication
             VolumeLevel.Micobject.detector.recordondetect = rdoRecordDetect.Checked;
             VolumeLevel.Micobject.detector.recordonalert = rdoRecordAlert.Checked;
             VolumeLevel.Micobject.recorder.minrecordtime = (int)numMinRecord.Value;
-                
+
             VolumeLevel.Micobject.settings.accessgroups = txtAccessGroups.Text;
             VolumeLevel.Micobject.settings.messaging = chkMessaging.Checked;
-
 
             if (txtDirectory.Text.Trim() == "")
                 txtDirectory.Text = MainForm.RandomString(5);
@@ -431,7 +417,7 @@ namespace iSpyApplication
 
             int tempidx = VolumeLevel.Micobject.settings.directoryIndex;
             VolumeLevel.Micobject.settings.directoryIndex = newind;
-                
+
             string newdir = Helper.GetMediaDirectory(1, VolumeLevel.Micobject.id) + "video\\" + txtDirectory.Text + "\\";
 
             if (IsNew)
@@ -453,9 +439,11 @@ namespace iSpyApplication
                                 Directory.Delete(newdir, true);
                                 Directory.CreateDirectory(newdir);
                                 break;
+
                             case DialogResult.Cancel:
                                 VolumeLevel.Micobject.settings.directoryIndex = tempidx;
                                 return false;
+
                             case DialogResult.No:
                                 break;
                         }
@@ -505,9 +493,11 @@ namespace iSpyApplication
                                         Directory.CreateDirectory(newdir);
                                     }
                                     break;
+
                                 case DialogResult.Cancel:
                                     VolumeLevel.Micobject.settings.directoryIndex = tempidx;
                                     return false;
+
                                 case DialogResult.No:
                                     break;
                             }
@@ -522,7 +512,6 @@ namespace iSpyApplication
                 }
             }
 
-                
             VolumeLevel.Micobject.directory = txtDirectory.Text;
             VolumeLevel.Micobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
 
@@ -537,7 +526,6 @@ namespace iSpyApplication
                 MainForm.NeedsMediaRefresh = Helper.Now;
             }
             return true;
-            
         }
 
         public bool IsNumeric(string numberString)
@@ -561,7 +549,6 @@ namespace iSpyApplication
             VolumeLevel.Micobject.name = txtMicrophoneName.Text;
         }
 
-        
         private void AddMicrophoneFormClosing(object sender, FormClosingEventArgs e)
         {
             VolumeLevel.IsEdit = false;
@@ -603,7 +590,6 @@ namespace iSpyApplication
             GoPrevious();
         }
 
-
         private void TcMicrophoneSelectedIndexChanged(object sender, EventArgs e)
         {
             btnBack.Enabled = tcMicrophone.SelectedIndex != 0;
@@ -611,12 +597,10 @@ namespace iSpyApplication
             btnNext.Enabled = tcMicrophone.SelectedIndex != tcMicrophone.TabCount - 1;
         }
 
-
         private void Login()
         {
             MainClass.Connect(MainForm.Website + "/subscribe.aspx", false);
         }
-       
 
         #region Nested type: ListItem
 
@@ -637,27 +621,30 @@ namespace iSpyApplication
             }
         }
 
-        #endregion
+        #endregion Nested type: ListItem
 
         private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string url = MainForm.Website+"/userguide-microphone-settings.aspx";
+            string url = MainForm.Website + "/userguide-microphone-settings.aspx";
             switch (tcMicrophone.SelectedTab.Name)
             {
                 case "tabPage1":
-                    url = MainForm.Website+"/userguide-microphone-settings.aspx#1";
+                    url = MainForm.Website + "/userguide-microphone-settings.aspx#1";
                     break;
+
                 case "tabPage2":
-                    url = MainForm.Website+"/userguide-microphone-alerts.aspx";
+                    url = MainForm.Website + "/userguide-microphone-alerts.aspx";
                     break;
+
                 case "tabPage4":
-                    url = MainForm.Website+"/userguide-microphone-recording.aspx#2";
+                    url = MainForm.Website + "/userguide-microphone-recording.aspx#2";
                     break;
+
                 case "tabPage3":
-                    url = MainForm.Website+"/userguide-scheduling.aspx#6";
+                    url = MainForm.Website + "/userguide-scheduling.aspx#6";
                     break;
             }
-            MainForm.OpenUrl( url);
+            MainForm.OpenUrl(url);
         }
 
         private void ddlCopyFrom_SelectedIndexChanged(object sender, EventArgs e)
@@ -688,7 +675,6 @@ namespace iSpyApplication
                             MainForm.Schedule.Add(t);
                         }
                         scheduleEditor1.RenderSchedule();
-
                     }
                 }
                 ddlCopyFrom.SelectedIndex = 0;
@@ -708,17 +694,16 @@ namespace iSpyApplication
                 txt += ")";
                 lblFormat.Text = txt;
             }
-            
         }
 
         private void ddlPlayback_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_loaded && ddlPlayback.SelectedIndex>-1 && ddlPlayback.Enabled)
+            if (_loaded && ddlPlayback.SelectedIndex > -1 && ddlPlayback.Enabled)
             {
-                var g = new Guid(((ListItem) ddlPlayback.SelectedItem).Value);
+                var g = new Guid(((ListItem)ddlPlayback.SelectedItem).Value);
                 VolumeLevel.Micobject.settings.deviceout = g.ToString();
                 bool listen = false;
-                if (VolumeLevel.WaveOut!=null)
+                if (VolumeLevel.WaveOut != null)
                 {
                     if (VolumeLevel.Listening)
                     {
@@ -785,14 +770,15 @@ namespace iSpyApplication
                     case 1:
                         at = "disconnect";
                         break;
+
                     case 2:
                         at = "reconnect";
                         break;
+
                     case 3:
                         at = "reconnectfailed";
                         break;
                 }
-
 
                 actionEditor1.Init(at, VolumeLevel.Micobject.id, 1);
             }
@@ -802,7 +788,7 @@ namespace iSpyApplication
         {
             if (Save())
             {
-                using (var ct = new CopyTo { OM = VolumeLevel.Micobject})
+                using (var ct = new CopyTo { OM = VolumeLevel.Micobject })
                 {
                     ct.ShowDialog(this);
                 }

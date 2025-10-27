@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace iSpyApplication.Controls
 {
@@ -15,7 +15,7 @@ namespace iSpyApplication.Controls
 
         public delegate void WindowStateDelegate(object sender, RegistryKey key);
 
-        #endregion
+        #endregion Delegates
 
         private bool _mAllowSaveMinimized;
         private int _mNormalHeight;
@@ -59,6 +59,7 @@ namespace iSpyApplication.Controls
         }
 
         public event WindowStateDelegate LoadStateEvent;
+
         public event WindowStateDelegate SaveStateEvent;
 
         private void OnResize(object sender, EventArgs e)
@@ -104,7 +105,7 @@ namespace iSpyApplication.Controls
 
             if (key != null)
             {
-                key.SetValue("WindowState", (int) _mWindowState);
+                key.SetValue("WindowState", (int)_mWindowState);
 
                 // fire SaveState event
                 SaveStateEvent?.Invoke(this, key);
@@ -117,13 +118,12 @@ namespace iSpyApplication.Controls
             RegistryKey key = Registry.CurrentUser.OpenSubKey(_mRegPath);
             if (key != null)
             {
-                var left = (int) key.GetValue("Left", _mParent.Left);
-                var top = (int) key.GetValue("Top", _mParent.Top);
-                var width = (int) key.GetValue("Width", _mParent.Width);
-                var height = (int) key.GetValue("Height", _mParent.Height);
-                var windowState = (FormWindowState) key.GetValue("WindowState",
-                                                                 (int) _mParent.WindowState);
-
+                var left = (int)key.GetValue("Left", _mParent.Left);
+                var top = (int)key.GetValue("Top", _mParent.Top);
+                var width = (int)key.GetValue("Width", _mParent.Width);
+                var height = (int)key.GetValue("Height", _mParent.Height);
+                var windowState = (FormWindowState)key.GetValue("WindowState",
+                                                                 (int)_mParent.WindowState);
 
                 _mParent.WindowState = windowState;
                 if (IsOnScreen(new Point(left, top)))

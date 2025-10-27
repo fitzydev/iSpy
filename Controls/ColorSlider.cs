@@ -1,9 +1,9 @@
-﻿using System;
+﻿using iSpyApplication.Properties;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using iSpyApplication.Properties;
 
 namespace iSpyApplication.Controls
 {
@@ -25,11 +25,11 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// An event, to notify about changes of <see cref="Min"/> or <see cref="Max"/> properties.
         /// </summary>
-        /// 
+        ///
         /// <remarks><para>The event is fired after changes of <see cref="Min"/> or <see cref="Max"/> property,
         /// which is caused by user dragging the corresponding control’s arrow (slider).</para>
         /// </remarks>
-        /// 
+        ///
         public event EventHandler ValuesChanged;
 
         public enum ColorSliderType
@@ -112,7 +112,7 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Specifies control's type.
         /// </summary>
-        /// 
+        ///
         /// <remarks>See documentation to <see cref="ColorSliderType"/> enumeration for information about
         /// the usage of this property.</remarks>
         ///
@@ -132,7 +132,7 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Minimum selected value, [0, 255].
         /// </summary>
-        /// 
+        ///
         [DefaultValue(0)]
         public int Min
         {
@@ -147,7 +147,7 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Maximum selected value, [0, 255].
         /// </summary>
-        /// 
+        ///
         [DefaultValue(255)]
         public int Max
         {
@@ -162,18 +162,18 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Single or Double arrow slider control.
         /// </summary>
-        /// 
+        ///
         /// <remarks><para>The property specifies if the slider has one or two selection arrows (sliders).</para>
-        /// 
+        ///
         /// <para>The single arrow allows only to specify one value, which is set by <see cref="Min"/>
         /// property. The single arrow slider is useful for applications, where it is required to select
         /// color threshold, for example.</para>
-        /// 
+        ///
         /// <para>The double arrow allows to specify two values, which are set by <see cref="Min"/>
         /// and <see cref="Max"/> properties. The double arrow slider is useful for applications, where it is
         /// required to select filtering color range, for example.</para>
         /// </remarks>
-        /// 
+        ///
         [DefaultValue(true)]
         public bool DoubleArrow
         {
@@ -189,11 +189,10 @@ namespace iSpyApplication.Controls
             }
         }
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ColorSlider"/> class.
         /// </summary>
-        /// 
+        ///
         public ColorSlider()
         {
             InitializeComponent();
@@ -208,9 +207,9 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Dispose the object.
         /// </summary>
-        /// 
+        ///
         /// <param name="disposing">Specifies if disposing was invoked by user's code.</param>
-        /// 
+        ///
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -225,15 +224,14 @@ namespace iSpyApplication.Controls
         private void InitializeComponent()
         {
             SuspendLayout();
-            // 
+            //
             // ColorSlider
-            // 
+            //
             Paint += ColorSliderPaint;
             MouseMove += ColorSliderMouseMove;
             MouseDown += ColorSliderMouseDown;
             MouseUp += ColorSliderMouseUp;
             ResumeLayout(false);
-
         }
 
         // Paint control
@@ -284,6 +282,7 @@ namespace iSpyApplication.Controls
                         brush.Dispose();
                     }
                     break;
+
                 case ColorSliderType.Threshold:
                     // 1 - fill with color 1
                     brush = new SolidBrush(_startColor);
@@ -295,7 +294,6 @@ namespace iSpyApplication.Controls
                     brush.Dispose();
                     break;
             }
-
 
             // draw arrows
             x -= 4;

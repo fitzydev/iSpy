@@ -10,7 +10,9 @@ namespace iSpyApplication.Controls
     {
         private bool _navTimeline;
         private FilesFile _ff;
+
         public event SeekEventHandler Seek;
+
         public delegate void SeekEventHandler(object sender, float percent);
 
         public VideoNavigator()
@@ -28,17 +30,19 @@ namespace iSpyApplication.Controls
 
         private int _value;
         private int _mouseX;
+
         public int Value
         {
             get { return _value; }
-            set { _value = value;
+            set
+            {
+                _value = value;
                 Invalidate();
             }
         }
 
         private void VideoNavigator_Load(object sender, EventArgs e)
         {
-            
         }
 
         protected override void OnPaint(PaintEventArgs pe)
@@ -46,7 +50,7 @@ namespace iSpyApplication.Controls
             base.OnPaint(pe);
 
             if (_ff != null)
-            { 
+            {
                 //draw scrolling graph
                 var pxCursor = ((float)Value / 100) * Width;
                 if (_navTimeline)
@@ -66,15 +70,13 @@ namespace iSpyApplication.Controls
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.DrawImage(ActivityGraph, xoff, 0, w, _timelineHeight);
 
-
                 Brush bPosition = new SolidBrush(Color.Black);
-
 
                 int x2 = (int)pxCursor - 4;
                 int y2 = Height - _timelineHeight / 2;
                 var navPoints = new[]
                     {
-                        new Point(x2-4,y2-6), 
+                        new Point(x2-4,y2-6),
                         new Point(x2+4,y2),
                         new Point(x2-4,y2+6)
                     };
@@ -82,12 +84,10 @@ namespace iSpyApplication.Controls
                 g.FillPolygon(Brushes.White, navPoints);
                 g.DrawPolygon(Pens.Black, navPoints);
 
-
                 bPosition.Dispose();
             }
-
         }
-        
+
         public void Init(FilesFile fileData)
         {
             _ff = fileData ?? new FilesFile { AlertData = "0" };
@@ -106,6 +106,7 @@ namespace iSpyApplication.Controls
         }
 
         private readonly object _aglock = new object();
+
         public void ReleaseGraph()
         {
             if (_activityGraph != null)
@@ -123,8 +124,9 @@ namespace iSpyApplication.Controls
         private string[] _datapoints;
         private int _timelineHeight = 30;
         //readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
-        
+
         private Bitmap _activityGraph;
+
         private Bitmap ActivityGraph
         {
             get
@@ -140,7 +142,6 @@ namespace iSpyApplication.Controls
                     }
                     else
                     {
-                        
                         lock (_aglock)
                         {
                             _activityGraph = new Bitmap(_datapoints.Length, _timelineHeight);
@@ -163,7 +164,6 @@ namespace iSpyApplication.Controls
                                 triggermax = ((float)_ff.TriggerLevelMax) * dFact;
                             }
 
-
                             for (int i = 0; i < _datapoints.Length; i++)
                             {
                                 float d;
@@ -178,7 +178,6 @@ namespace iSpyApplication.Controls
                                     else
                                         gGraph.DrawLine(pOk, i, _timelineHeight, i, _timelineHeight - Convert.ToInt32(d * (_timelineHeight / 100d)));
                                 }
-
                             }
                             gGraph.DrawLine(pOk, 0, _timelineHeight / 2, _activityGraph.Width, _timelineHeight / 2);
                             pOk.Dispose();
@@ -208,7 +207,6 @@ namespace iSpyApplication.Controls
             Invalidate();
         }
 
-
         protected override void OnMouseDown(MouseEventArgs e)
         {
             _navTimeline = true;
@@ -225,6 +223,5 @@ namespace iSpyApplication.Controls
                 Seek?.Invoke(this, val);
             }
         }
-
     }
 }

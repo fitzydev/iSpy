@@ -1,17 +1,17 @@
-using System.Runtime.ExceptionServices;
 using iSpyApplication.Utilities;
+using System.Runtime.ExceptionServices;
 
 namespace iSpyPRO.DirectShow
 {
+    using Internals;
     using System;
     using System.Runtime.InteropServices;
     using System.Runtime.InteropServices.ComTypes;
-    using Internals;
 
     /// <summary>
     /// DirectShow filter information.
     /// </summary>
-    /// 
+    ///
     public class FilterInfo : IComparable
     {
         /// <summary>
@@ -22,63 +22,63 @@ namespace iSpyPRO.DirectShow
         /// <summary>
         /// Filters's moniker string.
         /// </summary>
-        /// 
+        ///
         public string MonikerString { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FilterInfo"/> class.
         /// </summary>
-        /// 
+        ///
         /// <param name="monikerString">Filters's moniker string.</param>
-        /// 
-        public FilterInfo( string monikerString )
+        ///
+        public FilterInfo(string monikerString)
         {
             MonikerString = monikerString;
-            Name = GetName( monikerString );
+            Name = GetName(monikerString);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FilterInfo"/> class.
         /// </summary>
-        /// 
+        ///
         /// <param name="moniker">Filter's moniker object.</param>
-        /// 
-        internal FilterInfo( IMoniker moniker )
+        ///
+        internal FilterInfo(IMoniker moniker)
         {
-            MonikerString = GetMonikerString( moniker );
-            Name = GetName( moniker );
+            MonikerString = GetMonikerString(moniker);
+            Name = GetName(moniker);
         }
 
         /// <summary>
         /// Compare the object with another instance of this class.
         /// </summary>
-        /// 
+        ///
         /// <param name="value">Object to compare with.</param>
-        /// 
+        ///
         /// <returns>A signed number indicating the relative values of this instance and <b>value</b>.</returns>
-        /// 
-        public int CompareTo( object value )
+        ///
+        public int CompareTo(object value)
         {
-            var f = (FilterInfo) value;
+            var f = (FilterInfo)value;
 
-            if ( f == null )
+            if (f == null)
                 return 1;
 
-            return ( String.Compare(Name, f.Name, StringComparison.Ordinal) );
+            return (String.Compare(Name, f.Name, StringComparison.Ordinal));
         }
 
         /// <summary>
         /// Create an instance of the filter.
         /// </summary>
-        /// 
+        ///
         /// <param name="filterMoniker">Filter's moniker string.</param>
-        /// 
+        ///
         /// <returns>Returns filter's object, which implements <b>IBaseFilter</b> interface.</returns>
-        /// 
+        ///
         /// <remarks>The returned filter's object should be released using <b>Marshal.ReleaseComObject()</b>.</remarks>
-        /// 
-        [HandleProcessCorruptedStateExceptions] 
-        public static object CreateFilter( string filterMoniker )
+        ///
+        [HandleProcessCorruptedStateExceptions]
+        public static object CreateFilter(string filterMoniker)
         {
             object filterObject = null;
             object comObj = null;
@@ -180,42 +180,42 @@ namespace iSpyPRO.DirectShow
         //
         // Get moniker string of the moniker
         //
-        private string GetMonikerString( IMoniker moniker )
+        private string GetMonikerString(IMoniker moniker)
         {
             string str;
-            moniker.GetDisplayName( null, null, out str );
+            moniker.GetDisplayName(null, null, out str);
             return str;
         }
 
         //
         // Get filter name represented by the moniker
         //
-        private string GetName( IMoniker moniker )
+        private string GetName(IMoniker moniker)
         {
             Object bagObj = null;
             IPropertyBag bag;
 
             try
             {
-                Guid bagId = typeof( IPropertyBag ).GUID;
+                Guid bagId = typeof(IPropertyBag).GUID;
                 // get property bag of the moniker
-                moniker.BindToStorage( null, null, ref bagId, out bagObj );
-                bag = (IPropertyBag) bagObj;
+                moniker.BindToStorage(null, null, ref bagId, out bagObj);
+                bag = (IPropertyBag)bagObj;
 
                 // read FriendlyName
                 object val = "";
-                int hr = bag.Read( "FriendlyName", ref val, IntPtr.Zero );
-                if ( hr != 0 )
-                    Marshal.ThrowExceptionForHR( hr );
+                int hr = bag.Read("FriendlyName", ref val, IntPtr.Zero);
+                if (hr != 0)
+                    Marshal.ThrowExceptionForHR(hr);
 
                 // get it as string
-                var ret = (string) val;
-                if ( string.IsNullOrEmpty(ret) )
-                    throw new ApplicationException( );
+                var ret = (string)val;
+                if (string.IsNullOrEmpty(ret))
+                    throw new ApplicationException();
 
                 return ret;
             }
-            catch ( Exception )
+            catch (Exception)
             {
                 return "";
             }
@@ -223,9 +223,9 @@ namespace iSpyPRO.DirectShow
             {
                 // release all COM objects
                 bag = null;
-                if ( bagObj != null )
+                if (bagObj != null)
                 {
-                    Marshal.ReleaseComObject( bagObj );
+                    Marshal.ReleaseComObject(bagObj);
                     bagObj = null;
                 }
             }
@@ -234,26 +234,26 @@ namespace iSpyPRO.DirectShow
         //
         // Get filter name represented by the moniker string
         //
-        private string GetName( string monikerString )
+        private string GetName(string monikerString)
         {
             IBindCtx bindCtx;
             String name = "";
             int n = 0;
 
             // create bind context
-            if ( NativeMethods.CreateBindCtx( 0, out bindCtx ) == 0 )
+            if (NativeMethods.CreateBindCtx(0, out bindCtx) == 0)
             {
                 // convert moniker`s string to a moniker
                 IMoniker moniker;
                 if (NativeMethods.MkParseDisplayName(bindCtx, monikerString, ref n, out moniker) == 0)
                 {
                     // get device name
-                    name = GetName( moniker );
+                    name = GetName(moniker);
 
-                    Marshal.ReleaseComObject( moniker );
+                    Marshal.ReleaseComObject(moniker);
                     moniker = null;
                 }
-                Marshal.ReleaseComObject( bindCtx );
+                Marshal.ReleaseComObject(bindCtx);
                 bindCtx = null;
             }
             return name;

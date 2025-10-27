@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -62,7 +57,7 @@ namespace iSpyApplication
                 return;
             }
 
-            var oc = new objectsCommand { name = name, command = execute, id = MainForm.NextCommandId, emitshortcut = txtShortcutKeys.Text.Trim()};
+            var oc = new objectsCommand { name = name, command = execute, id = MainForm.NextCommandId, emitshortcut = txtShortcutKeys.Text.Trim() };
 
             MainForm.RemoteCommands.Add(oc);
             DialogResult = DialogResult.OK;
@@ -90,7 +85,6 @@ namespace iSpyApplication
 
                 txtShortcutKeys.Text = "";
             }
-            
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -105,7 +99,6 @@ namespace iSpyApplication
 
         private void tableLayoutPanel2_Paint(object sender, PaintEventArgs e)
         {
-
         }
 
         private void AddRemoteCommand_Load(object sender, EventArgs e)
@@ -120,7 +113,6 @@ namespace iSpyApplication
                     txtName.Text = OC.name;
 
                 Text = btnAddCommand.Text = LocRm.GetString("Update");
-                
             }
         }
     }

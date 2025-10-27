@@ -61,6 +61,7 @@ namespace iSpyApplication.Controls
         }
 
         public delegate void AngleChangedDelegate();
+
         public event AngleChangedDelegate AngleChanged;
 
         private static PointF DegreesToXy(float degrees, float radius, Point origin)

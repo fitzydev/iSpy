@@ -8,7 +8,6 @@ namespace iSpyApplication.Controls
 {
     public partial class ScheduleEditor : UserControl
     {
-        
         private ISpyControl io;
 
         public ISpyControl Io
@@ -38,7 +37,7 @@ namespace iSpyApplication.Controls
                 objecttypeid = Io.ObjectTypeID,
                 daysofweek = "",
                 parameter = "",
-                time = (int) DateTime.Now.TimeOfDay.TotalMinutes,
+                time = (int)DateTime.Now.TimeOfDay.TotalMinutes,
                 active = true
             };
 
@@ -50,7 +49,7 @@ namespace iSpyApplication.Controls
                     MainForm.Schedule.Add(see.ose);
                     RenderSchedule();
                 }
-            }            
+            }
         }
 
         public void RenderSchedule()
@@ -64,7 +63,7 @@ namespace iSpyApplication.Controls
             int vertScrollWidth = SystemInformation.VerticalScrollBarWidth;
 
             var w = flpSchedule.Width - 2;
-            if (se.Count*AlertEventRow.Height >= flpSchedule.Height)
+            if (se.Count * AlertEventRow.Height >= flpSchedule.Height)
                 w = w - vertScrollWidth;
 
             foreach (var e in se)
@@ -80,11 +79,9 @@ namespace iSpyApplication.Controls
 
             flpSchedule.ResumeLayout(true);
             flpSchedule.HorizontalScroll.Visible = flpSchedule.HorizontalScroll.Enabled = false;
-
-
         }
 
-        void CMouseOver(object sender, EventArgs e)
+        private void CMouseOver(object sender, EventArgs e)
         {
             foreach (var c in flpSchedule.Controls)
             {
@@ -92,21 +89,20 @@ namespace iSpyApplication.Controls
                 if (o != sender)
                 {
                     o.RevertBackground();
-
                 }
             }
         }
 
-        void CScheduleEntryDelete(object sender, EventArgs e)
+        private void CScheduleEntryDelete(object sender, EventArgs e)
         {
-            var sr = (ScheduleRow) sender;
+            var sr = (ScheduleRow)sender;
             var oe = sr.Ose;
             MainForm.Schedule.Remove(oe);
             flpSchedule.Controls.Remove(sr);
             flpSchedule.Invalidate();
         }
 
-        void CScheduleEntryEdit(object sender, EventArgs e)
+        private void CScheduleEntryEdit(object sender, EventArgs e)
         {
             var sr = (ScheduleRow)sender;
             var ose = sr.Ose;
@@ -120,7 +116,6 @@ namespace iSpyApplication.Controls
                 }
             }
         }
-
 
         public class ScheduleItem
         {
@@ -169,23 +164,29 @@ namespace iSpyApplication.Controls
                     switch (day)
                     {
                         case "1":
-                            r += LocRm.GetString("DOWMon")+",";
+                            r += LocRm.GetString("DOWMon") + ",";
                             break;
+
                         case "2":
                             r += LocRm.GetString("DOWTue") + ",";
                             break;
+
                         case "3":
                             r += LocRm.GetString("DOWWed") + ",";
                             break;
+
                         case "4":
                             r += LocRm.GetString("DOWThu") + ",";
                             break;
+
                         case "5":
                             r += LocRm.GetString("DOWFri") + ",";
                             break;
+
                         case "6":
                             r += LocRm.GetString("DOWSat") + ",";
                             break;
+
                         case "0":
                             r += LocRm.GetString("DOWSun") + ",";
                             break;
@@ -193,14 +194,10 @@ namespace iSpyApplication.Controls
                 }
                 return r.Trim(',');
             }
-
         }
 
         private void ScheduleEditor_Load(object sender, EventArgs e)
         {
-            
-
-
             button1.Text = LocRm.GetString("Add");
         }
 
@@ -216,7 +213,6 @@ namespace iSpyApplication.Controls
 
         private void flpSchedule_Layout(object sender, LayoutEventArgs e)
         {
-
         }
     }
 }

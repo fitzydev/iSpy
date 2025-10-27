@@ -18,25 +18,25 @@ namespace iSpyApplication.Controls
             AutoCompleteList = new List<TextEntry>();
 
             _listBox = new ListBox
-                      {
-                          Name = "SuggestionListBox",
-                          Font = Font,
-                          Visible = true
-                      };
+            {
+                Name = "SuggestionListBox",
+                Font = Font,
+                Visible = true
+            };
             MaxDropDownItems = 20;
             RowHeight = GetStringHeight("H");
             _panel = new Panel
-                    {
-                        Visible = false,
-                        AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                        ClientSize = new Size(1, 1),
-                        Name = "SuggestionPanel",
-                        Padding = new Padding(0, 0, 0, 0),
-                        Margin = new Padding(0, 0, 0, 0),
-                        BackColor = Color.Transparent,
-                        ForeColor = Color.Transparent,
-                        Text = ""
-                    };
+            {
+                Visible = false,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ClientSize = new Size(1, 1),
+                Name = "SuggestionPanel",
+                Padding = new Padding(0, 0, 0, 0),
+                Margin = new Padding(0, 0, 0, 0),
+                BackColor = Color.Transparent,
+                ForeColor = Color.Transparent,
+                Text = ""
+            };
             _panel.PerformLayout();
             if (!_panel.Controls.Contains(_listBox))
             {
@@ -53,6 +53,7 @@ namespace iSpyApplication.Controls
             _listBox.DataSource = CurrentAutoCompleteList;
             _oldText = Text;
         }
+
         #endregion Constructors
 
         #region Fields
@@ -83,9 +84,7 @@ namespace iSpyApplication.Controls
 
         private int RowHeight { get; }
 
-
         public List<TextEntry> AutoCompleteList;
-
 
         public class TextEntry
         {
@@ -108,7 +107,6 @@ namespace iSpyApplication.Controls
                 return s.Aggregate(true, (current, t) => current && TextUc.Contains(t));
             }
         }
-
 
         [Browsable(true)]
         public int MinTypedCharacters { get; set; }
@@ -142,7 +140,6 @@ namespace iSpyApplication.Controls
             }
             _maxHeight = GetStringHeight(measureString);
         }
-
 
         private int GetStringHeight(string measureString)
         {
@@ -234,7 +231,6 @@ namespace iSpyApplication.Controls
             _oldText = Text;
         }
 
-
         private void ListBoxKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter) return;
@@ -319,7 +315,7 @@ namespace iSpyApplication.Controls
         private void UpdateCurrentAutoCompleteList()
         {
             CurrentAutoCompleteList.Clear();
-            var words = Text.Replace("-","").ToUpper().Trim().Split(' ');
+            var words = Text.Replace("-", "").ToUpper().Trim().Split(' ');
             foreach (var te in AutoCompleteList)
             {
                 if (te.Contains(words))
@@ -342,20 +338,17 @@ namespace iSpyApplication.Controls
                 {
                     ParentForm.Controls.Add(_panel);
                 }
-                ((CurrencyManager) _listBox.BindingContext[CurrentAutoCompleteList]).Refresh();
+                ((CurrencyManager)_listBox.BindingContext[CurrentAutoCompleteList]).Refresh();
             }
         }
-
 
         private void SetPanelPosition(Panel panel)
         {
             var availableBelow = 0;
             var p = GetLocationRelativeToForm(this);
 
-
             var availableAbove = p.Y;
             availableBelow += ParentForm.Height - p.Y - Height;
-
 
             if (availableBelow > panel.Height)
             {
@@ -363,7 +356,7 @@ namespace iSpyApplication.Controls
             }
             else if (availableAbove > panel.Height)
             {
-                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height/RowHeight)/3);
+                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height / RowHeight) / 3);
             }
             else if (availableBelow > availableAbove)
             {
@@ -373,7 +366,7 @@ namespace iSpyApplication.Controls
             else
             {
                 panel.Height = availableAbove;
-                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height/RowHeight)/3);
+                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height / RowHeight) / 3);
             }
         }
 
@@ -384,17 +377,14 @@ namespace iSpyApplication.Controls
             {
                 var locationOnForm = findForm.PointToClient(c.Parent.PointToScreen(c.Location));
 
-
                 return locationOnForm;
             }
             return Point.Empty;
         }
 
-
         private void SetPanelHeight(Panel pnl)
         {
             var currentList = "H\n";
-
 
             if (CurrentAutoCompleteList.Count < _maxDropDownItems)
             {
@@ -406,7 +396,7 @@ namespace iSpyApplication.Controls
                     }
                     var listHeight = GetStringHeight(currentList);
 
-                    pnl.Height = listHeight == 0 ? 0 : Math.Min(_maxHeight,listHeight);
+                    pnl.Height = listHeight == 0 ? 0 : Math.Min(_maxHeight, listHeight);
                 }
             }
             else
@@ -430,7 +420,6 @@ namespace iSpyApplication.Controls
             }
         }
 
-
         private void EndResize(object sender, EventArgs e)
         {
             if (_resizing)
@@ -442,7 +431,6 @@ namespace iSpyApplication.Controls
                 _panel.Visible = true;
             }
         }
-
 
         public new void Dispose()
         {
