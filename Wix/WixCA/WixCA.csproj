@@ -4,6 +4,11 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
+    <AssemblyTitle>WixCA</AssemblyTitle>
+    <Product>WixCA</Product>
+    <Copyright>Copyright ©  2015</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <OutputPath>bin\x64\Debug\</OutputPath>
