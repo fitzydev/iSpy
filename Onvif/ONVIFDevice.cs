@@ -12,6 +12,10 @@ using iSpyApplication.Onvif.Security;
 using iSpyApplication.OnvifServices;
 using iSpyApplication.Utilities;
 using DateTime = System.DateTime;
+using CoreWCF;
+using CoreWCF.Channels;
+using System.ServiceModel.Security;
+using System.Xml;
 
 namespace iSpyApplication.Onvif
 {
@@ -26,7 +30,7 @@ namespace iSpyApplication.Onvif
         //public event EventHandler<DeviceEvent> EventReceived;
         //public event EventHandler Stopped;
 
-        private readonly IOnvifClientFactory _onvifClientFactory;
+        private readonly IOnvifClientFactory _clientFactory;
         private readonly string _deviceServicePath;
         private readonly IConnectionParameters _connectionParameters;
         private readonly int _rtspPort;
@@ -54,7 +58,7 @@ namespace iSpyApplication.Onvif
             _rtspPort = rtspPort;
 
             _connectionParameters = new ConnectionParameters(ServiceUri, _credential, TimeSpan.FromSeconds(5));
-            _onvifClientFactory = new OnvifClientFactory();
+            _clientFactory = new OnvifClientFactory();
             _deviceServicePath = _connectionParameters.ConnectionUri.AbsolutePath;
 
             if (_deviceServicePath == "/")
@@ -131,7 +135,7 @@ namespace iSpyApplication.Onvif
 
                     var token = new SecurityToken(deviceTime, nonceBytes);
 
-                    _onvifClientFactory.SetSecurityToken(token);
+                    _clientFactory.SetSecurityToken(token);
                 }
 
                 _deviceCapabilities = GetDeviceCapabilities();
@@ -140,7 +144,7 @@ namespace iSpyApplication.Onvif
 
                 var mediaUri = new Uri(_deviceCapabilities.Media.XAddr);
                 var ep = new EndpointAddress(GetServiceUri(mediaUri.PathAndQuery));
-                var mediaClient = _onvifClientFactory.CreateClient<Media>(ep, _connectionParameters, MessageVersion.Soap12, _timeout);
+                var mediaClient = _clientFactory.CreateClient<Media>(ep, _connectionParameters, MessageVersion.Soap12, _timeout);
 
                 var profiles = mediaClient.GetProfiles(new GetProfilesRequest()).Profiles.ToList();
 
@@ -212,7 +216,7 @@ namespace iSpyApplication.Onvif
                     {
                         var ptzUri = new Uri(_deviceCapabilities.PTZ.XAddr);
                         ep = new EndpointAddress(GetServiceUri(ptzUri.PathAndQuery));
-                        PTZ = _onvifClientFactory.CreateClient<PTZ>(ep, _connectionParameters, MessageVersion.Soap12,
+                        PTZ = _clientFactory.CreateClient<PTZ>(ep, _connectionParameters, MessageVersion.Soap12,
                             _timeout);
 
                         try
@@ -373,7 +377,7 @@ namespace iSpyApplication.Onvif
         {
             Uri deviceServiceUri = GetServiceUri(_deviceServicePath);
 
-            var deviceClient = _onvifClientFactory.CreateClient<Device>(deviceServiceUri, _connectionParameters, MessageVersion.Soap12, _timeout);
+            var deviceClient = _clientFactory.CreateClient<Device>(deviceServiceUri, _connectionParameters, MessageVersion.Soap12, _timeout);
 
             return deviceClient;
         }

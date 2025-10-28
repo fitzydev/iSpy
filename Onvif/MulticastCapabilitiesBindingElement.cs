@@ -1,35 +1,28 @@
-﻿using System;
-using System.ServiceModel.Channels;
+﻿using CoreWCF.Channels;
+using System;
 
-namespace iSpyApplication.Onvif
+namespace iSpy.Onvif
 {
-    public class MulticastCapabilitiesBindingElement : BindingElement, IBindingMulticastCapabilities
+    public class MulticastCapabilitiesBindingElement : BindingElement
     {
-        private readonly bool _isMulticast;
-        public MulticastCapabilitiesBindingElement(bool isMulticast)
-        {
-            _isMulticast = isMulticast;
-        }
-        public override T GetProperty<T>(BindingContext context)
-        {
-            if (typeof(T) == typeof(IBindingMulticastCapabilities))
-            {
-                return (T)(object)this;
-            }
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
-            return context.GetInnerProperty<T>();
-        }
-        bool IBindingMulticastCapabilities.IsMulticast
-        {
-            get { return _isMulticast; }
-        }
-
         public override BindingElement Clone()
         {
-            return this;
+      return new MulticastCapabilitiesBindingElement();
+        }
+
+      public override T GetProperty<T>(BindingContext context)
+        {
+            return context.GetInnerProperty<T>();
+        }
+
+        public override bool CanBuildChannelFactory<TChannel>(BindingContext context)
+     {
+         return context.CanBuildInnerChannelFactory<TChannel>();
+  }
+
+        public override IChannelFactory<TChannel> BuildChannelFactory<TChannel>(BindingContext context)
+        {
+            return context.BuildInnerChannelFactory<TChannel>();
         }
     }
 }

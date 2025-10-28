@@ -15,6 +15,12 @@ using iSpyApplication;
 using iSpyApplication.Controls;
 using iSpyApplication.Utilities;
 using Microsoft.Win32;
+using CoreWCF;
+using CoreWCF.Configuration;
+using CoreWCF.Description;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 internal static class Program
 {
@@ -481,3 +487,37 @@ internal static class Program
         }
     }
 }
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add CoreWCF services
+builder.Services.AddServiceModelServices();
+
+var app = builder.Build();
+
+// Configure CoreWCF services
+app.UseServiceModel(serviceBuilder =>
+{
+    // Configure ONVIF services
+    serviceBuilder.AddService<OnvifServices>();
+serviceBuilder.AddServiceEndpoint<OnvifServices, IOnvifServices>(
+        new BasicHttpBinding(), 
+        "/OnvifServices"
+    );
+
+  // Configure service behaviors
+    serviceBuilder.ConfigureAllServiceHostBase(serviceHost =>
+    {
+        // Add custom message inspector for ONVIF security
+        serviceHost.Description.Endpoints.ToList().ForEach(endpoint =>
+    {
+    endpoint.EndpointBehaviors.Add(new CustomEndpointBehavior());
+        });
+    });
+});
+
+// Enable metadata
+var serviceMetadataBehavior = app.Services.GetRequiredService<ServiceMetadataBehavior>();
+serviceMetadataBehavior.HttpGetEnabled = true;
+
+app.Run();

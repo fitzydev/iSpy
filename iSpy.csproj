@@ -1274,6 +1274,12 @@ if "$(ConfigurationName)" == "Release" (
     <None Update="Service References\OnvifServices\iSpyApplication.OnvifServices.VideoSourceMode.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Update="Service References\OnvifServices\iSpyApplication.OnvifServices.VideoSources.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Update="Service References\OnvifServices\iSpyApplication.OnvifServices.VideoSourcesResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Update="Service References\OnvifServices\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>

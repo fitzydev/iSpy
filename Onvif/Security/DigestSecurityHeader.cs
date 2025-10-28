@@ -1,78 +1,67 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
-using System.ServiceModel.Channels;
+﻿using CoreWCF.Channels;
+using System;
 using System.Text;
-using System.Xml;
+using System.Security.Cryptography;
 
-namespace iSpyApplication.Onvif.Security
+namespace iSpy.Onvif.Security
 {
-    class DigestSecurityHeader : MessageHeader
+    public class DigestSecurityHeader : MessageHeader
     {
-        private readonly NetworkCredential _credential;
-        private readonly SecurityToken _token;
-        private long _createdTimestamp;
+        private readonly string _username;
+        private readonly string _password;
+        private readonly string _uri;
 
-        public DigestSecurityHeader(NetworkCredential credential, SecurityToken token)
+        public DigestSecurityHeader(string username, string password, string uri)
         {
-            _credential = credential;
-            _token = token;
-            _createdTimestamp = Stopwatch.GetTimestamp();
+            _username = username;
+            _password = password;
+            _uri = uri;
         }
 
         public override string Name => "Security";
 
         public override string Namespace => "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
 
-        protected override void OnWriteHeaderContents(XmlDictionaryWriter writer, MessageVersion messageVersion)
+        protected override void OnWriteHeaderContents(System.Xml.XmlDictionaryWriter writer, MessageVersion messageVersion)
         {
-            string createdTime = GetCurrentServerTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+            string nonce = GenerateNonce();
+            string created = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+            string combinedPassword = nonce + created + _password;
 
-            writer.WriteAttributeString("s", "mustUnderstand", null, "1");
+            byte[] hashedPassword = SHA1.HashData(Encoding.UTF8.GetBytes(combinedPassword));
+            string passwordDigest = Convert.ToBase64String(hashedPassword);
+
             writer.WriteStartElement("UsernameToken");
             writer.WriteStartElement("Username");
-            writer.WriteString(_credential.UserName);
+            writer.WriteString(_username);
             writer.WriteEndElement();
+
             writer.WriteStartElement("Password");
             writer.WriteAttributeString("Type", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest");
-            writer.WriteString(ComputePasswordDigest(_credential.Password, _token.NonceBytes, createdTime));
+            writer.WriteString(passwordDigest);
             writer.WriteEndElement();
+
             writer.WriteStartElement("Nonce");
             writer.WriteAttributeString("EncodingType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
-            writer.WriteBase64(_token.NonceBytes, 0, _token.NonceBytes.Length);
+            writer.WriteString(Convert.ToBase64String(Encoding.UTF8.GetBytes(nonce)));
             writer.WriteEndElement();
-            writer.WriteStartElement("Created", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-            writer.WriteString(createdTime);
+
+            writer.WriteStartElement("Created");
+            writer.WriteAttributeString("xmlns", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+            writer.WriteString(created);
             writer.WriteEndElement();
-            writer.WriteEndElement();
-            writer.Flush();
+
+            writer.WriteEndElement(); // UsernameToken
         }
 
-        private static string ComputePasswordDigest(string password, byte[] nonceBytes, string createdTime)
+        private static string GenerateNonce()
         {
-            byte[] createdTimeBytes = Encoding.UTF8.GetBytes(createdTime);
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-
-            byte[] aggregationBytes = nonceBytes.Concat(createdTimeBytes).Concat(passwordBytes).ToArray();
-            byte[] hashBytes = SHA1.Create().ComputeHash(aggregationBytes);
-
-            return Convert.ToBase64String(hashBytes);
-        }
-
-        private DateTime GetCurrentServerTime()
-        {
-            long timestamp = Stopwatch.GetTimestamp();
-            long elapsedMilliseconds = (timestamp - _createdTimestamp) * 1000 / Stopwatch.Frequency;
-
-            if (elapsedMilliseconds < 0)
+            byte[] nonceBytes = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
             {
-                _createdTimestamp = timestamp;
-                return _token.ServerTime;
+                rng.GetBytes(nonceBytes);
             }
-
-            return _token.ServerTime + TimeSpan.FromTicks(elapsedMilliseconds * TimeSpan.TicksPerMillisecond);
+            return Convert.ToBase64String(nonceBytes);
         }
     }
 }

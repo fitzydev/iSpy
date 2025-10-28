@@ -1,34 +1,27 @@
-﻿using System;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Description;
-using System.ServiceModel.Dispatcher;
+﻿using CoreWCF.Channels;
+using CoreWCF.Description;
+using CoreWCF.Dispatcher;
+using System;
 
-namespace iSpyApplication.Onvif.Behaviour
+namespace iSpy.Onvif.Behaviour
 {
-    class CustomEndpointBehavior : IEndpointBehavior
+    public class CustomEndpointBehavior : IEndpointBehavior
     {
-        private readonly IClientMessageInspector _clientInspector;
-
-        public CustomEndpointBehavior(IClientMessageInspector clientInspector)
-        {
-            _clientInspector = clientInspector;
-        }
-
-        public void Validate(ServiceEndpoint endpoint)
-        {
-        }
-
         public void AddBindingParameters(ServiceEndpoint endpoint, BindingParameterCollection bindingParameters)
         {
+        }
+
+        public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
+        {
+            clientRuntime.ClientMessageInspectors.Add(new CustomMessageInspector(new OnvifClientFactory()));
         }
 
         public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
         {
         }
 
-        public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
+        public void Validate(ServiceEndpoint endpoint)
         {
-            clientRuntime.MessageInspectors.Add(_clientInspector);
         }
     }
 }
