@@ -1,0 +1,27 @@
+# iSpy Revival (Work in Progress)
+
+> **:Warning: Development Status: WORK IN PROGRESS**
+>
+> This repository is an active "revival" project of the original iSpy software. The source code in its current state is **not functional** and is not ready for general use or compilation.
+>
+> Active development is underway to refactor, modernize, and restore functionality.
+
+iSpy is a cross-platform (Windows, Linux, macOS) remote computer monitoring tool written in C# and .NET MAUI.
+
+---
+
+## ⚖️ Licensing and Compliance
+
+This project (`fitzydev/iSpy`) is licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)**.
+
+* **Original License:** This project is a fork and continuation of the original iSpy software, which was licensed by its original developers under the LGPL-3.0.
+* **Continued Compliance:** All modifications and new code contributed to this repository are also released under the same LGPL-3.0 license.
+* **License Text:** A full copy of the license is available in the [license.txt](license.txt) file included in this repository.
+
+### What This Means
+
+The core idea of the LGPL-3.0 is to protect the freedom of this library while allowing it to be used by other applications (both open-source and proprietary).
+
+* **You can link to this library:** You are free to use iSpy (for example, by linking to it as a `.dll`) in your own applications, regardless of whether your application is open-source or closed-source.
+* **If you modify *this* code:** If you modify the iSpy source code *itself* and distribute your modified version, you **must** also release your modifications under the LGPL-3.0 license and make the source code of your changes available.
+* **Source Availability:** By hosting this project publicly on GitHub, we are fulfilling the requirement to make the source code available.
