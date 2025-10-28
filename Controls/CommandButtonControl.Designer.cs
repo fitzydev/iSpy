@@ -9,7 +9,7 @@ namespace iSpyApplication.Controls
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        private readonly Timer _tmrRefresh = new Timer();
+        private System.Windows.Forms.Timer timer;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -20,8 +20,8 @@ namespace iSpyApplication.Controls
             if (disposing && (components != null))
             {
                 components.Dispose();
-                _tmrRefresh.Stop();
-                _tmrRefresh.Dispose();
+                timer.Stop();
+                timer.Dispose();
             }
             base.Dispose(disposing);
         }
