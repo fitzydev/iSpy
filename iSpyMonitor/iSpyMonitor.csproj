@@ -20,8 +20,6 @@
     <OutputPath>bin\x64\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
   </ItemGroup>
   <ItemGroup>
