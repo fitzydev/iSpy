@@ -6,7 +6,7 @@
 >
 > Active development is underway to refactor, modernize, and restore functionality.
 
-iSpy is a cross-platform (Windows, Linux, macOS) remote computer monitoring tool written in C# and .NET MAUI.
+iSpy is a Windows remote computer monitoring tool written in C# and .NET MAUI.
 
 ---
 
