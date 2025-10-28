@@ -1,6 +1,6 @@
 # iSpy Revival (Work in Progress)
 
-> **:Warning: Development Status: WORK IN PROGRESS**
+> **⚠️ Development Status: WORK IN PROGRESS ⚠️**
 >
 > This repository is an active "revival" project of the original iSpy software. The source code in its current state is **not functional** and is not ready for general use or compilation.
 >
