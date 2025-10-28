@@ -76,62 +76,66 @@ namespace iSpyApplication
             ((System.ComponentModel.ISupportInitialize)(this._pictureBox1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
-            //
+            // 
             // _lblCopyright
-            //
+            // 
             this._lblCopyright.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._lblCopyright.Location = new System.Drawing.Point(174, 25);
+            this._lblCopyright.Font = new System.Drawing.Font("Adobe Fan Heiti Std B", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._lblCopyright.Location = new System.Drawing.Point(174, 22);
             this._lblCopyright.Name = "_lblCopyright";
-            this._lblCopyright.Size = new System.Drawing.Size(249, 25);
+            this._lblCopyright.Size = new System.Drawing.Size(249, 22);
             this._lblCopyright.TabIndex = 13;
             this._lblCopyright.Text = "Copyright © 2016 DeveloperInABox";
             this._lblCopyright.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            //
+            this._lblCopyright.Click += new System.EventHandler(this._lblCopyright_Click);
+            // 
             // _pictureBox1
-            //
+            // 
             this._pictureBox1.Image = global::iSpyApplication.Properties.Resources.ispy;
             this._pictureBox1.Location = new System.Drawing.Point(3, 3);
             this._pictureBox1.Name = "_pictureBox1";
             this.tableLayoutPanel1.SetRowSpan(this._pictureBox1, 5);
-            this._pictureBox1.Size = new System.Drawing.Size(152, 142);
+            this._pictureBox1.Size = new System.Drawing.Size(127, 123);
             this._pictureBox1.TabIndex = 17;
             this._pictureBox1.TabStop = false;
-            //
+            // 
             // linkLabel1
-            //
+            // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(174, 50);
+            this.linkLabel1.Location = new System.Drawing.Point(174, 44);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Padding = new System.Windows.Forms.Padding(3);
-            this.linkLabel1.Size = new System.Drawing.Size(154, 23);
+            this.linkLabel1.Size = new System.Drawing.Size(131, 20);
             this.linkLabel1.TabIndex = 21;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "www.iSpyConnect.com";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-            //
+            // 
             // _btnOk
-            //
+            // 
             this._btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnOk.BackColor = System.Drawing.SystemColors.Window;
             this._btnOk.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this._btnOk.Location = new System.Drawing.Point(333, 78);
+            this._btnOk.Location = new System.Drawing.Point(349, 69);
             this._btnOk.Name = "_btnOk";
-            this._btnOk.Size = new System.Drawing.Size(90, 26);
+            this._btnOk.Size = new System.Drawing.Size(74, 22);
             this._btnOk.TabIndex = 19;
             this._btnOk.Text = "OK";
-            this._btnOk.UseVisualStyleBackColor = true;
+            this._btnOk.UseVisualStyleBackColor = false;
             this._btnOk.Click += new System.EventHandler(this.BtnOkClick);
-            //
+            // 
             // _lblVersion
-            //
+            // 
             this._lblVersion.AutoSize = true;
+            this._lblVersion.Font = new System.Drawing.Font("Adobe Heiti Std R", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this._lblVersion.Location = new System.Drawing.Point(174, 0);
             this._lblVersion.Name = "_lblVersion";
-            this._lblVersion.Size = new System.Drawing.Size(56, 17);
+            this._lblVersion.Size = new System.Drawing.Size(45, 14);
             this._lblVersion.TabIndex = 18;
             this._lblVersion.Text = "Version";
-            //
+            // 
             // tableLayoutPanel1
-            //
+            // 
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40.17595F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 59.82405F));
@@ -144,21 +148,22 @@ namespace iSpyApplication
             this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 8);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 5;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(426, 129);
             this.tableLayoutPanel1.TabIndex = 22;
-            //
+            // 
             // AboutForm
-            //
-            this.AutoScaleBaseSize = new System.Drawing.Size(6, 15);
+            // 
+            this.AutoScaleBaseSize = new System.Drawing.Size(5, 22);
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(442, 145);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Font = new System.Drawing.Font("Adobe Fan Heiti Std B", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -172,6 +177,7 @@ namespace iSpyApplication
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
+
         }
 
         #endregion Windows Form Designer generated code
@@ -193,6 +199,11 @@ namespace iSpyApplication
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             MainForm.StartBrowser("http://www.ispyconnect.com");
+        }
+
+        private void _lblCopyright_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -2185,7 +2185,7 @@ namespace iSpyApplication
                         {
                             CameraControl.PTZ.AddPreset(s, null);
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             //sometimes seems to return an invalid result (camera bug?)
                         }
@@ -2549,6 +2549,11 @@ namespace iSpyApplication
         private void linkLabel_OpenVRKbrd_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("osk.exe");
+        }
+
+        private void lblMicSource_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

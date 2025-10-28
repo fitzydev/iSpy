@@ -51,8 +51,7 @@ namespace iSpyApplication
 
         public static void Clear<T>(this ConcurrentQueue<T> queue)
         {
-            T item;
-            while (queue.TryDequeue(out item))
+            while (queue.TryDequeue(out T item))
             {
                 // do nothing
             }
@@ -132,7 +131,7 @@ namespace iSpyApplication
         }
 
 
-        private static readonly Dictionary<string, Color> Colours = new Dictionary<string, Color>();
+        private static readonly ConcurrentDictionary<string, Color> Colours = new ConcurrentDictionary<string, Color>();
 
         public static bool IsValidEmail(this string email)
         {
@@ -168,23 +167,10 @@ namespace iSpyApplication
 
         public static Color ToColor(this string colorRGB)
         {
-            if (Colours.ContainsKey(colorRGB))
-                return Colours[colorRGB];
-
-            string[] cols = colorRGB.Split(',');
-            var c = Color.FromArgb(Convert.ToInt16(cols[0]), Convert.ToInt16(cols[1]), Convert.ToInt16(cols[2]));
-            
-            try
-            {
-                Colours.Add(colorRGB, c);
-            }
-            catch
-            {
-                //multiple threads can add colours in simultaneously
-            }
-            
-            return c;
-
+            return Colours.GetOrAdd(colorRGB, rgb => {
+                string[] cols = rgb.Split(',');
+                return Color.FromArgb(Convert.ToInt16(cols[0]), Convert.ToInt16(cols[1]), Convert.ToInt16(cols[2]));
+            });
         }
 
         public static String ToRGBString(this Color color)

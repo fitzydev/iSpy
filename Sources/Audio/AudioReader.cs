@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using FFmpeg.AutoGen;
 
@@ -13,21 +14,19 @@ namespace iSpyApplication.Sources.Audio
         public readonly int rate = 22050;
         public readonly int channels = 1;
 
-        private int audio_stream_index = -1;
-        private AVFormatContext* fmt_ctx = null;
-        private AVCodecContext* _audioCodecContext = null;
-        private SwrContext* _swrContext = null;
-        private AVStream* _audioStream = null;
+        private int _audioStreamIndex = -1;
+        private AVFormatContext* _pFormatContext = null;
+        private AVCodecContext* _pAudioCodecContext = null;
+        private SwrContext* _pSwrContext = null;
 
-        private List<Filter> filtersAudio = new List<Filter>();
-        private AVFilterContext* buffersrc_ctx = null;
-        private AVFilterContext* buffersink_ctx = null;
-        private AVFilterGraph* filter_graph = null;
+        private readonly List<Filter> _filtersAudio = new List<Filter>();
+        private readonly AVFilterContext* _pBufferSrcContext = null;
+        private readonly AVFilterContext* _pBufferSinkContext = null;
+        private AVFilterGraph* _pFilterGraph = null;
+        private bool _disposed;
 
         public AudioReader()
         {
-            //ffmpeg.av_register_all();
-            //ffmpeg.avfilter_register_all();
         }
 
         public AudioReader(int rate, int channels) : this()
@@ -36,68 +35,62 @@ namespace iSpyApplication.Sources.Audio
             this.channels = channels;
         }
 
-        public List<Filter> AudioFilters
-        {
-            get { return filtersAudio; }
-        }
+        public List<Filter> AudioFilters => _filtersAudio;
 
         public void AddAudioFilter(string name, string args, string key = "")
         {
-            filtersAudio.Add(new Filter(name, args, key));
+            _filtersAudio.Add(new Filter(name, args, key));
         }
 
-        private AVFilterGraph* init_filter_graph(AVFormatContext* format, AVCodecContext* codec, int audio_stream_index, AVFilterContext** buffersrc_ctx, AVFilterContext** buffersink_ctx)
+        private AVFilterGraph* init_filter_graph(AVFormatContext* format, AVCodecContext* codec, AVFilterContext** buffersrc_ctx, AVFilterContext** buffersink_ctx)
         {
-            // create graph
             var filter_graph = ffmpeg.avfilter_graph_alloc();
 
-            // add input filter
             var abuffersrc = ffmpeg.avfilter_get_by_name("abuffer");
-            var args = string.Format("sample_fmt={0}:channel_layout={1}:sample_rate={2}:time_base={3}/{4}",
-                (int)codec->sample_fmt,
-                codec->channel_layout,
-                codec->sample_rate,
-                format->streams[audio_stream_index]->time_base.num,
-                format->streams[audio_stream_index]->time_base.den);
-            ffmpeg.avfilter_graph_create_filter(buffersrc_ctx, abuffersrc, "IN", args, null, filter_graph);
 
-            // add output filter
+            var chLayout = codec->ch_layout; // FIX: Correct variable name from 'varchLayout' to 'chLayout'
+            var buf = stackalloc byte[128];
+            ffmpeg.av_channel_layout_describe(&chLayout, buf, 128);
+            var layoutString = Marshal.PtrToStringAnsi((IntPtr)buf);
+
+            var args = $"sample_fmt={ffmpeg.av_get_sample_fmt_name(codec->sample_fmt)}:channel_layout={layoutString}:sample_rate={codec->sample_rate}:time_base={codec->time_base.num}/{codec->time_base.den}";
+
+            int ret = ffmpeg.avfilter_graph_create_filter(buffersrc_ctx, abuffersrc, "IN", args, null, filter_graph);
+            if (ret < 0) throw new ApplicationException("Failed to create abuffer filter.");
+
             var abuffersink = ffmpeg.avfilter_get_by_name("abuffersink");
-            ffmpeg.avfilter_graph_create_filter(buffersink_ctx, abuffersink, "OUT", "", null, filter_graph);
+            ret = ffmpeg.avfilter_graph_create_filter(buffersink_ctx, abuffersink, "OUT", "", null, filter_graph);
+            if (ret < 0) throw new ApplicationException("Failed to create abuffersink filter.");
 
-            AVFilterContext* _filter_ctx = null;
-            for (var i = 0; i < filtersAudio.Count; i++)
+            AVFilterContext* prev_filter_ctx = *buffersrc_ctx;
+            for (var i = 0; i < _filtersAudio.Count; i++)
             {
-                var filter = ffmpeg.avfilter_get_by_name(filtersAudio[i].name);
+                var filter = ffmpeg.avfilter_get_by_name(_filtersAudio[i].name);
                 AVFilterContext* filter_ctx;
-                ffmpeg.avfilter_graph_create_filter(&filter_ctx, filter, (filtersAudio[i].name + filtersAudio[i].key).ToUpper(), filtersAudio[i].args, null, filter_graph);
+                ffmpeg.avfilter_graph_create_filter(&filter_ctx, filter, $"{_filtersAudio[i].name}{_filtersAudio[i].key}".ToUpper(), _filtersAudio[i].args, null, filter_graph);
 
-                if (i == 0)
-                {
-                    ffmpeg.avfilter_link(*buffersrc_ctx, 0, filter_ctx, 0);
-                }
-                if (_filter_ctx != null)
-                {
-                    ffmpeg.avfilter_link(_filter_ctx, 0, filter_ctx, 0);
-                }
-                if (i == filtersAudio.Count - 1)
-                {
-                    ffmpeg.avfilter_link(filter_ctx, 0, *buffersink_ctx, 0);
-                }
+                ffmpeg.avfilter_link(prev_filter_ctx, 0, filter_ctx, 0);
+                prev_filter_ctx = filter_ctx;
 
-                _filter_ctx = filter_ctx;
+                if (i == _filtersAudio.Count - 1)
+                {
+                    ffmpeg.avfilter_link(prev_filter_ctx, 0, *buffersink_ctx, 0);
+                }
             }
+            if (_filtersAudio.Count == 0)
+            {
+                ffmpeg.avfilter_link(*buffersrc_ctx, 0, *buffersink_ctx, 0);
+            }
+
             ffmpeg.avfilter_graph_config(filter_graph, null);
 
             return filter_graph;
         }
 
-        private int open_input(string path)
+        private void open_input(string path)
         {
             try
             {
-                int ret;
-
                 var _timeoutMicroSeconds = Math.Max(5000000, TIMEOUT * 1000);
 
                 AVDictionary* options = null;
@@ -112,314 +105,251 @@ namespace iSpyApplication.Sources.Audio
                         case "http":
                         case "mmsh":
                         case "mms":
-                            ffmpeg.av_dict_set_int(&options, "timeout", _timeoutMicroSeconds, 0);
-                            ffmpeg.av_dict_set_int(&options, "stimeout", _timeoutMicroSeconds, 0);
-
-                            break;
                         case "rtsp":
                         case "rtmp":
                             ffmpeg.av_dict_set_int(&options, "stimeout", _timeoutMicroSeconds, 0);
-                            ffmpeg.av_dict_set(&options, "rtsp_flags", "prefer_tcp", 0);
+                            if (prefix == "rtsp")
+                                ffmpeg.av_dict_set(&options, "rtsp_flags", "prefer_tcp", 0);
                             break;
                         default:
                             ffmpeg.av_dict_set_int(&options, "timeout", _timeoutMicroSeconds, 0);
                             break;
-
-                        case "tcp":
-                            ffmpeg.av_dict_set_int(&options, "timeout", _timeoutMicroSeconds, 0);
-                            break;
-                        case "udp":
-                            ffmpeg.av_dict_set_int(&options, "timeout", _timeoutMicroSeconds, 0);
-                            break;
                     }
-
                     ffmpeg.av_dict_set_int(&options, "buffer_size", BUFSIZE, 0);
                 }
 
-                fmt_ctx = ffmpeg.avformat_alloc_context();
-                fmt_ctx->max_analyze_duration = 0; //0 = auto
+                _pFormatContext = ffmpeg.avformat_alloc_context();
+                _pFormatContext->max_analyze_duration = 0;
 
-                fixed (AVFormatContext** at = &fmt_ctx)
+                int ret;
+                fixed (AVFormatContext** fmt_ctx = &_pFormatContext)
                 {
-                    ret = ffmpeg.avformat_open_input(at, path, null, &options);
+                    ret = ffmpeg.avformat_open_input(fmt_ctx, path, null, &options);
                 }
 
-                if (ret < 0)
-                {
-                    throw new ApplicationException("Failed to open input.");
-                }
+                if (ret < 0) throw new ApplicationException("Failed to open input.");
 
-                ret = ffmpeg.avformat_find_stream_info(fmt_ctx, null);
-                if (ret < 0)
-                {
-                    throw new ApplicationException("Failed to find stream information.");
-                }
+                ret = ffmpeg.avformat_find_stream_info(_pFormatContext, null);
+                if (ret < 0) throw new ApplicationException("Failed to find stream information.");
 
                 AVCodec* dec;
-                ret = ffmpeg.av_find_best_stream(fmt_ctx, AVMediaType.AVMEDIA_TYPE_AUDIO, -1, -1, &dec, 0);
-                if (ret < 0)
+                ret = ffmpeg.av_find_best_stream(_pFormatContext, AVMediaType.AVMEDIA_TYPE_AUDIO, -1, -1, &dec, 0);
+                if (ret < 0) throw new ApplicationException("Failed to find an audio stream in input.");
+
+                _audioStreamIndex = ret;
+                var pStream = _pFormatContext->streams[_audioStreamIndex];
+
+                _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT | ffmpeg.AVFMT_FLAG_NOBUFFER;
+
+                var pCodecParams = pStream->codecpar;
+                dec = ffmpeg.avcodec_find_decoder(pCodecParams->codec_id);
+                if (dec == null) throw new ApplicationException("Unsupported audio codec.");
+
+                _pAudioCodecContext = ffmpeg.avcodec_alloc_context3(dec);
+                if (_pAudioCodecContext == null) throw new ApplicationException("Could not allocate audio codec context.");
+
+                ret = ffmpeg.avcodec_parameters_to_context(_pAudioCodecContext, pCodecParams);
+                if (ret < 0) throw new ApplicationException("Could not copy codec parameters to context.");
+
+                if ((ret = ffmpeg.avcodec_open2(_pAudioCodecContext, dec, null)) < 0)
                 {
-                    throw new ApplicationException("Failed to find an audio stream in input.");
+                    throw new ApplicationException("Failed to open audio decoder.");
                 }
 
-                audio_stream_index = ret;
-
-                _audioCodecContext = fmt_ctx->streams[audio_stream_index]->codec;
-                _audioStream = fmt_ctx->streams[audio_stream_index];
-
-                fmt_ctx->flags |= ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
-                fmt_ctx->flags |= ffmpeg.AVFMT_FLAG_NOBUFFER;
-
-                if (_audioStream != null)
+                if (_filtersAudio.Count > 0)
                 {
-                    var audiocodec = ffmpeg.avcodec_find_decoder(_audioCodecContext->codec_id);
-                    if (audiocodec != null)
+                    fixed (AVFilterContext** bsrc = &_pBufferSrcContext, bsink = &_pBufferSinkContext)
                     {
-                        ffmpeg.av_opt_set_int(_audioCodecContext, "refcounted_frames", 1, 0);
-
-                        /* init the audio decoder */
-                        if ((ret = ffmpeg.avcodec_open2(_audioCodecContext, audiocodec, null)) < 0)
-                        {
-                            throw new ApplicationException("Failed to open audio decoder.");
-                        }
-
-                        if (filtersAudio.Count > 0)
-                        {
-                            fixed (AVFilterContext** bsrc = &buffersrc_ctx)
-                            {
-                                fixed (AVFilterContext** bsink = &buffersink_ctx)
-                                {
-                                    // build a filter graph
-                                    if ((int)(filter_graph = init_filter_graph(fmt_ctx, _audioCodecContext, audio_stream_index, bsrc, bsink)) == 0)
-                                    {
-                                        throw new ApplicationException("Failed to create the filter graph.");
-                                    }
-                                }
-                            }
-                        }
-
-                        var outlayout = ffmpeg.av_get_default_channel_layout(channels);
-                        _audioCodecContext->request_sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_S16;
-                        _audioCodecContext->request_channel_layout = (ulong)outlayout;
-
-                        //var chans = 1;
-                        //if (_audioCodecContext->channels > 1) //downmix
-                        //    chans = 2;
-
-                        _swrContext = ffmpeg.swr_alloc_set_opts(null,
-                            outlayout,
-                            AVSampleFormat.AV_SAMPLE_FMT_S16,
-                            rate,
-                            ffmpeg.av_get_default_channel_layout(_audioCodecContext->channels),
-                            _audioCodecContext->sample_fmt,
-                            _audioCodecContext->sample_rate,
-                            0,
-                            null);
-
-                        ret = ffmpeg.swr_init(_swrContext);
-                        if (ret < 0)
-                        {
-                            throw new ApplicationException("Failed to create swrContext.");
-                        }
+                        _pFilterGraph = init_filter_graph(_pFormatContext, _pAudioCodecContext, bsrc, bsink);
+                        if (_pFilterGraph == null) throw new ApplicationException("Failed to create the filter graph.");
                     }
                 }
 
-                return ret;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+                AVChannelLayout out_ch_layout;
+                ffmpeg.av_channel_layout_default(&out_ch_layout, channels);
 
-            //return -1;
+                fixed (SwrContext** swrContext = &_pSwrContext)
+                {
+                    ffmpeg.swr_alloc_set_opts2(swrContext,
+                        &out_ch_layout, AVSampleFormat.AV_SAMPLE_FMT_S16, rate,
+                        &_pAudioCodecContext->ch_layout, _pAudioCodecContext->sample_fmt, _pAudioCodecContext->sample_rate,
+                        0, null);
+                }
+                ffmpeg.av_channel_layout_uninit(&out_ch_layout);
+
+                if (_pSwrContext == null) throw new ApplicationException("Failed to create SwrContext");
+
+                ret = ffmpeg.swr_init(_pSwrContext);
+                if (ret < 0) throw new ApplicationException("Failed to initialize SwrContext.");
+            }
+            catch (Exception)
+            {
+                Dispose();
+                throw;
+            }
         }
 
         public void ReadSamples(string inputAudio, Func<byte[], int, bool> readSampleCallback)
         {
             if (readSampleCallback == null) return;
-
-            const int EAGAIN = 11;
-
-            var brk = false;
-            var packet = new AVPacket();
-
             try
             {
-                int ret = open_input(inputAudio);
-                if (ret < 0)
+                open_input(inputAudio);
+
+                var brk = false;
+                AVPacket* packet = ffmpeg.av_packet_alloc();
+                AVFrame* pFrame = ffmpeg.av_frame_alloc();
+                AVFrame* pFilteredFrame = ffmpeg.av_frame_alloc();
+
+                if (packet == null || pFrame == null || pFilteredFrame == null)
+                    throw new OutOfMemoryException("Failed to allocate FFmpeg packet or frames.");
+
+                try
                 {
-                    return;
-                }
+                    byte[] outBuffer = new byte[rate * 2 * channels]; // 1 second buffer
+                    byte[] resampleBuffer = new byte[rate * 2 * channels];
 
-                byte[] buffer = null, tbuffer = null;
-
-                while (true)
-                {
-                    ffmpeg.av_init_packet(&packet);
-
-                    if (_audioCodecContext != null && buffer == null)
+                    while (!brk)
                     {
-                        buffer = new byte[_audioCodecContext->sample_rate * 2];
-                        tbuffer = new byte[_audioCodecContext->sample_rate * 2];
-                    }
-
-                    ret = ffmpeg.av_read_frame(fmt_ctx, &packet);
-                    if (ret < 0)
-                    {
-                        break;
-                    }
-
-                    if ((packet.flags & ffmpeg.AV_PKT_FLAG_CORRUPT) == ffmpeg.AV_PKT_FLAG_CORRUPT)
-                    {
-                        break;
-                    }
-
-                    if (packet.stream_index == audio_stream_index)
-                    {
-                        var s = 0;
-                        fixed (byte** outPtrs = new byte*[32])
+                        var ret = ffmpeg.av_read_frame(_pFormatContext, packet);
+                        if (ret < 0)
                         {
-                            fixed (byte* bPtr = &tbuffer[0])
+                            break;
+                        }
+
+                        if ((packet->flags & ffmpeg.AV_PKT_FLAG_CORRUPT) != 0)
+                        {
+                            continue;
+                        }
+
+                        if (packet->stream_index == _audioStreamIndex)
+                        {
+                            ret = ffmpeg.avcodec_send_packet(_pAudioCodecContext, packet);
+                            if (ret < 0) continue;
+
+                            int samples_written = 0;
+
+                            while (ret >= 0)
                             {
-                                outPtrs[0] = bPtr;
-
-                                AVFrame* _af = null;
-                                var af = ffmpeg.av_frame_alloc();
-                                var ff = ffmpeg.av_frame_alloc();
-
-                                ffmpeg.avcodec_send_packet(_audioCodecContext, &packet);
-                                do
+                                ret = ffmpeg.avcodec_receive_frame(_pAudioCodecContext, pFrame);
+                                if (ret == ffmpeg.AVERROR(ffmpeg.EAGAIN) || ret == ffmpeg.AVERROR_EOF)
                                 {
-                                    ret = ffmpeg.avcodec_receive_frame(_audioCodecContext, af);
-                                    if (ret == 0)
-                                    {
-                                        if (filter_graph != null)
-                                        {
-                                            // add the frame into the filter graph
-                                            ffmpeg.av_buffersrc_add_frame(buffersrc_ctx, af);
-
-                                            // get the frame out from the filter graph
-                                            ret = ffmpeg.av_buffersink_get_frame(buffersink_ctx, ff);
-
-                                            if (ret == -EAGAIN)
-                                                break;
-
-                                            _af = ff;
-                                        }
-                                        else
-                                        {
-                                            _af = af;
-                                        }
-
-                                        fixed (byte** datptr = _af->data.ToArray())
-                                        {
-                                            var numSamplesOut = ffmpeg.swr_convert(_swrContext,
-                                                outPtrs,
-                                                _audioCodecContext->sample_rate,
-                                                datptr,
-                                                _af->nb_samples);
-
-                                            if (numSamplesOut > 0)
-                                            {
-                                                var l = numSamplesOut * 2 * channels;
-                                                Buffer.BlockCopy(tbuffer, 0, buffer, s, l);
-                                                s += l;
-                                            }
-                                            else
-                                            {
-                                                ret = numSamplesOut; //(error)
-                                            }
-                                        }
-
-                                        if (_af->decode_error_flags > 0) break;
-                                    }
-
-                                } while (ret == 0);
-                                ffmpeg.av_frame_free(&ff);
-                                ffmpeg.av_frame_free(&af);
-
-                                if (s > 0)
+                                    break;
+                                }
+                                if (ret < 0)
                                 {
-                                    var ba = new byte[s];
-                                    Buffer.BlockCopy(buffer, 0, ba, 0, s);
+                                    brk = true;
+                                    break;
+                                }
 
-                                    if (readSampleCallback(ba, s))
+                                AVFrame* pProcessFrame = pFrame;
+
+                                if (_pFilterGraph != null)
+                                {
+                                    if (ffmpeg.av_buffersrc_add_frame_flags(_pBufferSrcContext, pFrame, 0) < 0) break;
+
+                                    if (ffmpeg.av_buffersink_get_frame(_pBufferSinkContext, pFilteredFrame) < 0) continue;
+                                    pProcessFrame = pFilteredFrame;
+                                }
+
+                                fixed (byte* pResampleBuffer = &resampleBuffer[0])
+                                {
+                                    byte** pDest = &pResampleBuffer;
+                                    var numSamplesOut = ffmpeg.swr_convert(_pSwrContext, pDest, pProcessFrame->nb_samples, pProcessFrame->extended_data, pProcessFrame->nb_samples);
+
+                                    if (numSamplesOut > 0)
                                     {
-                                        brk = true;
-                                        break;
+                                        var byteCount = numSamplesOut * channels * ffmpeg.av_get_bytes_per_sample(AVSampleFormat.AV_SAMPLE_FMT_S16);
+                                        Buffer.BlockCopy(resampleBuffer, 0, outBuffer, samples_written, byteCount);
+                                        samples_written += byteCount;
                                     }
+                                }
+                                ffmpeg.av_frame_unref(pFilteredFrame);
+                            }
+
+                            if (samples_written > 0)
+                            {
+                                var finalBuffer = new byte[samples_written];
+                                Buffer.BlockCopy(outBuffer, 0, finalBuffer, 0, samples_written);
+                                if (readSampleCallback(finalBuffer, samples_written))
+                                {
+                                    brk = true;
                                 }
                             }
                         }
-                    }
-                    ffmpeg.av_packet_unref(&packet);
+                        ffmpeg.av_packet_unref(packet);
 
-                    if (ret == -EAGAIN)
-                    {
-                        Thread.Sleep(10);
+                        if (ret == ffmpeg.AVERROR(ffmpeg.EAGAIN))
+                        {
+                            Thread.Sleep(10);
+                        }
                     }
-
-                    if (brk) break;
                 }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                finally
+                {
+                    ffmpeg.av_frame_free(&pFrame);
+                    ffmpeg.av_frame_free(&pFilteredFrame);
+                    ffmpeg.av_packet_free(&packet);
+                }
             }
             finally
             {
-                if (_audioCodecContext != null)
-                {
-                    ffmpeg.avcodec_close(_audioCodecContext);
-                }
-
-                if (fmt_ctx != null)
-                {
-                    fixed (AVFormatContext** at = &fmt_ctx)
-                    {
-                        ffmpeg.avformat_close_input(at);
-                    }
-                }
-
-                fmt_ctx = null;
-                _audioCodecContext = null;
-                _audioStream = null;
-
-                if (_swrContext != null)
-                {
-                    fixed (SwrContext** s = &_swrContext)
-                    {
-                        ffmpeg.swr_free(s);
-                    }
-
-                    _swrContext = null;
-                }
-
-                if (filter_graph != null)
-                {
-                    fixed (AVFilterGraph** f = &filter_graph)
-                    {
-                        ffmpeg.avfilter_graph_free(f);
-                    }
-
-                    filter_graph = null;
-                    buffersink_ctx = null;
-                    buffersrc_ctx = null;
-
-                    filtersAudio.Clear();
-                }
+                Dispose();
             }
+        }
+
+        ~AudioReader()
+        {
+            Dispose(false);
         }
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (_pAudioCodecContext != null)
+            {
+                fixed (AVCodecContext** c = &_pAudioCodecContext) ffmpeg.avcodec_free_context(c);
+            }
+            _pAudioCodecContext = null;
+
+            if (_pFormatContext != null)
+            {
+                fixed (AVFormatContext** c = &_pFormatContext) ffmpeg.avformat_close_input(c);
+            }
+            _pFormatContext = null;
+
+            if (_pSwrContext != null)
+            {
+                fixed (SwrContext** s = &_pSwrContext) ffmpeg.swr_free(s);
+                _pSwrContext = null;
+            }
+
+            if (_pFilterGraph != null)
+            {
+                fixed (AVFilterGraph** f = &_pFilterGraph) ffmpeg.avfilter_graph_free(f);
+                _pFilterGraph = null;
+            }
+
+            if (disposing)
+            {
+                _filtersAudio.Clear();
+            }
+
+            _disposed = true;
         }
 
         public class Filter
         {
-            public readonly string name = "";
-            public readonly string args = "";
-            public readonly string key = "";
+            public readonly string name;
+            public readonly string args;
+            public readonly string key;
 
             public Filter(string name, string args, string key = "")
             {

@@ -2063,20 +2063,15 @@ namespace iSpyApplication.Controls
             {
                 if (Camera.MotionDetector != null)
                 {
-                    var detector = Camera.MotionDetector.MotionDetectionAlgorithm as CustomFrameColorDifferenceDetector;
-                    if (detector != null)
+                    if (Camera.MotionDetector.MotionDetectionAlgorithm is CustomFrameColorDifferenceDetector detector)
                     {
-                        detector.
-                            SetBackgroundFrame(LastFrame);
+                        detector.SetBackgroundFrame(LastFrame);
                     }
                     else
                     {
-                        var algorithm = Camera.MotionDetector.MotionDetectionAlgorithm as CustomFrameDifferenceDetector;
-                        if (algorithm != null)
+                        if (Camera.MotionDetector.MotionDetectionAlgorithm is CustomFrameDifferenceDetector algorithm)
                         {
-                            algorithm
-                                .
-                                SetBackgroundFrame(LastFrame);
+                            algorithm.SetBackgroundFrame(LastFrame);
                         }
                         else
                         {
@@ -3537,7 +3532,14 @@ namespace iSpyApplication.Controls
 
                 case Enums.FrameType.Audio:
                     {
-                        _writer.WriteAudio(fa.Content, fa.DataLength, 0, fa.TimeStamp);
+                        // Replace this line inside WriteFrame method:
+                        // _writer.WriteAudio(fa.Content, fa.DataLength, 0, fa.TimeStamp);
+
+                        // With the correct overload based on the MediaWriter signature:
+                        // public void WriteAudio(byte[] soundBuffer, int soundBufferSize, DateTime timestamp);
+
+                        // So, update the line to:
+                        _writer.WriteAudio(fa.Content, fa.DataLength, fa.TimeStamp);
                     }
 
                     break;

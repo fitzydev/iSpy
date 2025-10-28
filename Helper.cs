@@ -251,14 +251,14 @@ namespace iSpyApplication
         public static void NVSet(CameraWindow c, string name, string val)
         {
             var t = c.Camobject.settings.namevaluesettings.Split(',').ToList();
-            var nv = t.FirstOrDefault(p => p.ToLowerInvariant().StartsWith(name.ToLowerInvariant() + "="));
-            if (nv == null)
+            var index = t.FindIndex(p => p.ToLowerInvariant().StartsWith(name.ToLowerInvariant() + "=", StringComparison.Ordinal));
+            if (index == -1)
             {
                 t.Add(name + "=" + val);
             }
             else
             {
-                nv = name + "=" + val;
+                t[index] = name + "=" + val;
             }
             c.Camobject.settings.namevaluesettings = string.Join(",", t);
         }

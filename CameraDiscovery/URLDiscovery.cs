@@ -143,8 +143,7 @@ namespace iSpyApplication.CameraDiscovery
             var connectUrl = urlStart + BaseUri.DnsSafeHost + ":" + GetPort(s);
             connectUrl += url;
 
-            Uri uri = null;
-            Uri.TryCreate(connectUrl, UriKind.Absolute, out uri);
+            Uri.TryCreate(connectUrl, UriKind.Absolute, out Uri uri);
             return uri;
         }
 

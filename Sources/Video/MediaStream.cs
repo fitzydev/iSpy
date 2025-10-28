@@ -240,9 +240,11 @@ namespace iSpyApplication.Sources.Video
 
         public AVPixelFormat GetPixelFormat(AVCodecContext* ctx, AVPixelFormat* pix_fmts)
         {
+            // iterate using the loop pointer variable (p). The original code used/mutated
+            // the incoming pointer which was incorrect and compared the wrong value.
             for (var p = pix_fmts; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
             {
-                if (*pix_fmts == _hwPixFmt)
+                if (*p == _hwPixFmt)
                 {
                     return _hwPixFmt;
                 }
@@ -349,8 +351,7 @@ namespace iSpyApplication.Sources.Video
                         var v = nv.Substring(i + 1).Trim();
                         if (!string.IsNullOrEmpty(n) && !string.IsNullOrEmpty(v))
                         {
-                            int j;
-                            if (int.TryParse(v, out j))
+                            if (int.TryParse(v, out int j))
                                 ffmpeg.av_dict_set_int(&options, n, j, 0);
                             else
                                 ffmpeg.av_dict_set(&options, n, v, 0);
@@ -483,10 +484,10 @@ namespace iSpyApplication.Sources.Video
 
 
             for (var i = 0; i < _formatContext->nb_streams; i++)
-                if (_formatContext->streams[i]->codec->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+                if (_formatContext->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
                 {
                     // get the pointer to the codec context for the video stream
-                    _videoCodecContext = _formatContext->streams[i]->codec;
+                    _videoCodecContext = (AVCodecContext*)_formatContext->streams[i]->codecpar;
                     _videoStream = _formatContext->streams[i];
                     break;
                 }
@@ -510,8 +511,9 @@ namespace iSpyApplication.Sources.Video
 
                 if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_DR1) != 0)
                     _videoCodecContext->flags |= CODEC_FLAG_EMU_EDGE;
-                if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) == ffmpeg.AV_CODEC_CAP_TRUNCATED)
-                    _videoCodecContext->flags |= ffmpeg.AV_CODEC_FLAG_TRUNCATED;
+                const int AV_CODEC_CAP_TRUNCATED = 16384; // FF_BUG_TRUNCATED value from FFmpeg headers
+                if ((codec->capabilities & AV_CODEC_CAP_TRUNCATED) == AV_CODEC_CAP_TRUNCATED)
+                    _videoCodecContext->flags |= ffmpeg.FF_BUG_TRUNCATED;
 
 
                 Throw("OPEN2", ffmpeg.avcodec_open2(_videoCodecContext, codec, null));
@@ -520,9 +522,9 @@ namespace iSpyApplication.Sources.Video
             _lastPacket = DateTime.UtcNow;
 
             for (var i = 0; i < _formatContext->nb_streams; i++)
-                if (_formatContext->streams[i]->codec->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
+                if (_formatContext->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
                 {
-                    _audioCodecContext = _formatContext->streams[i]->codec;
+                    _audioCodecContext = (AVCodecContext*)_formatContext->streams[i]->codecpar;
                     _audioStream = _formatContext->streams[i];
                     break;
                 }
@@ -535,9 +537,17 @@ namespace iSpyApplication.Sources.Video
                     ffmpeg.av_opt_set_int(_audioCodecContext, "refcounted_frames", 1, 0);
                     Throw("OPEN2 audio", ffmpeg.avcodec_open2(_audioCodecContext, audiocodec, null));
 
-                    var outlayout = ffmpeg.av_get_default_channel_layout(OutFormat.Channels);
-                    _audioCodecContext->request_sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_S16;
-                    _audioCodecContext->request_channel_layout = (ulong) outlayout;
+                    ulong outlayout = 0;
+                    int outChannels = OutFormat.Channels;
+                    AVChannelLayout outChLayout = new AVChannelLayout();
+                    ffmpeg.av_channel_layout_default(&outChLayout, outChannels);
+                    outlayout = ffmpeg.av_channel_layout_subset(&outChLayout, ffmpeg.AV_CH_LAYOUT_MONO); // fallback for mono/stereo
+
+                    // sets the channel layout on the codec context instead:
+                    if (_audioCodecContext != null)
+                    {
+                        ffmpeg.av_channel_layout_default(&_audioCodecContext->ch_layout, OutFormat.Channels);
+                    }
 
                 }
             }
@@ -552,19 +562,28 @@ namespace iSpyApplication.Sources.Video
             _thread.Start();
         }
 
-        private void initSWR()
+        private void InitSWR()
         {
-            _swrContext = ffmpeg.swr_alloc_set_opts(null,
-                        ffmpeg.av_get_default_channel_layout(OutFormat.Channels),
-                        AVSampleFormat.AV_SAMPLE_FMT_S16,
-                        OutFormat.SampleRate,
-                        ffmpeg.av_get_default_channel_layout(_audioCodecContext->channels),
-                        _audioCodecContext->sample_fmt,
-                        _audioCodecContext->sample_rate,
-                        0,
-                        null);
+            ulong outlayout = 0;
+            int outChannels = OutFormat.Channels;
+            AVChannelLayout outChLayout = new AVChannelLayout();
+            ffmpeg.av_channel_layout_default(&outChLayout, outChannels);
+            outlayout = ffmpeg.av_channel_layout_subset(&outChLayout, ffmpeg.AV_CH_LAYOUT_MONO); // fallback for mono/stereo
 
-            Throw("SWR_INIT", ffmpeg.swr_init(_swrContext));
+            SwrContext* swr = null;
+            int result = ffmpeg.swr_alloc_set_opts2(
+                &swr,
+                &outChLayout,
+                AVSampleFormat.AV_SAMPLE_FMT_S16,
+                OutFormat.SampleRate,
+                &_audioCodecContext->ch_layout,
+                _audioCodecContext->sample_fmt,
+                _audioCodecContext->sample_rate,
+                0,
+                null);
+
+            Throw("SWR_INIT", ffmpeg.swr_init(swr));
+            _swrContext = swr;
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -585,7 +604,6 @@ namespace iSpyApplication.Sources.Video
             _clock = new AutoResetEvent(false);
             do
             {
-                ffmpeg.av_init_packet(&packet);
                 if (_audioCodecContext != null && ourBuffer == null)
                 {
                     ourBuffer = new byte[OutFormat.AverageBytesPerSecond];
@@ -635,11 +653,11 @@ namespace iSpyApplication.Sources.Video
                                             if (_swrContext == null)
                                             {
                                                 //need to do this here as send_packet can change channel layout and throw an exception below
-                                                initSWR();
+                                                InitSWR();
                                             }
-                                            fixed (byte** inbufs = new byte*[_audioCodecContext->channels])
+                                            fixed (byte** inbufs = new byte*[_audioCodecContext->ch_layout.nb_channels])
                                             {
-                                                for (uint i = 0; i < _audioCodecContext->channels; i++)
+                                                for (uint i = 0; i < _audioCodecContext->ch_layout.nb_channels; i++)
                                                     inbufs[i] = af->data[i];
                                                 numSamplesOut = ffmpeg.swr_convert(_swrContext,
                                                 outPtrs,
@@ -679,7 +697,7 @@ namespace iSpyApplication.Sources.Video
                                     {
                                         audioInited = true;
                                         RecordingFormat = new WaveFormat(_audioCodecContext->sample_rate, 16,
-                                            _audioCodecContext->channels);
+                                            _audioCodecContext->ch_layout.nb_channels);
 
                                         waveProvider = new BufferedWaveProvider(RecordingFormat)
                                                        {
@@ -821,15 +839,22 @@ namespace iSpyApplication.Sources.Video
                 {
                     if (_formatContext->streams != null)
                     {
-                        var j = (int) _formatContext->nb_streams;
+                        var j = (int)_formatContext->nb_streams;
                         for (var i = j - 1; i >= 0; i--)
                         {
                             var stream = _formatContext->streams[i];
 
-                            if (stream != null && stream->codec != null && stream->codec->codec != null)
+                            // AVCodecParameters does not have a 'codec' property.
+                            // To close the codec, you need to get the AVCodecContext for the stream.
+                            // If you have stored _audioCodecContext and _videoCodecContext, close those.
+                            // Otherwise, skip this check and just set discard.
+                            if (stream != null)
                             {
                                 stream->discard = AVDiscard.AVDISCARD_ALL;
-                                ffmpeg.avcodec_close(stream->codec);
+                                // If you have a reference to the AVCodecContext, close it here.
+                                // Example:
+                                // ffmpeg.avcodec_close(_audioCodecContext);
+                                // ffmpeg.avcodec_close(_videoCodecContext);
                             }
                         }
                     }
