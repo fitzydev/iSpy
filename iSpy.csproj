@@ -191,18 +191,11 @@ if "$(ConfigurationName)" == "Release" (
     <PackageReference Include="CoreWCF.Http" Version="1.5.1" />
     <PackageReference Include="CoreWCF.WebHttp" Version="1.5.1" />
     <PackageReference Include="CoreWCF.NetTcp" Version="1.5.1" />
-    <PackageReference Include="AForge" Version="2.2.5" />
-    <PackageReference Include="AForge.Images" Version="2.2.5" />
-    <PackageReference Include="AForge.Video" Version="2.2.5" />
-    <PackageReference Include="AForge.Video.DirectShow" Version="2.2.5" />
-    <PackageReference Include="AForge.Controls" Version="2.2.5" />
-    <PackageReference Include="AForge.Imaging.Formats" Version="2.2.5" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="NAudio.WinMM" Version="2.2.1" />
     <PackageReference Include="NAudio.WinForms" Version="2.2.1" />
     <PackageReference Include="NAudio.Lame" Version="2.1.0" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
-    <PackageReference Include="NSpeex" Version="1.1.1" />
     <PackageReference Include="System.Speech" Version="8.0.0" />
     <PackageReference Include="SSH.NET" Version="2023.0.0" />
   </ItemGroup>
@@ -1646,6 +1639,13 @@ if "$(ConfigurationName)" == "Release" (
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Microsoft.CSharp" />
+    <Using Include="System.ComponentModel.DataAnnotations" />
+    <Using Include="System.Configuration" />
+    <Using Include="System.Data.DataSetExtensions" />
+    <Using Include="System.Web" />
   </ItemGroup>
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
     <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
