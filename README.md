@@ -1,68 +1,27 @@
-# Instances
-A .NET Standard `Process` wrapper with an elegant API, for both asyncronous and syncronous use, providing both Events and support for Tasks with cancellation support
- 
-![.NET Core](https://github.com/rosenbjerg/Instances/workflows/CI/badge.svg)
-[![codecov.io](https://codecov.io/github/rosenbjerg/agentdeploy/coverage.svg?branch=main)](https://app.codecov.io/gh/rosenbjerg/Instances)
-[![GitHub](https://img.shields.io/github/license/rosenbjerg/Instances)](https://github.com/rosenbjerg/Instances/blob/master/LICENSE)
-[![Nuget](https://img.shields.io/nuget/v/instances)](https://www.nuget.org/packages/instances/)
-[![Nuget](https://img.shields.io/nuget/dt/instances)](https://www.nuget.org/packages/instances/)
-![Dependent repos (via libraries.io)](https://img.shields.io/librariesio/dependent-repos/nuget/instances)
+# iSpy Revival (Work in Progress)
 
+> **⚠️ Development Status: WORK IN PROGRESS ⚠️**
+>
+> This repository is an active "revival" project of the original iSpy software. The source code in its current state is **not functional** and is not ready for general use or compilation.
+>
+> Active development is underway to refactor, modernize, and restore functionality.
 
-# Usage
-There are three ways to use this library, requiring at least 1, 2, or 3 lines of code to use.
+iSpy is a Windows remote computer monitoring tool written in C# and .NET MAUI.
 
-### Shortest form, supporting only few options
-```c#
-var result = await Instance.FinishAsync("dotnet", "build -c Release", cancellationToken);
-Console.WriteLine(result.ExitCode);
-// or
-var result = Instance.Finish("dotnet", "build -c Release");
-```
+---
 
-### Short form, supporting more options
-```c#
-using var instance = Instance.Start("dotnet", "build -c Release");
-var result = await instance.WaitForExitAsync(cancellationToken);
-// or
-using var instance = Instance.Start("dotnet", "build -c Release");
-var result = instance.WaitForExit();
-```
+## ⚖️ Licensing and Compliance
 
-### Full form, supporting all options
-```c#
-var processArgument = new ProcessArguments("dotnet", "build -c Release");
-processArgument.Exited += (_, exitResult) => Console.WriteLine(exitResult.ExitCode);
-processArgument.OutputDataReceived += (_, data) => Console.WriteLine(data);
-processArgument.ErrorDataReceived += (_, data) => Console.WriteLine(data);
+This project (`fitzydev/iSpy`) is licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)**.
 
-using var instance = processArgument.Start();
+* **Original License:** This project is a fork and continuation of the original iSpy software, which was licensed by its original developers under the LGPL-3.0.
+* **Continued Compliance:** All modifications and new code contributed to this repository are also released under the same LGPL-3.0 license.
+* **License Text:** A full copy of the license is available in the [license.txt](license.txt) file included in this repository.
 
-var result = await instance.WaitForExitAsync(cancellationToken);
-// or 
-var result = instance.WaitForExit();
-```
+### What This Means
 
+The core idea of the LGPL-3.0 is to protect the freedom of this library while allowing it to be used by other applications (both open-source and proprietary).
 
-## Features
-```c#
-using var instance = Instance.Start("dotnet", "build -c Release");
-
-// send input to process' standard input
-instance.SendInput("Hello World");
-
-// stop the process
-instance.Kill();
-
-// access process output
-foreach (var line in instance.OutputData)
-    Console.WriteLine(line);
-// and error data easily while the process is running
-foreach (var line in instance.ErrorData)
-    Console.WriteLine(line);
-
-// or wait for the process to exit (with support for cancellation token)
-var result = await instance.WaitForExitAsync(cancellationToken);
-Console.WriteLine(result.ExitCode);
-Console.WriteLine(result.OutputData.Count);
-```
+* **You can link to this library:** You are free to use iSpy (for example, by linking to it as a `.dll`) in your own applications, regardless of whether your application is open-source or closed-source.
+* **If you modify *this* code:** If you modify the iSpy source code *itself* and distribute your modified version, you **must** also release your modifications under the LGPL-3.0 license and make the source code of your changes available.
+* **Source Availability:** By hosting this project publicly on GitHub, we are fulfilling the requirement to make the source code available.
