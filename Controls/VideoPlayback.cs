@@ -35,7 +35,7 @@ namespace iSpyApplication.Controls
         private readonly ToolTip _toolTip;
 
         public bool RequestFrame;
-        public Timer TmrRefresh;
+        public System.Windows.Forms.Timer TmrRefresh;
 
         private DateTime _lastMove = Helper.Now;
 
@@ -85,7 +85,7 @@ namespace iSpyApplication.Controls
             BorderStyle = BorderStyle.None;
 
             ResizeRedraw = true;
-            TmrRefresh = new Timer();
+            TmrRefresh = new System.Windows.Forms.Timer();
             TmrRefresh.Tick += TmrRefreshTick;
             TmrRefresh.Interval = 100;
             TmrRefresh.Start();

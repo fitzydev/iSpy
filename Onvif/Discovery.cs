@@ -1,43 +1,31 @@
-﻿using CoreWCF;
-using CoreWCF.Discovery;
+﻿using iSpyApplication.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
-namespace iSpy.Onvif
+namespace iSpyApplication.Onvif
 {
     public class Discovery
     {
-        public static List<DiscoveryData> Discover()
+        public static async Task<List<DiscoveryData>> Discover()
         {
             var devices = new List<DiscoveryData>();
       
             try
             {
-                var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
- 
-                var findCriteria = new FindCriteria
-                {
-                    Duration = TimeSpan.FromSeconds(3),
-                    MaxResults = 50
-                };
+                var discoveredDevices = await Discovery.Discover(5);
 
-                findCriteria.ContractTypeNames.Add(new Uri("http://www.onvif.org/ver10/device/wsdl"));
-
-                var findResponse = discoveryClient.Find(findCriteria);
-           
-                foreach (var endpoint in findResponse.Endpoints)
+                foreach (var device in discoveredDevices)
                 {
-                    var xaddr = endpoint.Address.Uri.ToString();
-                    if (!string.IsNullOrEmpty(xaddr))
+                    if (device.XAdresses.Any())
                     {
-                        devices.Add(new DiscoveryData { XAddr = xaddr });
+                        devices.Add(new DiscoveryData { 
+                            XAddr = device.XAdresses.First().ToString(),
+                            Address = device.Address
+                        });
                     }
                 }
-
-                discoveryClient.Close();
             }
             catch (Exception ex)
             {
@@ -51,5 +39,6 @@ namespace iSpy.Onvif
     public class DiscoveryData
     {
         public string XAddr { get; set; }
+        public System.Net.IPAddress Address { get; set; }
     }
 }

@@ -3,10 +3,12 @@ using CoreWCF.Description;
 using CoreWCF.Dispatcher;
 using System;
 
-namespace iSpy.Onvif.Behaviour
+namespace iSpyApplication.Onvif.Behaviour
 {
-    public class CustomEndpointBehavior : IEndpointBehavior
+    public class CustomEndpointBehavior(CustomMessageInspector clientInspector) : IEndpointBehavior
     {
+        private CustomMessageInspector clientInspector = clientInspector;
+
         public void AddBindingParameters(ServiceEndpoint endpoint, BindingParameterCollection bindingParameters)
         {
         }

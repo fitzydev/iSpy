@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Mono.Nat;
 
 namespace iSpyApplication.CameraDiscovery
 {
@@ -71,11 +72,12 @@ namespace iSpyApplication.CameraDiscovery
                 var httpUri = _discoverer.BaseUri.SetPort(_discoverer.HttpPort);
 
                 //check for this devices
-                foreach (var d in Discovery.DiscoveredDevices)
+                var discoveredDevices = Discovery.Discover().Result;
+                foreach (var d in discoveredDevices)
                 {
-                    if (d.DnsSafeHost == Uri.DnsSafeHost)
+                    if (d.Address.ToString() == Uri.DnsSafeHost)
                     {
-                        httpUri = _discoverer.BaseUri.SetPort(d.Port);
+                        httpUri = _discoverer.BaseUri.SetPort(new Uri(d.XAddr).Port);
                         break;
                     }
                 }

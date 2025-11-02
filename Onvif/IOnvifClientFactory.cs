@@ -10,6 +10,7 @@ namespace iSpyApplication.Onvif
     {
         TService CreateClient<TService>(Uri uri, IConnectionParameters connectionParameters, MessageVersion messageEncodingVersion, int timeout);
         TService CreateClient<TService>(EndpointAddress address, IConnectionParameters connectionParameters, MessageVersion messageEncodingVersion, int timeout);
+        object CreateClient<T>(CoreWCF.EndpointAddress ep, IConnectionParameters connectionParameters, CoreWCF.Channels.MessageVersion soap12, int timeout);
         void SetSecurityToken(SecurityToken token);
     }
 

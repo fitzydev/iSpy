@@ -1,17 +1,20 @@
-﻿using System.Drawing.Imaging;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
+﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
+using System.Drawing.Imaging;
 
 namespace iSpyApplication.Vision
 {
     public static class Tools
     {
+        // NO CHANGES NEEDED HERE
+        // With Accord.Imaging removed, 'PixelFormat' is no longer ambiguous
+        // and correctly resolves to System.Drawing.Imaging.PixelFormat.
         public static int BytesPerPixel(PixelFormat pixelFormat)
         {
             int bytesPerPixel;
 
             // calculate bytes per pixel
-            switch ( pixelFormat )
+            switch (pixelFormat)
             {
                 case PixelFormat.Format8bppIndexed:
                     bytesPerPixel = 1;
@@ -35,20 +38,29 @@ namespace iSpyApplication.Vision
                     bytesPerPixel = 8;
                     break;
                 default:
-                    throw new UnsupportedImageFormatException( "Can not create image with specified pixel format." );
+                    // You may need to create or find this exception class,
+                    // or replace it with a standard System.Exception
+                    throw new System.Exception("Can not create image with specified pixel format.");
             }
             return bytesPerPixel;
         }
 
-        public static void ConvertToGrayscale(UnmanagedImage source, UnmanagedImage destination)
+        // --- THIS METHOD IS MIGRATED TO EMGU.CV ---
+        // The method signature changes from UnmanagedImage to Mat
+        public static void ConvertToGrayscale(Emgu.CV.Mat source, Emgu.CV.Mat destination)
         {
-            if (source.PixelFormat != PixelFormat.Format8bppIndexed)
+            // In Emgu.CV, we check the NumberOfChannels. 1 = Grayscale.
+            if (source.NumberOfChannels != 1)
             {
-                Grayscale.CommonAlgorithms.BT709.Apply(source, destination);
+                // The 'Apply' filter pattern is replaced by a static CvInvoke call.
+                // We assume BGR source, which is OpenCV's default.
+                // If your source might be BGRA, you can use ColorConversion.Bgra2Gray
+                CvInvoke.CvtColor(source, destination, ColorConversion.Bgr2Gray);
             }
             else
             {
-                source.Copy(destination);
+                // The copy operation is very similar
+                source.CopyTo(destination);
             }
         }
     }

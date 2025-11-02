@@ -1,21 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Net;
 using iSpyApplication.Onvif.Security;
-using iSpyApplication.OnvifServices;
 using iSpyApplication.Utilities;
 using DateTime = System.DateTime;
-using CoreWCF;
-using CoreWCF.Channels;
-using System.ServiceModel.Security;
-using System.Xml;
+using iSpy.Onvif;
 
 namespace iSpyApplication.Onvif
 {
@@ -143,8 +130,8 @@ namespace iSpyApplication.Onvif
                     throw new ApplicationException("No media endpoints found");
 
                 var mediaUri = new Uri(_deviceCapabilities.Media.XAddr);
-                var ep = new EndpointAddress(GetServiceUri(mediaUri.PathAndQuery));
-                var mediaClient = _clientFactory.CreateClient<Media>(ep, _connectionParameters, MessageVersion.Soap12, _timeout);
+                var ep = new CoreWCF.EndpointAddress(GetServiceUri(mediaUri.PathAndQuery));
+                var mediaClient = _clientFactory.CreateClient<Media>(ep, _connectionParameters, CoreWCF.Channels.MessageVersion.Soap12, _timeout);
 
                 var profiles = mediaClient.GetProfiles(new GetProfilesRequest()).Profiles.ToList();
 
@@ -215,8 +202,8 @@ namespace iSpyApplication.Onvif
                     if (_deviceCapabilities.PTZ != null)
                     {
                         var ptzUri = new Uri(_deviceCapabilities.PTZ.XAddr);
-                        ep = new EndpointAddress(GetServiceUri(ptzUri.PathAndQuery));
-                        PTZ = _clientFactory.CreateClient<PTZ>(ep, _connectionParameters, MessageVersion.Soap12,
+                        ep = new CoreWCF.EndpointAddress(GetServiceUri(ptzUri.PathAndQuery));
+                        PTZ = _clientFactory.CreateClient<PTZ>(ep, _connectionParameters, CoreWCF.Channels.MessageVersion.Soap12,
                             _timeout);
 
                         try
@@ -377,7 +364,7 @@ namespace iSpyApplication.Onvif
         {
             Uri deviceServiceUri = GetServiceUri(_deviceServicePath);
 
-            var deviceClient = _clientFactory.CreateClient<Device>(deviceServiceUri, _connectionParameters, MessageVersion.Soap12, _timeout);
+            var deviceClient = _clientFactory.CreateClient<Device>(deviceServiceUri, _connectionParameters, CoreWCF.Channels.MessageVersion.Soap12, _timeout);
 
             return deviceClient;
         }

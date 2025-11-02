@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,14 +13,12 @@ namespace iSpyApplication.Utilities
     public class ConnectionFactory
     {
 
-        private static string CalculateMd5Hash(
-            string input)
+        private static string CalculateMd5Hash(string input)
         {
             var inputBytes = Encoding.ASCII.GetBytes(input);
             var hash = MD5.Create().ComputeHash(inputBytes);
             var sb = new StringBuilder();
-            foreach (var b in hash)
-                sb.Append(b.ToString("x2"));
+            foreach (var b in hash) sb.Append(b.ToString("x2"));
             return sb.ToString();
         }
 
@@ -44,8 +42,7 @@ namespace iSpyApplication.Utilities
             var dir = uri.PathAndQuery;
             var ha1 = CalculateMd5Hash($"{username}:{realm}:{password}");
             var ha2 = CalculateMd5Hash($"{"GET"}:{dir}");
-            var digestResponse =
-                CalculateMd5Hash($"{ha1}:{nonce}:{_nc:00000000}:{cnonce}:{qop}:{ha2}");
+            var digestResponse = CalculateMd5Hash($"{ha1}:{nonce}:{_nc:00000000}:{cnonce}:{qop}:{ha2}");
 
             return $"Digest username=\"{username}\", realm=\"{realm}\", nonce=\"{nonce}\", uri=\"{dir}\", " +
                    $"algorithm=MD5, response=\"{digestResponse}\", qop={qop}, nc={_nc:00000000}, cnonce=\"{cnonce}\"";
@@ -117,7 +114,7 @@ namespace iSpyApplication.Utilities
 
         private static void AddDigest(DigestConfig digest)
         {
-            Digests.Add(digest);            
+            Digests.Add(digest);
         }
 
         private static DigestConfig GetDigest(string host)
@@ -125,7 +122,7 @@ namespace iSpyApplication.Utilities
             // Remove any digests more than an hour old
             Digests.RemoveAll(p => p.Created < DateTime.UtcNow.AddHours(-1));
             return Digests.FirstOrDefault(p => p.Host == host);
-            
+
         }
 
         private class DigestConfig
@@ -148,7 +145,7 @@ namespace iSpyApplication.Utilities
 
             try
             {
-                if (co.data!=null && co.data.Length>0)
+                if (co.data != null && co.data.Length > 0)
                 {
                     using (var stream = request.GetRequestStream())
                     {
@@ -161,7 +158,7 @@ namespace iSpyApplication.Utilities
             {
                 response?.Close();
                 // Try to fix a 401 exception by adding a Authorization header
-                if (ex.Response == null || ((HttpWebResponse) ex.Response).StatusCode != HttpStatusCode.Unauthorized)
+                if (ex.Response == null || ((HttpWebResponse)ex.Response).StatusCode != HttpStatusCode.Unauthorized)
                 {
                     return null;
                 }
@@ -202,7 +199,7 @@ namespace iSpyApplication.Utilities
                 Logger.LogException(ex, "Connection Factory");
             }
 
-            
+
         }
 
         private void FinishRequest(IAsyncResult result)

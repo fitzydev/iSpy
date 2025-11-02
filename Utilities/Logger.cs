@@ -47,8 +47,9 @@ namespace iSpyApplication.Utilities
         }
         internal static void LogMessage(String message, string e)
         {
-            Logger.LogMessage(String.Format(message, e));
+            Logger.LogMessage(message: String.Format(message, e));
         }
+
         internal static void LogMessage(String message)
         {
             if (!_logging || !MainForm.Conf.Logging.Enabled)

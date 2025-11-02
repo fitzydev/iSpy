@@ -1,10 +1,3 @@
-using AForge;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
-using iSpyApplication.Sources;
-using iSpyApplication.Sources.Video;
-using iSpyApplication.Utilities;
-using iSpyApplication.Vision;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,6 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using iSpyApplication.Sources;
+using iSpyApplication.Sources.Video;
+using iSpyApplication.Utilities;
+using iSpyApplication.Vision;
+using OpenCvSharp.Extensions;
+using OpenCvSharp;
 using Image = System.Drawing.Image;
 using Point = System.Drawing.Point;
 
@@ -47,7 +46,7 @@ namespace iSpyApplication.Controls
         public double Framerate;
         public double RealFramerate;
         private Queue<double> _framerates;
-        private HSLFiltering _filter;
+        //private HSLFiltering _filter;
         private readonly object _sync = new object();
         private MotionDetector _motionDetector;
         private DateTime _motionlastdetected = DateTime.MinValue;
@@ -89,7 +88,7 @@ namespace iSpyApplication.Controls
 
         public event Delegates.ErrorHandler ErrorHandler;
 
-        public HSLFiltering Filter
+        /*public HSLFiltering Filter
         {
             get
             {
@@ -118,7 +117,7 @@ namespace iSpyApplication.Controls
 
                 return null;
             }
-        }
+        }*/
 
         internal Rectangle ViewRectangle
         {
@@ -276,7 +275,7 @@ namespace iSpyApplication.Controls
         {
             lock (_sync)
             {
-                _filter = null;
+                //_filter = null;
             }
         }
 
@@ -537,49 +536,47 @@ namespace iSpyApplication.Controls
                         bmOrig = RunPlugin(bmOrig);
                     }
 
-                    var bmd = bmOrig.LockBits(new Rectangle(0, 0, bmOrig.Width, bmOrig.Height), ImageLockMode.ReadWrite, bmOrig.PixelFormat);
-
-                    //this converts the image into a windows displayable image so do it regardless
-                    using (var lfu = new UnmanagedImage(bmd))
+                    using (Mat mat = OpenCvSharp.Extensions.BitmapConverter.ToMat(bmOrig))
                     {
+                        //this converts the image into a windows displayable image so do it regardless
                         if (_motionDetector != null)
                         {
-                            bMotion = ApplyMotionDetector(lfu);
+                            //bMotion = ApplyMotionDetector(lfu);
                         }
                         else
                         {
                             MotionDetected = false;
                         }
 
-                        if (CW.Camobject.settings.FishEyeCorrect)
-                        {
-                            _feCorrect.Correct(lfu, CW.Camobject.settings.FishEyeFocalLengthPX,
-                                CW.Camobject.settings.FishEyeLimit, CW.Camobject.settings.FishEyeScale, ZPoint.X,
-                                ZPoint.Y);
-                        }
+                        //if (CW.Camobject.settings.FishEyeCorrect)
+                        //{
+                        //    _feCorrect.Correct(lfu, CW.Camobject.settings.FishEyeFocalLengthPX,
+                        //        CW.Camobject.settings.FishEyeLimit, CW.Camobject.settings.FishEyeScale, ZPoint.X,
+                        //        ZPoint.Y);
+                        //}
 
                         if (ZFactor > 1)
                         {
-                            var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
-                            var f2 = new Crop(ViewRectangle);
-                            try
-                            {
-                                using (var imgTemp = f2.Apply(lfu))
-                                {
-                                    f1.Apply(imgTemp, lfu);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                ErrorHandler?.Invoke(ex.Message);
-                            }
+                            //var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
+                            //var f2 = new Crop(ViewRectangle);
+                            //try
+                            //{
+                            //    using (var imgTemp = f2.Apply(lfu))
+                            //    {
+                            //        f1.Apply(imgTemp, lfu);
+                            //    }
+                            //}
+                            //catch (Exception ex)
+                            //{
+                            //    ErrorHandler?.Invoke(ex.Message);
+                            //}
                         }
+                        bmOrig = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
                     }
-                    bmOrig.UnlockBits(bmd);
                     PiP(bmOrig);
                     AddTimestamp(bmOrig);
                 }
-                catch (UnsupportedImageFormatException ex)
+                catch (Exception ex)
                 {
                     CW.VideoSourceErrorState = true;
                     CW.VideoSourceErrorMessage = ex.Message;
@@ -588,20 +585,12 @@ namespace iSpyApplication.Controls
 
                     return;
                 }
-                catch (Exception ex)
-                {
-                    bmOrig?.Dispose();
-
-                    ErrorHandler?.Invoke(ex.Message);
-
-                    return;
-                }
 
                 if (MotionDetector != null && !CW.Calibrating && MotionDetector.MotionProcessingAlgorithm is BlobCountingObjectsProcessing && !CW.PTZNavigate && CW.Camobject.settings.ptzautotrack)
                 {
                     try
                     {
-                        ProcessAutoTracking();
+                        //ProcessAutoTracking();
                     }
                     catch (Exception ex)
                     {
@@ -795,7 +784,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void ProcessAutoTracking()
+        /*private void ProcessAutoTracking()
         {
             var blobcounter =
                 (BlobCountingObjectsProcessing)MotionDetector.MotionProcessingAlgorithm;
@@ -844,12 +833,12 @@ namespace iSpyApplication.Controls
                     CW.Ptzneedsstop = true;
                 }
             }
-        }
+        }*/
 
         private DateTime _lastProcessed = DateTime.MinValue;
 
         [HandleProcessCorruptedStateExceptions]
-        private bool ApplyMotionDetector(UnmanagedImage lfu)
+        private bool ApplyMotionDetector(object lfu)
         {
             if (Detect != null && lfu != null)
             {
@@ -859,7 +848,7 @@ namespace iSpyApplication.Controls
 
                     try
                     {
-                        MotionLevel = _motionDetector.ProcessFrame(Filter != null ? Filter.Apply(lfu) : lfu);
+                        //MotionLevel = _motionDetector.ProcessFrame(Filter != null ? Filter.Apply(lfu) : lfu);
                     }
                     catch (Exception ex)
                     {
@@ -880,7 +869,7 @@ namespace iSpyApplication.Controls
                 }
                 else
                 {
-                    _motionDetector.ApplyOverlay(lfu);
+                    //_motionDetector.ApplyOverlay(lfu);
                 }
             }
             else
@@ -905,7 +894,7 @@ namespace iSpyApplication.Controls
         private Bitmap ResizeBmOrig(Bitmap f)
         {
             var sz = Helper.CalcResizeSize(CW.Camobject.settings.resize, f.Size,
-                new Size(CW.Camobject.settings.resizeWidth, CW.Camobject.settings.resizeHeight));
+                new System.Drawing.Size(CW.Camobject.settings.resizeWidth, CW.Camobject.settings.resizeHeight));
             if (CW.Camobject.settings.resize && f.Size != sz)
             {
                 var result = new Bitmap(sz.Width, sz.Height, PixelFormat.Format24bppRgb);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.InteropServices;
 
 namespace iSpyApplication.Utilities
@@ -10,18 +11,18 @@ namespace iSpyApplication.Utilities
     public class NetApi32
     {
         // constants
-        public enum PLATFORM_ID
+        public enum PLATFORMID
         {
-            PLATFORM_ID_DOS = 300,
+            PLATFORMID_DOS = 300,
             PLATFORM_ID_OS2 = 400,
             PLATFORM_ID_NT = 500,
             PLATFORM_ID_OSF = 600,
             PLATFORM_ID_VMS = 700
         }
 
-        public enum SV_101_TYPES : uint
+        public enum SV101TYPES : uint
         {
-            SV_TYPE_WORKSTATION = 0x00000001,
+            SVTYPEWORKSTATION = 0x00000001,
             SV_TYPE_SERVER = 0x00000002,
             SV_TYPE_SQLSERVER = 0x00000004,
             SV_TYPE_DOMAIN_CTRL = 0x00000008,
@@ -67,7 +68,7 @@ namespace iSpyApplication.Utilities
             return NativeMethods.NetMessageBufferSend(serverName, messageName, fromName, strMsgBuffer, iMsgBufferLen * 2);
         }
 
-        public static ArrayList GetServerList(SV_101_TYPES serverType)
+        public static ArrayList GetServerList(SV101TYPES serverType)
         {
             int entriesread = 0, totalentries = 0;
             var alServers = new ArrayList();

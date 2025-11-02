@@ -29,12 +29,15 @@ using iSpyApplication.Sources.Audio;
 using iSpyApplication.Sources.Audio.talk;
 using iSpyApplication.Utilities;
 using Microsoft.Win32;
+using System.Net.Http;
 using NATUPNPLib;
 using NAudio.Wave;
 using NETWORKLIST;
 using SharpDX.DirectInput;
 using PictureBox = iSpyApplication.Controls.PictureBox;
 using Timer = System.Timers.Timer;
+using System.Windows.Controls;
+using ToolTip = System.Windows.Controls.ToolTip;
 
 namespace iSpyApplication
 {
@@ -325,7 +328,7 @@ namespace iSpyApplication
         private ToolStripMenuItem _onMobileDevicesToolStripMenuItem;
         private PerformanceCounter _pcMem;
         public LayoutPanel _pnlCameras;
-        private Panel _pnlContent;
+        private System.Windows.Controls.Panel _pnlContent;
         private ToolStripMenuItem _positionToolStripMenuItem;
         private FormWindowState _previousWindowState = FormWindowState.Normal;
         private PTZTool _ptzTool;

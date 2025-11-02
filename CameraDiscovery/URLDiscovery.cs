@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Net.Http;
 
 namespace iSpyApplication.CameraDiscovery
 {
@@ -22,12 +23,12 @@ namespace iSpyApplication.CameraDiscovery
             if (baseUri.Port > 0)
             {
                 _httpPorts.Insert(0, baseUri.Port);
-                _httpPorts = _httpPorts.Distinct().ToList();
+                _httpPorts = [.. _httpPorts.Distinct()];
             }
         }
 
-        private readonly List<int> _httpPorts = new List<int> { 80, 8080, 443 };
-        private readonly List<int> _mediaPorts = new List<int> { 554, 555, 8554, 1935, 37777 };
+        private readonly List<int> _httpPorts = [80, 8080, 443];
+        private readonly List<int> _mediaPorts = [554, 555, 8554, 1935, 37777];
 
         public int HttpPort
         {
@@ -133,7 +134,7 @@ namespace iSpyApplication.CameraDiscovery
             url = url.Replace("[WIDTH]", "320");
             url = url.Replace("[HEIGHT]", "240");
 
-            if (url.IndexOf("[AUTH]", StringComparison.Ordinal) != -1)
+            if (url.Contains("[AUTH]"))
             {
                 string credentials = $"{username}:{password}";
                 byte[] bytes = Encoding.ASCII.GetBytes(credentials);
@@ -147,20 +148,19 @@ namespace iSpyApplication.CameraDiscovery
             return uri;
         }
 
-        private bool TestHttpUrl(Uri source, string cookies, string username, string password)
+        private static bool TestHttpUrl(Uri source, string cookies, string username, string password)
         {
             bool b = false;
 
-            ConnectionFactory connectionFactory = new ConnectionFactory();
-            HttpWebRequest _req;
+            ConnectionFactory connectionFactory = new();
             using (
-                var res = connectionFactory.GetResponse(source.ToString(), cookies, "", "", username, password, "GET", "", "", false, out _req))
+                var res = connectionFactory.GetResponse(source.ToString(), cookies, "", "", username, password, "GET", "", "", false, out HttpWebRequest _req))
             {
                 var sc = res?.StatusCode;
                 if (sc == HttpStatusCode.OK)
                 {
                     string ct = res.ContentType.ToLower();
-                    if (ct.IndexOf("text", StringComparison.Ordinal) == -1)
+                    if (!ct.Contains("text"))
                     {
                         b = true;
                     }
@@ -170,7 +170,7 @@ namespace iSpyApplication.CameraDiscovery
             return b;
         }
 
-        private bool TestRtspUrl(Uri uri, string username, string password)
+        private static bool TestRtspUrl(Uri uri, string username, string password)
         {
             try
             {
@@ -205,7 +205,7 @@ namespace iSpyApplication.CameraDiscovery
                         var bytesReceived = new byte[200];
                         var bytes = sock.Receive(bytesReceived, bytesReceived.Length, 0);
                         string resp = Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                        if (resp.IndexOf("200 OK", StringComparison.Ordinal) != -1)
+                        if (resp.Contains("200 OK"))
                         {
                             return true;
                         }
@@ -220,7 +220,7 @@ namespace iSpyApplication.CameraDiscovery
             return false;
         }
 
-        public bool TestSocket(Uri uri)
+        public static bool TestSocket(Uri uri)
         {
             try
             {
@@ -260,6 +260,17 @@ namespace iSpyApplication.CameraDiscovery
                     break;
             }
             return found;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is URLDiscovery discovery &&
+                   EqualityComparer<Uri>.Default.Equals(BaseUri, discovery.BaseUri);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(BaseUri);
         }
     }
 }

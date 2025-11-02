@@ -38,7 +38,7 @@
     </InstallExecuteSequence>
     
     <Feature Id="ProductFeature" Title="$(var.ProductName)" Level="1">
-      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="HarvestedComponents" />
       <ComponentGroupRef Id="FFMPEG" />
       <ComponentGroupRef Id="XML" />
       <ComponentGroupRef Id="ispyserver" />
@@ -137,125 +137,6 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Win64="$(var.Win64)" Id="Component1" Guid="{B5528455-B6B5-426D-B5FB-5BB98634B563}">
-        <File Id="AForge.dll" Source="$(var.OutputDir)\AForge.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component2" Guid="{757CA3EE-79F7-4FBC-B8B9-2F9938F5173D}">
-        <File Id="AForge.Imaging.dll" Source="$(var.OutputDir)\AForge.Imaging.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component4" Guid="{53409E93-D31D-4A0C-8F86-937EB6D76F45}">
-        <File Id="AForge.Math.dll" Source="$(var.OutputDir)\AForge.Math.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component14" Guid="{c9c55927-f50d-4085-8684-62ce500f8176}">
-        <File Id="FlickrNet.dll" Source="$(var.OutputDir)\FlickrNet.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component20" Guid="{9BD01A53-7552-495F-8AA9-33FCF67E17CF}">
-        <File Id="Google.Apis.Auth.dll" Source="$(var.OutputDir)\Google.Apis.Auth.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component22" Guid="{8ED45890-2D58-494C-880C-3FDB5912A1D0}">
-        <File Id="Google.Apis.Auth.PlatformServices.dll" Source="$(var.OutputDir)\Google.Apis.Auth.PlatformServices.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component26" Guid="{1CB17EED-ADEF-4363-B86D-8766B3DE42C9}">
-        <File Id="Google.Apis.Core.dll" Source="$(var.OutputDir)\Google.Apis.Core.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component29" Guid="{5C576B60-7630-472C-A324-72B1779A84B5}">
-        <File Id="Google.Apis.dll" Source="$(var.OutputDir)\Google.Apis.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component30" Guid="{7e84d752-069e-4a74-9039-d747954c8d1f}">
-        <File Id="Google.Apis.Drive.v3.dll" Source="$(var.OutputDir)\Google.Apis.Drive.v3.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component34" Guid="{10173057-F98D-4581-8913-284BCE57D9B7}">
-        <File Id="Google.Apis.PlatformServices.dll" Source="$(var.OutputDir)\Google.Apis.PlatformServices.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component41" Guid="{3CD35CC0-FECA-43EC-9B29-8B09156FCD39}">
-        <File Id="iSpy.exe" Source="$(var.OutputDir)\iSpy.exe" KeyPath="yes" Checksum="yes" />
-        <File Id="ispy.ico" Source="$(var.OutputDir)\ispy.ico" Checksum="yes" />
-        <ProgId Id="iSpyFileType" Description="iSpy Object List" Icon="ispy.ico">
-          <Extension Id="ispy" ContentType="text/xml">
-            <Verb Id="open" Command="Open" TargetFile="iSpy.exe" Argument="open %1" />
-          </Extension>
-        </ProgId>
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component42" Guid="{A54AB56A-43EC-4D57-90F5-7C9E975ADC34}">
-        <File Id="iSpy.exe.config" Source="$(var.OutputDir)\iSpy.exe.config" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component44" Guid="{78F424B0-62FB-4550-B9E5-6AC67541A046}">
-        <File Id="FFmpeg.AutoGen.dll" Source="$(var.OutputDir)\FFmpeg.AutoGen.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component47" Guid="{DE5EA5DC-A0D8-4DD3-B519-A8D6AB36F9E6}">
-        <File Id="iSpy.XmlSerializers.dll" Source="$(var.OutputDir)\iSpy.XmlSerializers.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component49" Guid="{666343AD-4387-4D62-8347-02ADC425A220}">
-        <File Id="libmp3lame.dll" Source="$(var.OutputDir)\libmp3lame.$(var.Bits).dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component50" Guid="{9340572F-CCDC-472D-A448-CD03FFCDDA88}">
-        <File Id="log4net.dll" Source="$(var.OutputDir)\log4net.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component52" Guid="{8848FFE3-A490-45C7-ADC3-17A4DD027393}">
-        <File Id="Microsoft.Kinect.dll" Source="$(var.OutputDir)\Microsoft.Kinect.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component53" Guid="{78E47B1F-59EA-49DB-836F-52EFD20BEDF5}">
-        <File Id="Microsoft.Threading.Tasks.dll" Source="$(var.OutputDir)\Microsoft.Threading.Tasks.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component54" Guid="{F3AE6E8D-9266-4898-B4EF-7E32F063A516}">
-        <File Id="Microsoft.Threading.Tasks.Extensions.Desktop.dll" Source="$(var.OutputDir)\Microsoft.Threading.Tasks.Extensions.Desktop.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component56" Guid="{229C3F21-2664-4038-86E4-0994BD817405}">
-        <File Id="Microsoft.Threading.Tasks.Extensions.dll" Source="$(var.OutputDir)\Microsoft.Threading.Tasks.Extensions.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component59" Guid="{5DDBC04D-BDAC-47C3-BB81-98E86258C5DD}">
-        <File Id="NAudio.dll" Source="$(var.OutputDir)\NAudio.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component60" Guid="{DD82BB81-0CA9-4337-A135-098242D412C7}">
-        <File Id="NAudio.Lame.dll" Source="$(var.OutputDir)\NAudio.Lame.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component62" Guid="{DB50E196-1CC4-41AA-936E-6DE420158862}">
-        <File Id="Newtonsoft.Json.dll" Source="$(var.OutputDir)\Newtonsoft.Json.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component64" Guid="{5278D2A1-F218-4D52-A762-34678BBDDAF3}">
-        <File Id="NSpeex.dll" Source="$(var.OutputDir)\NSpeex.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component191" Guid="{20E437C6-492D-4012-88BC-2BB4F292371E}">
-        <File Id="libVLCSharp.dll" Source="$(var.OutputDir)\libVLCSharp.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component190" Guid="{A69865B8-1261-459A-9BEE-84AAF61B3F8E}">
-        <File Id="libVLCSharp.WinForms.dll" Source="$(var.OutputDir)\libVLCSharp.WinForms.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component73" Guid="{76C2C908-ABFF-42BB-B3E6-E81E75FB652A}">
-        <File Id="Renci.SshNet.dll" Source="$(var.OutputDir)\Renci.SshNet.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component74" Guid="{A5CBEBC7-83D0-4510-AD04-150010DDBAF2}">
-        <File Id="Renderers.dll" Source="$(var.OutputDir)\Renderers.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component75" Guid="{531A4203-9F32-402E-8D4B-D71BCF41CF50}">
-        <File Id="RestSharp.dll" Source="$(var.OutputDir)\RestSharp.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component77" Guid="{7E8C8B46-4622-470B-BF88-B2B7D17D33EA}">
-        <File Id="SharpDX.DirectInput.dll" Source="$(var.OutputDir)\SharpDX.DirectInput.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component79" Guid="{9FEF9F63-9503-4B91-8B2A-2679C9B52254}">
-        <File Id="SharpDX.dll" Source="$(var.OutputDir)\SharpDX.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component86" Guid="{E459F489-6193-419C-A124-56EF78C29383}">
-        <File Id="System.Net.Http.Extensions.dll" Source="$(var.OutputDir)\System.Net.Http.Extensions.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component88" Guid="{E343ED31-E563-4DE6-812B-2E636F0719F5}">
-        <File Id="System.Net.Http.Primitives.dll" Source="$(var.OutputDir)\System.Net.Http.Primitives.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component103" Guid="{B88FD1C4-F76F-4C05-BF49-224FE89C28B9}">
-        <File Id="Windows7ToolStripRenderer.dll" Source="$(var.OutputDir)\Windows7ToolStripRenderer.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component104" Guid="{63BD2242-69E0-4EEF-86D2-F72A1BDF962B}">
-        <File Id="xiApi.NET.dll" Source="$(var.OutputDir)\xiApi.NET.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Component105" Guid="{1DC808FD-C046-48DB-981C-08E93007372E}">
-        <File Id="Zlib.Portable.dll" Source="$(var.OutputDir)\Zlib.Portable.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Win64="$(var.Win64)" Id="Monitor" Guid="{DCD36025-048D-4144-9A62-3A03413CF758}">
-        <File Id="ispymonitor" Source="$(var.SolutionDir)iSpyMonitor\bin\Release\iSpyMonitor.exe" KeyPath="yes" Checksum="yes" />
-      </Component>
-    </ComponentGroup>
     <ComponentGroup Id="FFMPEG" Directory="INSTALLFOLDER">
       <Component Win64="$(var.Win64)" Id="ComponentF9" Guid="{d539aedd-fad8-421a-ab16-6f3fa73d4e51}">
         <File Id="avcodec58.dll" Source="$(var.OutputDir)\avcodec-58.dll" KeyPath="yes" Checksum="yes" />

@@ -1,17 +1,14 @@
-﻿using CoreWCF.Channels;
+﻿using CoreWCF;
+using CoreWCF.Channels;
 using CoreWCF.Dispatcher;
 using System;
+using Message = CoreWCF.Channels.Message;
 
-namespace iSpy.Onvif.Behaviour
+namespace iSpyApplication.Onvif.Behaviour
 {
-    public class CustomMessageInspector : IClientMessageInspector
+    public class CustomMessageInspector(IOnvifClientFactory factory) : IClientMessageInspector
     {
-        private readonly IOnvifClientFactory _factory;
-
-        public CustomMessageInspector(IOnvifClientFactory factory)
-        {
-            _factory = factory;
-        }
+        private readonly IOnvifClientFactory _factory = factory;
 
         public void AfterReceiveReply(ref Message reply, object correlationState)
         {

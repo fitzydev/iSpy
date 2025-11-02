@@ -71,28 +71,28 @@ namespace iSpyApplication.Utilities
             /// <summary>
             /// Do not show a dialog during the process
             /// </summary>
-            FOF_SILENT = 0x0004,
+            FOFSILENT = 0x0004,
             /// <summary>
             /// Do not ask the user to confirm selection
             /// </summary>
-            FOF_NOCONFIRMATION = 0x0010,
+            FOFNOCONFIRMATION = 0x0010,
             /// <summary>
             /// Delete the file to the recycle bin.  (Required flag to send a file to the bin
             /// </summary>
-            FOF_ALLOWUNDO = 0x0040,
+            FOFALLOWUNDO = 0x0040,
             /// <summary>
             /// Do not show the names of the files or folders that are being recycled.
             /// </summary>
-            FOF_SIMPLEPROGRESS = 0x0100,
+            FOFSIMPLEPROGRESS = 0x0100,
             /// <summary>
             /// Surpress errors, if any occur during the process.
             /// </summary>
-            FOF_NOERRORUI = 0x0400,
+            FOFNOERRORUI = 0x0400,
             /// <summary>
             /// Warn if files are too big to fit in the recycle bin and will need
             /// to be deleted completely.
             /// </summary>
-            FOF_WANTNUKEWARNING = 0x4000,
+            FOFWANTNUKEWARNING = 0x4000,
         }
 
         /// <summary>
@@ -103,19 +103,19 @@ namespace iSpyApplication.Utilities
             /// <summary>
             /// Move the objects
             /// </summary>
-            FO_MOVE = 0x0001,
+            FOMOVE = 0x0001,
             /// <summary>
             /// Copy the objects
             /// </summary>
-            FO_COPY = 0x0002,
+            FOCOPY = 0x0002,
             /// <summary>
             /// Delete (or recycle) the objects
             /// </summary>
-            FO_DELETE = 0x0003,
+            FODELETE = 0x0003,
             /// <summary>
             /// Rename the object(s)
             /// </summary>
-            FO_RENAME = 0x0004,
+            FORENAME = 0x0004,
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace iSpyApplication.Utilities
             int prefmaxlen,
             ref int entriesread,
             ref int totalentries,
-            NetApi32.SV_101_TYPES servertype,
+            NetApi32.SV101TYPES servertype,
             [MarshalAs(UnmanagedType.LPWStr)] string domain,
             IntPtr resumeHandle);
 
