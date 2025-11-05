@@ -1,11 +1,8 @@
 ﻿using iSpyApplication.Onvif;
 using iSpyApplication.Server;
 using iSpyApplication.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Mono.Nat;
+
+
 
 namespace iSpyApplication.CameraDiscovery
 {
@@ -72,7 +69,7 @@ namespace iSpyApplication.CameraDiscovery
                 var httpUri = _discoverer.BaseUri.SetPort(_discoverer.HttpPort);
 
                 //check for this devices
-                var discoveredDevices = Discovery.Discover().Result;
+                var discoveredDevices = OnvifDiscovery.IDiscovery().Result;
                 foreach (var d in discoveredDevices)
                 {
                     if (d.Address.ToString() == Uri.DnsSafeHost)

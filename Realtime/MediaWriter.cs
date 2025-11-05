@@ -4,7 +4,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
-using FFMpegCore.Helpers;
 using iSpyApplication.Sources.Video;
 using iSpyApplication.Utilities;
 
@@ -202,7 +201,7 @@ namespace iSpyApplication.Realtime
             Dispose();
         }
 
-        public void WriteAudio(byte[] soundBuffer, int soundBufferSize, DateTime timestamp)
+        public void WriteAudio(byte[] soundBuffer, int soundBufferSize, int v, DateTime timestamp)
         {
             if (!_opened)
             {
@@ -628,7 +627,7 @@ namespace iSpyApplication.Realtime
             _videoStream = ffmpeg.avformat_new_stream(_formatContext, null);
             if (_videoStream == null)
             {
-                throw new Exception("Failed creating new video stream.");
+                throw new Exception(message: "Failed creating new video stream.");
             }
 
             _videoStream->time_base = _videoCodecContext->time_base;

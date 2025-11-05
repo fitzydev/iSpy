@@ -1,87 +1,51 @@
-﻿using AForge.Imaging;
+﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using System;
 
 namespace iSpyApplication.Controls
 {
     public class FishEyeCorrect
     {
-        private double[] _mFisheyeCorrect;
-        private int _mFeLimit = -1; //1500;
-        private double _mScaleFeSize; //0.9;
-        private double _aFocalLinPixels;
-        private int[,] _map;
-        private int _w = -1, _h = -1;
-        private int _offsetx, _offsety;
+        public Mat CameraMatrix { get; private set; }
+        public Mat DistortionCoeff { get; private set; }
+        public Mat NewCameraMatrix { get; private set; }
 
-        private void Init(double aFocalLinPixels, int limit, double scale, int w, int h, int offsetx, int offsety)
+        private int _w = -1, _h = -1;
+
+        public void Init(int w, int h, double focalLength, double scale, int offx, int offy)
         {
-            _mFeLimit = limit;
-            _mScaleFeSize = scale;
-            _aFocalLinPixels = aFocalLinPixels;
+            if (_w == w && _h == h) return;
+
             _w = w;
             _h = h;
-            _offsetx = offsetx;
-            _offsety = offsety;
 
-            _mFisheyeCorrect = new double[_mFeLimit];
-            for (int i = 0; i < _mFeLimit; i++)
-            {
-                double result = Math.Sqrt(1 - 1 / Math.Sqrt(1.0 + (double)i * i / 1000000.0)) * 1.4142136;
-                _mFisheyeCorrect[i] = result;
-            }
-            _map = new int[w * h, 2];
-            //center point
+            var cameraMatrix = new Matrix<double>(3, 3);
+            cameraMatrix.SetZero();
+            cameraMatrix[0, 0] = focalLength;
+            cameraMatrix[1, 1] = focalLength;
+            cameraMatrix[0, 2] = w / 2d;
+            cameraMatrix[1, 2] = h / 2d;
+            cameraMatrix[2, 2] = 1.0;
+            CameraMatrix = cameraMatrix.Mat;
 
-            int c = 0;
-            for (var i = 0; i < w; i++)
-            {
-                for (var j = 0; j < h; j++)
-                {
-                    var xpos = i > offsetx;
-                    var ypos = j > offsety;
-                    var xdif = i - offsetx;
-                    var ydif = j - offsety;
+            DistortionCoeff = new Mat(4, 1, DepthType.Cv64F, 1);
+            DistortionCoeff.SetTo(new MCvScalar(0));
 
-                    var rusquare = xdif * xdif + ydif * ydif;
-                    var theta = Math.Atan2(ydif, xdif);
-                    var index = (int)(Math.Sqrt(rusquare) / aFocalLinPixels * 1000);
-                    if (index >= _mFeLimit) index = _mFeLimit - 1;
+            var newCameraMatrix = cameraMatrix.Clone();
 
-                    var rd = aFocalLinPixels * _mFisheyeCorrect[index] / _mScaleFeSize;
-
-                    var xdelta = Math.Abs(rd * Math.Cos(theta));
-                    var ydelta = Math.Abs(rd * Math.Sin(theta));
-                    var xd = (int)(offsetx + (xpos ? xdelta : -xdelta));
-                    var yd = (int)(offsety + (ypos ? ydelta : -ydelta));
-                    xd = Math.Max(0, Math.Min(xd, w - 1));
-                    yd = Math.Max(0, Math.Min(yd, h - 1));
-                    _map[c, 0] = xd;
-                    _map[c, 1] = yd;
-                    c++;
-                }
-            }
+            // Adjust the new camera matrix for scaling and offset
+            var newFocalLength = focalLength * scale;
+            newCameraMatrix[0, 0] = newFocalLength;
+            newCameraMatrix[1, 1] = newFocalLength;
+            newCameraMatrix[0, 2] = (w / 2d) + offx - (w / 2d);
+            newCameraMatrix[1, 2] = (h / 2d) + offy - (h / 2d);
+            NewCameraMatrix = newCameraMatrix.Mat;
         }
 
-        public void Correct(UnmanagedImage img, double aFocalLinPixels, int limit, double scale, int offx, int offy)
+        public void Correct(Mat img)
         {
-            if (Math.Abs(_aFocalLinPixels - aFocalLinPixels) > Double.Epsilon || limit != _mFeLimit ||
-                Math.Abs(scale - _mScaleFeSize) > Double.Epsilon || img.Width != _w || img.Height != _h ||
-                _offsetx != offx || _offsety != offy)
-            {
-                Init(aFocalLinPixels, limit, scale, img.Width, img.Height, offx, offy);
-            }
-            var correctImage = UnmanagedImage.Create(img.Width, img.Height, img.PixelFormat);
-            img.Copy(correctImage);
-            int c = 0;
-            for (int x = 0; x < _w; x++)
-            {
-                for (int y = 0; y < _h; y++)
-                {
-                    img.SetPixel(x, y, correctImage.GetPixel(_map[c, 0], _map[c, 1]));
-                    c++;
-                }
-            }
-            correctImage.Dispose();
+            // This method is no longer used with CvInvoke.Remap, but kept for compatibility.
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace iSpyPRO.DirectShow
+﻿namespace iSpyApplication.DirectShow
 {
     /// <summary>
     /// Specifies the physical type of pin (audio or video).

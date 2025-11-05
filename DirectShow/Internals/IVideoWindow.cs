@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -270,7 +270,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int put_Owner(IntPtr owner);
+        int put_Owner(nint owner);
 
         /// <summary>
         /// Retrieves the video window's parent window, if anyþ
@@ -281,7 +281,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int get_Owner(out IntPtr owner);
+        int get_Owner(out nint owner);
 
         /// <summary>
         /// Specifies a window to receive mouse and keyboard messages from the video window.
@@ -292,7 +292,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int put_MessageDrain(IntPtr drain);
+        int put_MessageDrain(nint drain);
 
         /// <summary>
         /// Retrieves the window that receives mouse and keyboard messages from the video window, if any.
@@ -303,7 +303,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int get_MessageDrain(out IntPtr drain);
+        int get_MessageDrain(out nint drain);
 
         /// <summary>
         /// Retrieves the color that appears around the edges of the destination rectangle.
@@ -373,7 +373,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int NotifyOwnerMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
+        int NotifyOwnerMessage(nint hwnd, int msg, nint wParam, nint lParam);
 
         /// <summary>
         /// Sets the position of the video windowþ

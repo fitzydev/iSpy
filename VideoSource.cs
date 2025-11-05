@@ -7,11 +7,11 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Controls;
+using iSpyApplication.DirectShow;
 using iSpyApplication.Onvif;
 using iSpyApplication.Sources.Video;
 using iSpyApplication.Sources.Video.Ximea;
 using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
 using Microsoft.Kinect;
 using Rectangle = System.Drawing.Rectangle;
 
@@ -131,7 +131,7 @@ namespace iSpyApplication
 
                 if (_videoDevices.Count > 0)
                 {
-                    foreach (iSpyPRO.DirectShow.FilterInfo device in _videoDevices)
+                    foreach (FilterInfo device in _videoDevices)
                     {
                         devicesCombo.Items.Add(device.Name);
                     }

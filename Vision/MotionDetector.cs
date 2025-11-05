@@ -8,8 +8,7 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
-using AForge;
-using AForge.Imaging;
+using Emgu.CV;
 
 namespace iSpyApplication.Vision
 {

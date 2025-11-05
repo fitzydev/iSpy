@@ -6,7 +6,7 @@
 // contacts@aforgenet.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -87,7 +87,7 @@ namespace iSpyPRO.DirectShow.Internals
         ///
         [PreserveSig]
         int GetMaxAvailableFrameRate([In] IPin pin, [In] int index,
-            [In] System.Drawing.Size dimensions,
+            [In] Size dimensions,
             [Out] out long maxAvailableFrameRate);
 
         /// <summary>
@@ -105,8 +105,8 @@ namespace iSpyPRO.DirectShow.Internals
         ///
         [PreserveSig]
         int GetFrameRateList([In] IPin pin, [In] int index,
-            [In] System.Drawing.Size dimensions,
+            [In] Size dimensions,
             [Out] out int listSize,
-            [Out] out IntPtr frameRate);
+            [Out] out nint frameRate);
     }
 }

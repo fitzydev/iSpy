@@ -1,9 +1,10 @@
 using iSpyApplication.Utilities;
 using System.Runtime.ExceptionServices;
 
-namespace iSpyPRO.DirectShow
+namespace iSpyApplication.DirectShow
 {
     using Internals;
+    using iSpyApplication.DirectShow.Internals;
     using System;
     using System.Runtime.InteropServices;
     using System.Runtime.InteropServices.ComTypes;
@@ -64,7 +65,7 @@ namespace iSpyPRO.DirectShow
             if (f == null)
                 return 1;
 
-            return (String.Compare(Name, f.Name, StringComparison.Ordinal));
+            return string.Compare(Name, f.Name, StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -105,12 +106,12 @@ namespace iSpyPRO.DirectShow
                     throw new ApplicationException("No devices of the category");
 
                 // Collect all filters
-                IntPtr n = IntPtr.Zero;
+                nint n = nint.Zero;
                 while (true)
                 {
                     // Get next filter
                     hr = enumMon.Next(1, devMon, n);
-                    if ((hr != 0) || (devMon[0] == null))
+                    if (hr != 0 || devMon[0] == null)
                         break;
 
                     // Add the filter
@@ -192,7 +193,7 @@ namespace iSpyPRO.DirectShow
         //
         private string GetName(IMoniker moniker)
         {
-            Object bagObj = null;
+            object bagObj = null;
             IPropertyBag bag;
 
             try
@@ -204,7 +205,7 @@ namespace iSpyPRO.DirectShow
 
                 // read FriendlyName
                 object val = "";
-                int hr = bag.Read("FriendlyName", ref val, IntPtr.Zero);
+                int hr = bag.Read("FriendlyName", ref val, nint.Zero);
                 if (hr != 0)
                     Marshal.ThrowExceptionForHR(hr);
 
@@ -237,7 +238,7 @@ namespace iSpyPRO.DirectShow
         private string GetName(string monikerString)
         {
             IBindCtx bindCtx;
-            String name = "";
+            string name = "";
             int n = 0;
 
             // create bind context

@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -52,7 +52,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int EnumFilters([Out] out IntPtr enumerator);
+        int EnumFilters([Out] out nint enumerator);
 
         /// <summary>
         /// Finds a filter that was added with a specified name.

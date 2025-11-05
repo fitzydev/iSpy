@@ -6,10 +6,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using iSpyApplication.Controls;
+using iSpyApplication.DirectShow;
+using iSpyApplication.DirectShow.Internals;
 using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
-using iSpyPRO.DirectShow.Internals;
-using FilterInfo = iSpyPRO.DirectShow.FilterInfo;
+using FilterInfo = iSpyApplication.DirectShow.FilterInfo;
 
 namespace iSpyApplication.Sources.Video
 {
@@ -1518,7 +1518,7 @@ namespace iSpyApplication.Sources.Video
                         try
                         {
                             // get all video capabilities
-                            capabilities = iSpyPRO.DirectShow.VideoCapabilities.FromStreamConfig(streamConfig);
+                            capabilities = DirectShow.VideoCapabilities.FromStreamConfig(streamConfig);
                         }
                         catch (Exception ex)
                         {

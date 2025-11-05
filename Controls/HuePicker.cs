@@ -1,4 +1,5 @@
-﻿using AForge.Imaging;
+﻿using Emgu.CV;
+using Emgu.Util;
 using System;
 using System.ComponentModel;
 using System.Drawing;

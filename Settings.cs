@@ -15,6 +15,7 @@ using iSpyApplication.Controls;
 using iSpyApplication.Joystick;
 using iSpyApplication.Utilities;
 using Encoder = System.Drawing.Imaging.Encoder;
+using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 
 namespace iSpyApplication
 {

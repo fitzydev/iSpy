@@ -1,4 +1,4 @@
-namespace iSpyPRO.DirectShow
+namespace iSpyApplication.DirectShow
 {
     using Internals;
     using System;
@@ -170,7 +170,7 @@ namespace iSpyPRO.DirectShow
                 return false;
             }
 
-            return ((FrameSize == vc2.FrameSize) && (BitCount == vc2.BitCount));
+            return FrameSize == vc2.FrameSize && BitCount == vc2.BitCount;
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace iSpyPRO.DirectShow
             }
 
             // if one is null, but not both, return false.
-            if (((object)a == null) || ((object)b == null))
+            if ((object)a == null || (object)b == null)
             {
                 return false;
             }

@@ -6,7 +6,7 @@
 // contacts@aforgenet.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Drawing;
@@ -77,7 +77,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <summary>
         /// Not used.
         /// </summary>
-        public IntPtr unkPtr;
+        public nint unkPtr;
 
         /// <summary>
         /// Size of the format block, in bytes.
@@ -87,7 +87,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <summary>
         /// Pointer to the format block.
         /// </summary>
-        public IntPtr FormatPtr;
+        public nint FormatPtr;
 
         /// <summary>
         /// Destroys the instance of the <see cref="AMMediaType"/> class.
@@ -117,16 +117,16 @@ namespace iSpyPRO.DirectShow.Internals
         ///
         protected virtual void Dispose(bool disposing)
         {
-            if ((FormatSize != 0) && (FormatPtr != IntPtr.Zero))
+            if (FormatSize != 0 && FormatPtr != nint.Zero)
             {
                 Marshal.FreeCoTaskMem(FormatPtr);
                 FormatSize = 0;
             }
 
-            if (unkPtr != IntPtr.Zero)
+            if (unkPtr != nint.Zero)
             {
                 Marshal.Release(unkPtr);
-                unkPtr = IntPtr.Zero;
+                unkPtr = nint.Zero;
             }
         }
     }
@@ -400,7 +400,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <summary>
         /// Pointer to an array of UUID values, each of which specifies UUID.
         /// </summary>
-        public IntPtr pElems;
+        public nint pElems;
 
         /// <summary>
         /// Performs manual marshaling of <b>pElems</b> to retrieve an array of Guid objects.
@@ -414,7 +414,7 @@ namespace iSpyPRO.DirectShow.Internals
 
             for (int i = 0; i < cElems; i++)
             {
-                IntPtr ptr = new IntPtr(pElems.ToInt64() + i * Marshal.SizeOf(typeof(Guid)));
+                nint ptr = new nint(pElems.ToInt64() + i * Marshal.SizeOf(typeof(Guid)));
                 retval[i] = (Guid)Marshal.PtrToStructure(ptr, typeof(Guid));
             }
 

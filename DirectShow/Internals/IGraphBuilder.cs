@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -175,7 +175,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int SetLogFile(IntPtr hFile);
+        int SetLogFile(nint hFile);
 
         /// <summary>
         /// Requests that the graph builder return as soon as possible from its current task.

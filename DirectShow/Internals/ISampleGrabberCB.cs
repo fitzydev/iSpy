@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -29,7 +29,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int SampleCB(double sampleTime, IntPtr sample);
+        int SampleCB(double sampleTime, nint sample);
 
         /// <summary>
         /// Callback method that receives a pointer to the sample bufferþ
@@ -42,6 +42,6 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int BufferCB(double sampleTime, IntPtr buffer, int bufferLen);
+        int BufferCB(double sampleTime, nint buffer, int bufferLen);
     }
 }

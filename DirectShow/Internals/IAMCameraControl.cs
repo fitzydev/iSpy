@@ -6,9 +6,10 @@
 // contacts@aforgenet.com
 //
 
+using iSpyApplication.DirectShow;
 using System.Runtime.InteropServices;
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     /// <summary>
     /// The IAMCameraControl interface controls camera settings such as zoom, pan, aperture adjustment,

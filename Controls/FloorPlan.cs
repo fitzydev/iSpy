@@ -1,4 +1,5 @@
-using AForge.Imaging.Filters;
+using Emgu.CV;
+using Emgu.Util;
 using iSpyApplication.Utilities;
 using System;
 using System.Drawing;

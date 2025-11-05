@@ -1,8 +1,9 @@
 ﻿using System.Net;
+using CoreWCF.Channels;
+using CoreWCF.Web;
 using iSpyApplication.Onvif.Security;
 using iSpyApplication.Utilities;
 using DateTime = System.DateTime;
-using iSpy.Onvif;
 
 namespace iSpyApplication.Onvif
 {

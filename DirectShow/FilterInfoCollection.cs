@@ -1,4 +1,4 @@
-namespace iSpyPRO.DirectShow
+namespace iSpyApplication.DirectShow
 {
     using Internals;
     using System;
@@ -49,7 +49,7 @@ namespace iSpyPRO.DirectShow
         ///
         /// <returns>Filter information object.</returns>
         ///
-        public FilterInfo this[int index] => ((FilterInfo)InnerList[index]);
+        public FilterInfo this[int index] => (FilterInfo)InnerList[index];
 
         // Collect filters of specified category
         private void CollectFilters(Guid category)
@@ -76,12 +76,12 @@ namespace iSpyPRO.DirectShow
                     throw new ApplicationException("No devices of the category");
 
                 // Collect all filters
-                IntPtr n = IntPtr.Zero;
+                nint n = nint.Zero;
                 while (true)
                 {
                     // Get next filter
                     hr = enumMon.Next(1, devMon, n);
-                    if ((hr != 0) || (devMon[0] == null))
+                    if (hr != 0 || devMon[0] == null)
                         break;
 
                     // Add the filter

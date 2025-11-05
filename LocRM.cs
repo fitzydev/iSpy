@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using iSpyApplication.Utilities;
+using MenuItem = System.Windows.Forms;
 
 namespace iSpyApplication
 {
@@ -89,10 +90,6 @@ namespace iSpyApplication
             ctrl.Text = GetString(identifier);
         }
 
-        public static void SetString(MenuItem ctrl, string identifier)
-        {
-            ctrl.Text = GetString(identifier);
-        }
         public static void SetString(ToolStripMenuItem ctrl, string identifier)
         {
             ctrl.Text = GetString(identifier);

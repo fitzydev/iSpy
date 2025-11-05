@@ -1,4 +1,4 @@
-﻿namespace iSpyPRO.DirectShow
+﻿namespace iSpyApplication.DirectShow
 {
     /// <summary>
     /// Video input of a capture board.

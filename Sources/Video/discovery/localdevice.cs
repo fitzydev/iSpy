@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using iSpyApplication.DirectShow;
 using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
 
 namespace iSpyApplication.Sources.Video.discovery
 {

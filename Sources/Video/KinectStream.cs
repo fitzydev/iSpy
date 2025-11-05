@@ -6,7 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using AForge.Imaging.Filters;
+using Emgu.CV;
+using Emgu.CV.CvEnum;
 using iSpyApplication.Controls;
 using iSpyApplication.Kinect;
 using iSpyApplication.Sources.Audio;
@@ -670,31 +671,49 @@ namespace iSpyApplication.Sources.Video
             return null;
         }
 
-         static Bitmap GrayScaleImageToBitmap(ColorImageFrame image)
+        static Bitmap GrayScaleImageToBitmap(ColorImageFrame image)
         {
             try
             {
                 if (image != null)
                 {
-                    var pixeldata =
-                        new byte[image.PixelDataLength];
-                    
+                    var pixeldata = new byte[image.PixelDataLength];
                     image.CopyPixelDataTo(pixeldata);
 
+                    // Create the 16bpp grayscale bitmap as before
                     var bitmapFrame = new Bitmap(image.Width, image.Height, PixelFormat.Format16bppGrayScale);
 
                     BitmapData bmapdata = bitmapFrame.LockBits(
-                        new Rectangle(0, 0,
-                                      image.Width, image.Height),
+                        new Rectangle(0, 0, image.Width, image.Height),
                         ImageLockMode.WriteOnly,
                         bitmapFrame.PixelFormat);
                     var ptr = bmapdata.Scan0;
-                    Marshal.Copy(pixeldata, 0, ptr,
-                                 image.PixelDataLength);
+                    Marshal.Copy(pixeldata, 0, ptr, image.PixelDataLength);
                     bitmapFrame.UnlockBits(bmapdata);
-                    
-                    var  filter = new GrayscaleToRGB();
-                    return filter.Apply(AForge.Imaging.Image.Convert16bppTo8bpp(bitmapFrame));
+                    bitmapFrame.Dispose(); // Dispose the original 16-bit bitmap
+
+                    // --- Start of Emgu.CV Replacement ---
+
+                    // 1. Create a Mat from the pixel data. 
+                    // We know it's 16-bit single channel (grayscale).
+                    Mat mat16g = new Mat(image.Height, image.Width, DepthType.Cv16U, 1, ptr, bmapdata.Stride);
+
+                    // 2. Convert 16-bit gray (0-65535) to 8-bit gray (0-255)
+                    using (Mat mat8g = new Mat())
+                    {
+                        // We scale by 1/256 to convert the 16-bit range to 8-bit
+                        mat16g.ConvertTo(mat8g, DepthType.Cv8U, 1.0 / 256.0);
+
+                        // 3. Convert 8-bit gray to 24-bit BGR (which Bitmap uses as RGB)
+                        using (Mat matBgr = new Mat())
+                        {
+                            CvInvoke.CvtColor(mat8g, matBgr, ColorConversion.Gray2Bgr);
+
+                            // 4. Convert back to Bitmap
+                            return matBgr.ToBitmap();
+                        }
+                    }
+                    // --- End of Emgu.CV Replacement ---
                 }
             }
             catch (Exception ex)

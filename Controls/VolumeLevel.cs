@@ -27,6 +27,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using WaveFormat = NAudio.Wave.WaveFormat;
+using HttpRequest = iSpyApplication.Server.HttpRequest;
 
 namespace iSpyApplication.Controls
 {
@@ -1679,7 +1680,7 @@ namespace iSpyApplication.Controls
                                             float d = (float)fa.Level;
                                             _soundData.Append(string.Format(CultureInfo.InvariantCulture,
                                                 "{0:0.000}", d));
-                                            _soundData.Append(",");
+                                            _soundData.Append(',');
                                             if (d > maxlevel)
                                                 maxlevel = d;
                                         }

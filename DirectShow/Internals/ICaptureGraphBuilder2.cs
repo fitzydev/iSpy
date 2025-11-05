@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -58,7 +58,7 @@ namespace iSpyPRO.DirectShow.Internals
             [In, MarshalAs(UnmanagedType.LPStruct)] Guid type,
             [In, MarshalAs(UnmanagedType.LPWStr)] string fileName,
             [Out] out IBaseFilter baseFilter,
-            [Out] out IntPtr fileSinkFilter
+            [Out] out nint fileSinkFilter
             );
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace iSpyPRO.DirectShow.Internals
             [In, MarshalAs(UnmanagedType.LPWStr)] string oldFileName,
             [In, MarshalAs(UnmanagedType.LPWStr)] string newFileName,
             [In, MarshalAs(UnmanagedType.Bool)] bool allowEscAbort,
-            [In] IntPtr callback
+            [In] nint callback
             );
 
         /// <summary>

@@ -9,7 +9,7 @@
 // kidjan@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -52,7 +52,7 @@ namespace iSpyPRO.DirectShow.Internals
         int AdviseTime(
             [In] long baseTime,
             [In] long streamTime,
-            [In] IntPtr hEvent,
+            [In] nint hEvent,
             [Out] out int pdwAdviseCookie);
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace iSpyPRO.DirectShow.Internals
         int AdvisePeriodic(
             [In] long startTime,
             [In] long periodTime,
-            [In] IntPtr hSemaphore,
+            [In] nint hSemaphore,
             [Out] out int pdwAdviseCookie);
 
         /// <summary>

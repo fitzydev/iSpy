@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -34,7 +34,7 @@ namespace iSpyPRO.DirectShow.Internals
         int Read(
             [In, MarshalAs(UnmanagedType.LPWStr)] string propertyName,
             [In, Out, MarshalAs(UnmanagedType.Struct)] ref object pVar,
-            [In] IntPtr pErrorLog);
+            [In] nint pErrorLog);
 
         /// <summary>
         /// Write property to property bag.

@@ -5,7 +5,7 @@
 // contacts@aforgenet.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -27,7 +27,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int GetEventHandle(out IntPtr hEvent);
+        int GetEventHandle(out nint hEvent);
 
         /// <summary>
         /// Retrieves the next event notification from the event queue.
@@ -41,7 +41,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int GetEvent([Out, MarshalAs(UnmanagedType.I4)] out DsEvCode lEventCode, [Out] out IntPtr lParam1, [Out] out IntPtr lParam2, int msTimeout);
+        int GetEvent([Out, MarshalAs(UnmanagedType.I4)] out DsEvCode lEventCode, [Out] out nint lParam1, [Out] out nint lParam2, int msTimeout);
 
         /// <summary>
         /// Waits for the filter graph to render all available data.
@@ -86,20 +86,20 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int FreeEventParams([In, MarshalAs(UnmanagedType.I4)] DsEvCode lEvCode, IntPtr lParam1, IntPtr lParam2);
+        int FreeEventParams([In, MarshalAs(UnmanagedType.I4)] DsEvCode lEvCode, nint lParam1, nint lParam2);
 
         /// <summary>
         /// Registers a window to process event notifications.
         /// </summary>
         ///
-        /// <param name="hwnd">Handle to the window, or <see cref="IntPtr.Zero"/> to stop receiving event messages.</param>
+        /// <param name="hwnd">Handle to the window, or <see cref="nint.Zero"/> to stop receiving event messages.</param>
         /// <param name="lMsg">Window message to be passed as the notification.</param>
         /// <param name="lInstanceData">Value to be passed as the <i>lParam</i> parameter for the <i>lMsg</i> message.</param>
         ///
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int SetNotifyWindow(IntPtr hwnd, int lMsg, IntPtr lInstanceData);
+        int SetNotifyWindow(nint hwnd, int lMsg, nint lInstanceData);
 
         /// <summary>
         /// Enables or disables event notifications.

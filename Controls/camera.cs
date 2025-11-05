@@ -11,9 +11,11 @@ using System.Runtime.ExceptionServices;
 using iSpyApplication.Sources;
 using iSpyApplication.Sources.Video;
 using iSpyApplication.Utilities;
-using iSpyApplication.Vision;
-using OpenCvSharp.Extensions;
-using OpenCvSharp;
+using iSpyApplication.Vision; // Still needed for FishEyeCorrect class logic
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using Emgu.CV.Util; // For VectorOfVectorOfPoint
 using Image = System.Drawing.Image;
 using Point = System.Drawing.Point;
 
@@ -46,11 +48,19 @@ namespace iSpyApplication.Controls
         public double Framerate;
         public double RealFramerate;
         private Queue<double> _framerates;
-        //private HSLFiltering _filter;
+
         private readonly object _sync = new object();
-        private MotionDetector _motionDetector;
+
+        // --- Start of Emgu.CV Replacements ---
+        private BackgroundSubtractorMOG2 _motionDetector;
+        private Mat _fgMask = new Mat(); // A re-usable mask for motion detection
+        private readonly FishEyeCorrect _feCorrect = new FishEyeCorrect(); // Assuming FishEyeCorrect is a helper class you have
+        private readonly Mat _fisheyeMap1 = new Mat();
+        private readonly Mat _fisheyeMap2 = new Mat();
+        private bool _fisheyeMapsInitialized = false;
+        // --- End of Emgu.CV Replacements ---
+
         private DateTime _motionlastdetected = DateTime.MinValue;
-        private readonly FishEyeCorrect _feCorrect = new FishEyeCorrect();
 
         // alarm level
         private double _alarmLevel = 0.0005;
@@ -88,36 +98,8 @@ namespace iSpyApplication.Controls
 
         public event Delegates.ErrorHandler ErrorHandler;
 
-        /*public HSLFiltering Filter
-        {
-            get
-            {
-                if (CW != null && CW.Camobject.detector.colourprocessingenabled)
-                {
-                    if (_filter != null)
-                        return _filter;
-                    if (!string.IsNullOrEmpty(CW.Camobject.detector.colourprocessing))
-                    {
-                        string[] config = CW.Camobject.detector.colourprocessing.Split(CW.Camobject.detector.colourprocessing.IndexOf("|", StringComparison.Ordinal) != -1 ? '|' : ',');
-                        _filter = new HSLFiltering
-                        {
-                            FillColor =
-                                              new HSL(Convert.ToInt32(config[2]), float.Parse(config[5], CultureInfo.InvariantCulture),
-                                                      float.Parse(config[8], CultureInfo.InvariantCulture)),
-                            FillOutsideRange = Convert.ToInt32(config[9]) == 0,
-                            Hue = new IntRange(Convert.ToInt32(config[0]), Convert.ToInt32(config[1])),
-                            Saturation = new Range(float.Parse(config[3], CultureInfo.InvariantCulture), float.Parse(config[4], CultureInfo.InvariantCulture)),
-                            Luminance = new Range(float.Parse(config[6], CultureInfo.InvariantCulture), float.Parse(config[7], CultureInfo.InvariantCulture)),
-                            UpdateHue = Convert.ToBoolean(config[10], CultureInfo.InvariantCulture),
-                            UpdateSaturation = Convert.ToBoolean(config[11], CultureInfo.InvariantCulture),
-                            UpdateLuminance = Convert.ToBoolean(config[12], CultureInfo.InvariantCulture)
-                        };
-                    }
-                }
-
-                return null;
-            }
-        }*/
+        // AForge HSL Filtering is removed. This would need to be re-implemented with CvInvoke.InRange
+        /*public HSLFiltering Filter ... */
 
         internal Rectangle ViewRectangle
         {
@@ -212,8 +194,7 @@ namespace iSpyApplication.Controls
                                                 //we're only looking for ispykinect devices
                                                 if (
                                                     s.ToLower()
-                                                        .IndexOf("custom=network kinect", StringComparison.Ordinal) !=
-                                                    -1)
+.Contains("custom=network kinect"))
                                                 {
                                                     dl += oc.name.Replace("*", "").Replace("|", "") + "|" + oc.id + "|" +
                                                           oc.settings.videosourcestring + "*";
@@ -229,7 +210,7 @@ namespace iSpyApplication.Controls
                                         o.GetProperty("CameraName").SetValue(_plugin, CW.Camobject.name, null);
 
                                     var l = o.GetMethod("LogExternal");
-                                    l?.Invoke(_plugin, new object[] { "Plugin Initialised" });
+                                    l?.Invoke(_plugin, ["Plugin Initialised"]);
                                 }
                                 catch (Exception ex)
                                 {
@@ -275,7 +256,7 @@ namespace iSpyApplication.Controls
         {
             lock (_sync)
             {
-                //_filter = null;
+                //_filter = null; // AForge filter removed
             }
         }
 
@@ -290,7 +271,7 @@ namespace iSpyApplication.Controls
             VideoSource.NewFrame += VideoNewFrame;
         }
 
-        public Camera(IVideoSource source, MotionDetector detector)
+        public Camera(IVideoSource source, BackgroundSubtractorMOG2 detector) // Changed from MotionDetector
         {
             VideoSource = source;
             _motionDetector = detector;
@@ -312,8 +293,6 @@ namespace iSpyApplication.Controls
             VideoSource?.Restart();
         }
 
-        //
-
         // Width property
         public int Width => _width;
 
@@ -334,14 +313,14 @@ namespace iSpyApplication.Controls
             set { _alarmLevelMax = value; }
         }
 
-        // motionDetector property
-        public MotionDetector MotionDetector
+        // motionDetector property - updated for Emgu.CV
+        public BackgroundSubtractorMOG2 MotionDetector
         {
             get { return _motionDetector; }
             set
             {
                 _motionDetector = value;
-                if (value != null) _motionDetector.MotionZones = MotionZoneRectangles;
+                // Motion zones are handled differently in Emgu (applied to the _fgMask)
             }
         }
 
@@ -361,8 +340,10 @@ namespace iSpyApplication.Controls
                 double wmulti = Convert.ToDouble(_width) / Convert.ToDouble(100);
                 double hmulti = Convert.ToDouble(_height) / Convert.ToDouble(100);
                 MotionZoneRectangles = zones.Select(r => new Rectangle(Convert.ToInt32(r.left * wmulti), Convert.ToInt32(r.top * hmulti), Convert.ToInt32(r.width * wmulti), Convert.ToInt32(r.height * hmulti))).ToArray();
-                if (_motionDetector != null)
-                    _motionDetector.MotionZones = MotionZoneRectangles;
+
+                // We don't assign to _motionDetector.MotionZones anymore
+                // This MotionZoneRectangles array will be used in ApplyMotionDetector
+
                 return true;
             }
             return false;
@@ -371,8 +352,6 @@ namespace iSpyApplication.Controls
         public void ClearMotionZones()
         {
             MotionZoneRectangles = null;
-            if (_motionDetector != null && _motionDetector.MotionZones != null)
-                _motionDetector.MotionZones = null;
         }
 
         public event NewFrameEventHandler NewFrame;
@@ -382,8 +361,6 @@ namespace iSpyApplication.Controls
         public event EventHandler Alert;
 
         public event PlayingFinishedEventHandler PlayingFinished;
-
-        // Constructor
 
         // Start video source
         public void Start()
@@ -466,10 +443,11 @@ namespace iSpyApplication.Controls
             }
         }
 
+        // *** THIS IS THE MAIN REFACTORED METHOD ***
         private void VideoNewFrame(object sender, NewFrameEventArgs e)
         {
             var nf = NewFrame;
-            var f = e.Frame;
+            var f = e.Frame; // This is a Bitmap
 
             if (nf == null || f == null)
                 return;
@@ -484,11 +462,11 @@ namespace iSpyApplication.Controls
             if (_updateResources)
             {
                 _updateResources = false;
-                DrawFont.Dispose();
+                DrawFont?.Dispose();
                 DrawFont = null;
-                ForeBrush.Dispose();
+                ForeBrush?.Dispose();
                 ForeBrush = null;
-                BackBrush.Dispose();
+                BackBrush?.Dispose();
                 BackBrush = null;
                 SetMaskImage();
                 RotateFlipType rft;
@@ -500,112 +478,169 @@ namespace iSpyApplication.Controls
                 {
                     RotateFlipType = RotateFlipType.RotateNoneFlipNone;
                 }
+                _fisheyeMapsInitialized = false; // Force re-init of fisheye maps
             }
 
-            Bitmap bmOrig = null;
+            Bitmap bmResult = null;
             bool bMotion = false;
-            lock (_sync)
+
+            // Mat is the Emgu.CV/OpenCV image container
+            // Use ToMat() extension from Emgu.CV.Bitmap
+            using (Mat mat = f.ToMat())
             {
                 try
                 {
-                    bmOrig = ResizeBmOrig(f);
-
+                    // Handle rotation if needed
                     if (RotateFlipType != RotateFlipType.RotateNoneFlipNone)
                     {
-                        bmOrig.RotateFlip(RotateFlipType);
+                        // Emgu.CV uses different enums for rotation
+                        if (RotateFlipType == RotateFlipType.Rotate90FlipNone)
+                        {
+                            CvInvoke.Rotate(mat, mat, RotateFlags.Rotate90Clockwise);
+                        }
+                        else if (RotateFlipType == RotateFlipType.Rotate180FlipNone)
+                        {
+                            CvInvoke.Rotate(mat, mat, RotateFlags.Rotate180);
+                        }
+                        else if (RotateFlipType == RotateFlipType.Rotate270FlipNone)
+                        {
+                            CvInvoke.Rotate(mat, mat, RotateFlags.Rotate90CounterClockwise);
+                        }
+                        else if (RotateFlipType == RotateFlipType.RotateNoneFlipX)
+                        {
+                            CvInvoke.Flip(mat, mat, FlipType.Horizontal);
+                        }
+                        else if (RotateFlipType == RotateFlipType.RotateNoneFlipY)
+                        {
+                            CvInvoke.Flip(mat, mat, FlipType.Vertical);
+                        }
+                        else if (RotateFlipType == RotateFlipType.RotateNoneFlipXY)
+                        {
+                            CvInvoke.Flip(mat, mat, FlipType.Both);
+                        }
                     }
 
-                    _width = bmOrig.Width;
-                    _height = bmOrig.Height;
+                    _width = mat.Width;
+                    _height = mat.Height;
 
                     if (ZPoint == Point.Empty)
                     {
-                        ZPoint = new Point(bmOrig.Width / 2, bmOrig.Height / 2);
+                        ZPoint = new Point(mat.Width / 2, mat.Height / 2);
                     }
 
                     if (CW.NeedMotionZones)
                         CW.NeedMotionZones = !SetMotionZones(CW.Camobject.detector.motionzones);
 
+                    // Apply Mask using Emgu.CV
                     if (Mask != null)
                     {
-                        ApplyMask(bmOrig);
+                        using (var maskMat = Mask.ToMat())
+                        using (var maskResized = new Mat())
+                        {
+                            // Ensure mask is the same size as the frame
+                            CvInvoke.Resize(maskMat, maskResized, mat.Size);
+                            // Convert mask to grayscale if it's not already
+                            if (maskResized.NumberOfChannels > 1)
+                                CvInvoke.CvtColor(maskResized, maskResized, ColorConversion.Bgr2Gray);
+
+                            // Set masked pixels to black
+                            mat.SetTo(new MCvScalar(0, 0, 0), maskResized);
+                        }
                     }
 
+                    // Plugin code seems to expect a Bitmap, so we'll convert back
                     if (CW.Camobject.alerts.active && Plugin != null && Detect != null)
                     {
-                        bmOrig = RunPlugin(bmOrig);
+                        Bitmap bmForPlugin;
+                        using (var tempBmp = mat.ToBitmap()) // Use temp bitmap
+                        {
+                            bmForPlugin = (Bitmap)tempBmp.Clone(); // Clone for the plugin
+                        }
+
+                        bmResult = RunPlugin(bmForPlugin); // RunPlugin returns a new Bitmap
+                        bmForPlugin.Dispose(); // Dispose the bitmap we gave to the plugin
+
+                        // Convert the plugin's result back to a Mat for further processing
+                        mat.Dispose(); // Dispose the old mat
+                        bmResult.ToMat(mat); // Convert new bitmap into our mat
+                        bmResult.Dispose(); // Dispose the bitmap
                     }
 
-                    using (Mat mat = OpenCvSharp.Extensions.BitmapConverter.ToMat(bmOrig))
+
+                    // --- Replaced AForge Motion Detector with Emgu.CV ---
+                    if (_motionDetector != null)
                     {
-                        //this converts the image into a windows displayable image so do it regardless
-                        if (_motionDetector != null)
-                        {
-                            //bMotion = ApplyMotionDetector(lfu);
-                        }
-                        else
-                        {
-                            MotionDetected = false;
-                        }
-
-                        //if (CW.Camobject.settings.FishEyeCorrect)
-                        //{
-                        //    _feCorrect.Correct(lfu, CW.Camobject.settings.FishEyeFocalLengthPX,
-                        //        CW.Camobject.settings.FishEyeLimit, CW.Camobject.settings.FishEyeScale, ZPoint.X,
-                        //        ZPoint.Y);
-                        //}
-
-                        if (ZFactor > 1)
-                        {
-                            //var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
-                            //var f2 = new Crop(ViewRectangle);
-                            //try
-                            //{
-                            //    using (var imgTemp = f2.Apply(lfu))
-                            //    {
-                            //        f1.Apply(imgTemp, lfu);
-                            //    }
-                            //}
-                            //catch (Exception ex)
-                            //{
-                            //    ErrorHandler?.Invoke(ex.Message);
-                            //}
-                        }
-                        bmOrig = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
+                        bMotion = ApplyMotionDetector(mat);
                     }
-                    PiP(bmOrig);
-                    AddTimestamp(bmOrig);
+                    else
+                    {
+                        MotionDetected = false;
+                    }
+                    // --- End Motion Detection ---
+
+
+                    // --- Replaced AForge FishEyeCorrect with Emgu.CV ---
+                    if (CW.Camobject.settings.FishEyeCorrect)
+                    {
+                        if (!_fisheyeMapsInitialized)
+                        {
+                            // Initialize fisheye correction maps (do this only once)
+                            _feCorrect.Init(mat.Width, mat.Height, CW.Camobject.settings.FishEyeFocalLengthPX,
+                                CW.Camobject.settings.FishEyeScale, ZPoint.X, ZPoint.Y);
+
+                            CvInvoke.InitUndistortRectifyMap(_feCorrect.CameraMatrix, _feCorrect.DistortionCoeff, null,
+                                _feCorrect.NewCameraMatrix, mat.Size, DepthType.Cv32F, 1, _fisheyeMap1, _fisheyeMap2);
+
+                            _fisheyeMapsInitialized = true;
+                        }
+
+                        // Apply the fisheye correction
+                        using (Mat tempMat = mat.Clone())
+                        {
+                            CvInvoke.Remap(tempMat, mat, _fisheyeMap1, _fisheyeMap2, Inter.Linear);
+                        }
+                    }
+                    // --- End FishEye Correction ---
+
+
+                    // --- Digital Zoom (ZFactor) ---
+                    if (ZFactor > 1)
+                    {
+                        using (Mat tempMat = mat.Clone())
+                        {
+                            // Crop (using the existing ViewRectangle logic)
+                            using (Mat cropped = new Mat(tempMat, ViewRectangle))
+                            {
+                                // Resize back to original size
+                                CvInvoke.Resize(cropped, mat, mat.Size, 0, 0, Inter.Linear);
+                            }
+                        }
+                    }
+
+                    // Convert the final Mat back to a Bitmap for display
+                    bmResult = mat.ToBitmap(); // Uses Emgu.CV.Bitmap extension
+
+                    PiP(bmResult);
+                    AddTimestamp(bmResult);
                 }
                 catch (Exception ex)
                 {
                     CW.VideoSourceErrorState = true;
                     CW.VideoSourceErrorMessage = ex.Message;
-
-                    bmOrig?.Dispose();
-
+                    bmResult?.Dispose();
                     return;
                 }
+            } // 'mat' is disposed here
 
-                if (MotionDetector != null && !CW.Calibrating && MotionDetector.MotionProcessingAlgorithm is BlobCountingObjectsProcessing && !CW.PTZNavigate && CW.Camobject.settings.ptzautotrack)
-                {
-                    try
-                    {
-                        //ProcessAutoTracking();
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorHandler?.Invoke(ex.Message);
-                    }
-                }
-            }
-
-            nf.Invoke(this, new NewFrameEventArgs(bmOrig));
+            nf.Invoke(this, new NewFrameEventArgs(bmResult)); // Pass the final bitmap
+            bmResult.Dispose(); // Dispose the bitmap after it's been handled
 
             if (bMotion)
             {
                 TriggerDetect(this);
             }
         }
+
 
         private void PiP(Bitmap bmp)
         {
@@ -784,63 +819,20 @@ namespace iSpyApplication.Controls
             }
         }
 
+        // AForge auto-tracking removed. This would need to be re-implemented
+        // using Emgu.CV's blob detection (CvInvoke.FindContours) on the _fgMask
         /*private void ProcessAutoTracking()
         {
-            var blobcounter =
-                (BlobCountingObjectsProcessing)MotionDetector.MotionProcessingAlgorithm;
-
-            //tracking
-
-            if (blobcounter.ObjectsCount > 0 && blobcounter.ObjectsCount < 4 && !CW.Ptzneedsstop)
-            {
-                var pCenter = new Point(Width / 2, Height / 2);
-                Rectangle rec = blobcounter.ObjectRectangles.OrderByDescending(p => p.Width * p.Height).First();
-                //get center point
-                var prec = new Point(rec.X + rec.Width / 2, rec.Y + rec.Height / 2);
-
-                double dratiomin = 0.6;
-                prec.X = prec.X - pCenter.X;
-                prec.Y = prec.Y - pCenter.Y;
-
-                if (CW.Camobject.settings.ptzautotrackmode == 1) //vert only
-                {
-                    prec.X = 0;
-                    dratiomin = 0.3;
-                }
-
-                if (CW.Camobject.settings.ptzautotrackmode == 2) //horiz only
-                {
-                    prec.Y = 0;
-                    dratiomin = 0.3;
-                }
-
-                double angle = Math.Atan2(-prec.Y, -prec.X);
-                if (CW.Camobject.settings.ptzautotrackreverse)
-                {
-                    angle = angle - Math.PI;
-                    if (angle < 0 - Math.PI)
-                        angle += 2 * Math.PI;
-                }
-                double dist = Math.Sqrt(Math.Pow(prec.X, 2.0d) + Math.Pow(prec.Y, 2.0d));
-
-                double maxdist = Math.Sqrt(Math.Pow(Width / 2d, 2.0d) + Math.Pow(Height / 2d, 2.0d));
-                double dratio = dist / maxdist;
-
-                if (dratio > dratiomin)
-                {
-                    CW.PTZ.SendPTZDirection(angle);
-                    CW.LastAutoTrackSent = Helper.Now;
-                    CW.Ptzneedsstop = true;
-                }
-            }
+            ...
         }*/
 
         private DateTime _lastProcessed = DateTime.MinValue;
 
+        // *** THIS IS THE 2ND REFACTORED METHOD ***
         [HandleProcessCorruptedStateExceptions]
-        private bool ApplyMotionDetector(object lfu)
+        private bool ApplyMotionDetector(Mat frame)
         {
-            if (Detect != null && lfu != null)
+            if (Detect != null)
             {
                 if ((DateTime.UtcNow - _lastProcessed).TotalMilliseconds > CW.Camobject.detector.processframeinterval || CW.Calibrating)
                 {
@@ -848,7 +840,28 @@ namespace iSpyApplication.Controls
 
                     try
                     {
-                        //MotionLevel = _motionDetector.ProcessFrame(Filter != null ? Filter.Apply(lfu) : lfu);
+                        // Apply the background subtractor to get a motion mask
+                        // _fgMask is a class-level Mat, so we don't 'using' it
+                        _motionDetector.Apply(frame, _fgMask);
+
+                        // Apply motion zones if they exist
+                        if (MotionZoneRectangles != null && MotionZoneRectangles.Length > 0)
+                        {
+                            using (Mat zoneMask = new Mat(_fgMask.Size, DepthType.Cv8U, 1))
+                            {
+                                zoneMask.SetTo(new MCvScalar(0)); // Start with a black mask
+                                // Draw white rectangles for each active zone
+                                foreach (var rect in MotionZoneRectangles)
+                                {
+                                    CvInvoke.Rectangle(zoneMask, rect, new MCvScalar(255), -1);
+                                }
+                                // 'AND' the motion mask with the zone mask
+                                CvInvoke.BitwiseAnd(_fgMask, zoneMask, _fgMask);
+                            }
+                        }
+
+                        // Calculate motion level
+                        MotionLevel = (float)CvInvoke.CountNonZero(_fgMask) / (_fgMask.Width * _fgMask.Height);
                     }
                     catch (Exception ex)
                     {
@@ -867,15 +880,12 @@ namespace iSpyApplication.Controls
                     else
                         MotionDetected = false;
                 }
-                else
-                {
-                    //_motionDetector.ApplyOverlay(lfu);
-                }
             }
             else
                 MotionDetected = false;
             return false;
         }
+
 
         internal void TriggerDetect(object sender)
         {
@@ -932,15 +942,17 @@ namespace iSpyApplication.Controls
 
         private void ApplyMask(Bitmap bmOrig)
         {
-            Graphics g = Graphics.FromImage(bmOrig);
-            g.CompositingMode = CompositingMode.SourceOver;//.SourceCopy;
-            g.CompositingQuality = CompositingQuality.HighSpeed;
-            g.PixelOffsetMode = PixelOffsetMode.Half;
-            g.SmoothingMode = SmoothingMode.None;
-            g.InterpolationMode = InterpolationMode.Default;
-            g.DrawImage(Mask, 0, 0, _width, _height);
-            //g.GdiDrawImage(Mask, 0, 0, _width, _height);
-            g.Dispose();
+            // This is now handled inside VideoNewFrame with Emgu.CV
+            // This method can be kept for legacy calls, but it's redundant
+            using (Graphics g = Graphics.FromImage(bmOrig))
+            {
+                g.CompositingMode = CompositingMode.SourceOver;
+                g.CompositingQuality = CompositingQuality.HighSpeed;
+                g.PixelOffsetMode = PixelOffsetMode.Half;
+                g.SmoothingMode = SmoothingMode.None;
+                g.InterpolationMode = InterpolationMode.Default;
+                g.DrawImage(Mask, 0, 0, _width, _height);
+            }
         }
 
         public volatile bool PluginRunning;
@@ -1033,10 +1045,10 @@ namespace iSpyApplication.Controls
 
         private bool _disposed;
 
-        // Public implementation of Dispose pattern callable by consumers.
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this); // Suppress finalization
         }
 
         protected virtual void Dispose(bool disposing)
@@ -1044,32 +1056,35 @@ namespace iSpyApplication.Controls
             if (_disposed)
                 return;
 
-            ClearMotionZones();
-            Detect = null;
-            NewFrame = null;
-            PlayingFinished = null;
-            Plugin = null;
-
-            ForeBrush?.Dispose();
-            BackBrush?.Dispose();
-            DrawFont?.Dispose();
-            _framerates?.Clear();
-
-            Mask?.Dispose();
-            Mask = null;
-
-            VideoSource?.Dispose();
-            VideoSource = null;
-
-            try
+            if (disposing)
             {
-                MotionDetector?.Reset();
+                // Dispose managed resources
+                ClearMotionZones();
+                Detect = null;
+                NewFrame = null;
+                PlayingFinished = null;
+                Plugin = null;
+
+                ForeBrush?.Dispose();
+                BackBrush?.Dispose();
+                DrawFont?.Dispose();
+                _framerates?.Clear();
+
+                Mask?.Dispose();
+                Mask = null;
+
+                VideoSource?.Dispose();
+                VideoSource = null;
+
+                _motionDetector?.Dispose();
+                _motionDetector = null;
+
+                _fgMask?.Dispose();
+                _fisheyeMap1?.Dispose();
+                _fisheyeMap2?.Dispose();
             }
-            catch (Exception ex)
-            {
-                ErrorHandler?.Invoke(ex.Message);
-            }
-            MotionDetector = null;
+
+            // Dispose unmanaged resources (if any)
 
             _disposed = true;
         }

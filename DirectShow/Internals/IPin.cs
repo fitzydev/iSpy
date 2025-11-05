@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -130,7 +130,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int EnumMediaTypes(IntPtr enumerator);
+        int EnumMediaTypes(nint enumerator);
 
         /// <summary>
         /// Provides an array of the pins to which this pin internally connects.
@@ -143,7 +143,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int QueryInternalConnections(IntPtr apPin, [In, Out] ref int nPin);
+        int QueryInternalConnections(nint apPin, [In, Out] ref int nPin);
 
         /// <summary>
         /// Notifies the pin that no additional data is expected.

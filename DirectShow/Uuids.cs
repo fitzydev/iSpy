@@ -1,4 +1,4 @@
-namespace iSpyPRO.DirectShow
+namespace iSpyApplication.DirectShow
 {
     using System;
     using System.Runtime.InteropServices;

@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -75,7 +75,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int GetCurrentBuffer(ref int bufferSize, IntPtr buffer);
+        int GetCurrentBuffer(ref int bufferSize, nint buffer);
 
         /// <summary>
         /// Not currently implemented.
@@ -86,7 +86,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int GetCurrentSample(IntPtr sample);
+        int GetCurrentSample(nint sample);
 
         /// <summary>
         /// Specifies a callback method to call on incoming samples.

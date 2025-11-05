@@ -3,7 +3,7 @@ using System;
 using System.Text;
 using System.Security.Cryptography;
 
-namespace iSpy.Onvif.Security
+namespace iSpyApplication.Onvif.Security
 {
     public class DigestSecurityHeader : MessageHeader
     {

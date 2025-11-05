@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace iSpyPRO.DirectShow
+namespace iSpyApplication.DirectShow
 {
     /// <summary>
     /// The enumeration specifies a setting on a camera.

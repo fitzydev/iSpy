@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -32,7 +32,7 @@ namespace iSpyPRO.DirectShow.Internals
         // Bring up a dialog for this codec
         int ShowDialog(
             [In] VfwCompressDialogs iDialog,
-            [In] IntPtr hwnd);
+            [In] nint hwnd);
 
         // Calls ICGetState and gives you the result
         int GetState(

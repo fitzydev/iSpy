@@ -6,10 +6,11 @@
 // contacts@aforgenet.com
 //
 
+using iSpyApplication.DirectShow;
 using System;
 using System.Runtime.InteropServices;
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     /// <summary>
     /// The IAMCrossbar interface routes signals from an analog or digital source to a video capture filter.

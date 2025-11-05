@@ -7,7 +7,7 @@
 // Written by Jeremy Noring
 // kidjan@gmail.com
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;

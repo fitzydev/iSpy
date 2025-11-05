@@ -1,6 +1,4 @@
-﻿using iSpy.Onvif.Security;
-using iSpy.Onvif;
-using iSpyApplication.Onvif.Behaviour;
+﻿using iSpyApplication.Onvif.Behaviour;
 using iSpyApplication.Onvif.Security;
 using System;
 using System.Collections.Generic;

@@ -5,7 +5,7 @@
 // andrew.kirillov@gmail.com
 //
 
-namespace iSpyPRO.DirectShow.Internals
+namespace iSpyApplication.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
@@ -85,7 +85,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int SetSyncSource([In] IntPtr clock);
+        int SetSyncSource([In] nint clock);
 
         /// <summary>
         /// Retrieves the current reference clock.
@@ -96,7 +96,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         ///
         [PreserveSig]
-        int GetSyncSource([Out] out IntPtr clock);
+        int GetSyncSource([Out] out nint clock);
 
         // --- IBaseFilter Methods
 
