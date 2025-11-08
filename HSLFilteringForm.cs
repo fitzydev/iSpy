@@ -1,19 +1,18 @@
-// Image Processing Lab
-// http://www.aforgenet.com/projects/iplab/
-//
-// Copyright © Andrew Kirillov, 2005-2009
-// andrew.kirillov@aforgenet.com
-//
-
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
-using OpenCvSharp;
-using OpenCvSharp.Extensions;
 using iSpyApplication.Controls;
 using PictureBox = iSpyApplication.Controls.PictureBox;
+
+// --- Correct Emgu.CV Namespaces ---
+using Emgu.CV;
+using Emgu.CV.CvEnum; // For enums like ColorConversion, DepthType
+using Emgu.CV.Structure; // For MCvScalar, Hsv, Bgr
+
+// Note: The .ToMat() and .ToBitmap() extensions are in the Emgu.CV namespace itself
+// when you install the Emgu.CV.Bitmap package.
 
 namespace iSpyApplication
 {
@@ -23,6 +22,7 @@ namespace iSpyApplication
     public class HSLFilteringForm : Form
     {
         #region Custom Range Structs
+        // These structs are fine as-is
         public struct IntRange
         {
             public int Min, Max;
@@ -44,8 +44,9 @@ namespace iSpyApplication
         }
         #endregion
 
+        // ... (All your private fields like _cancelButton, _fillH, etc. remain here) ...
+        // ... (They are in your HSLFilteringForm.Designer.cs file) ...
         private Container components = null;
-
         private Button _cancelButton;
         private int _fillH;
         private TextBox _fillHBox;
@@ -55,7 +56,6 @@ namespace iSpyApplication
         private TextBox _fillSBox;
         private ComboBox _fillTypeCombo;
         private PictureBox _filterPreview;
-
         private GroupBox _groupBox1;
         private GroupBox _groupBox2;
         private GroupBox _groupBox3;
@@ -89,11 +89,14 @@ namespace iSpyApplication
         private HuePicker _huePicker;
         private LinkLabel llblHelp;
 
+
         private bool _fillOutsideRange = true;
         private bool _updateHue = true;
         private bool _updateSaturation = true;
         private bool _updateLuminance = true;
-        private Scalar _fillColor = new Scalar(0, 0, 0);
+
+        // Changed from OpenCvSharp.Scalar to Emgu.CV.MCvScalar
+        private MCvScalar _fillColor = new MCvScalar(0, 0, 0);
 
         public string Configuration
         {
@@ -124,6 +127,7 @@ namespace iSpyApplication
         private Bitmap _imageprocess;
         private static readonly object SyncLock = new object();
 
+        // This property now correctly uses System.Drawing.Bitmap
         public Bitmap ImageProcess
         {
             get
@@ -145,6 +149,12 @@ namespace iSpyApplication
                     UpdateFilter();
                 }
             }
+        }
+
+        // This property also correctly uses System.Drawing.Image
+        public Image Image
+        {
+            set { _filterPreview.Image = value; }
         }
 
         public HSLFilteringForm(string Config)
@@ -194,11 +204,6 @@ namespace iSpyApplication
             RenderResources();
         }
 
-        public Bitmap Image
-        {
-            set { _filterPreview.Image = value; }
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -215,13 +220,17 @@ namespace iSpyApplication
             {
                 if (ImageProcess == null) return;
 
+                // FIX: .ToMat() is an extension method, call it ON the instance
                 using (Mat src = ImageProcess.ToMat())
                 using (Mat hlsImage = new Mat())
                 {
-                    Cv2.CvtColor(src, hlsImage, ColorConversionCodes.BGR2HLS);
+                    // FIX: Cv2.CvtColor -> CvInvoke.CvtColor
+                    // FIX: ColorConversionCodes.BGR2HLS -> ColorConversion.Bgr2Hls
+                    CvInvoke.CvtColor(src, hlsImage, ColorConversion.Bgr2Hls);
 
                     // OpenCV HLS range: H: 0-179, L: 0-255, S: 0-255
                     // AForge HSL range: H: 0-359, S: 0-1, L: 0-1
+                    // This conversion logic is correct for OpenCV/EmguCV
                     double hMin = _hue.Min / 2.0;
                     double hMax = _hue.Max / 2.0;
                     double lMin = _luminance.Min * 255;
@@ -229,60 +238,74 @@ namespace iSpyApplication
                     double sMin = _saturation.Min * 255;
                     double sMax = _saturation.Max * 255;
 
-                    Scalar lower, upper;
+                    // FIX: OpenCvSharp.Scalar -> Emgu.CV.Structure.MCvScalar
+                    MCvScalar lower, upper;
                     if (hMin <= hMax)
                     {
-                        lower = new Scalar(hMin, lMin, sMin);
-                        upper = new Scalar(hMax, lMax, sMax);
+                        lower = new MCvScalar(hMin, lMin, sMin);
+                        upper = new MCvScalar(hMax, lMax, sMax);
                     }
                     else // Handle hue wrap-around
                     {
-                        lower = new Scalar(hMax, lMin, sMin);
-                        upper = new Scalar(hMin, lMax, sMax);
+                        lower = new MCvScalar(hMax, lMin, sMin);
+                        upper = new MCvScalar(hMin, lMax, sMax);
                     }
 
                     using (Mat mask = new Mat())
                     {
+                        // FIX: Cv2.InRange -> CvInvoke.InRange
+                        // Emgu.CV's InRange requires ScalarArray wrappers
                         if (hMin <= hMax)
                         {
-                            Cv2.InRange(hlsImage, lower, upper, mask);
+                            CvInvoke.InRange(hlsImage, new ScalarArray(lower), new ScalarArray(upper), mask);
                         }
                         else // Handle hue wrap-around
                         {
-                            using (Mat mask1 = new Mat(), mask2 = new Mat())
+                            using (Mat mask1 = new Mat())
+                            using (Mat mask2 = new Mat())
                             {
-                                Cv2.InRange(hlsImage, new Scalar(0, lMin, sMin), new Scalar(hMax, lMax, sMax), mask1);
-                                Cv2.InRange(hlsImage, new Scalar(hMin, lMin, sMin), new Scalar(179, lMax, sMax), mask2);
-                                Cv2.BitwiseOr(mask1, mask2, mask);
+                                CvInvoke.InRange(hlsImage, new ScalarArray(new MCvScalar(0, lMin, sMin)), new ScalarArray(new MCvScalar(hMax, lMax, sMax)), mask1);
+                                CvInvoke.InRange(hlsImage, new ScalarArray(new MCvScalar(hMin, lMin, sMin)), new ScalarArray(new MCvScalar(179, lMax, sMax)), mask2);
+                                // FIX: Cv2.BitwiseOr -> CvInvoke.BitwiseOr
+                                CvInvoke.BitwiseOr(mask1, mask2, mask);
                             }
                         }
 
                         if (!_fillOutsideRange)
                         {
-                            Cv2.BitwiseNot(mask, mask);
+                            // FIX: Cv2.BitwiseNot -> CvInvoke.BitwiseNot
+                            CvInvoke.BitwiseNot(mask, mask);
                         }
 
-                        using (Mat result = new Mat(src.Size(), src.Type(), new Scalar(0,0,0)))
+                        // FIX: src.Type() -> src.Depth, src.NumberOfChannels
+                        // FIX: new Scalar(0,0,0) -> new MCvScalar(0,0,0)
+                        using (Mat result = new Mat(src.Size, src.Depth, src.NumberOfChannels))
                         {
+                            result.SetTo(new MCvScalar(0, 0, 0)); // Initialize to black
+
                             if (_updateHue || _updateSaturation || _updateLuminance)
                             {
-                                using (Mat fillMat = new Mat(src.Size(), src.Type(), _fillColor))
+                                // FIX: src.Type() -> src.Depth, src.NumberOfChannels
+                                using (Mat fillMat = new Mat(src.Size, src.Depth, src.NumberOfChannels))
                                 {
+                                    fillMat.SetTo(_fillColor); // Use SetTo to apply scalar
                                     fillMat.CopyTo(result, mask);
                                 }
                             }
 
                             using (Mat invertedMask = new Mat())
                             {
-                                Cv2.BitwiseNot(mask, invertedMask);
+                                CvInvoke.BitwiseNot(mask, invertedMask);
                                 using (Mat originalPart = new Mat())
                                 {
                                     src.CopyTo(originalPart, invertedMask);
-                                    Cv2.Add(result, originalPart, result);
+                                    // FIX: Cv2.Add -> CvInvoke.Add
+                                    CvInvoke.Add(result, originalPart, result);
                                 }
                             }
 
                             _filterPreview.Image?.Dispose();
+                            // FIX: .ToBitmap() is from Emgu.CV
                             _filterPreview.Image = result.ToBitmap();
                         }
                     }
@@ -410,12 +433,21 @@ namespace iSpyApplication
             v = (int)(_fillL * 255);
             _luminanceSlider.FillColor = Color.FromArgb(v, v, v);
 
-            using (var hls = new Mat(1, 1, MatType.CV_8UC3, new Scalar(_fillH / 2.0, _fillL * 255, _fillS * 255)))
+            // FIX: MatType.CV_8UC3 -> DepthType.Cv8U, 3
+            // FIX: new Scalar(...) -> new MCvScalar(...)
+            // FIX: Cv2.CvtColor -> CvInvoke.CvtColor
+            // FIX: ColorConversionCodes.HLS2BGR -> ColorConversion.Hls2Bgr
+            // FIX: bgr.Get<Vec3b>(0, 0) -> Accessing bgr.Data
+            using (var hls = new Mat(1, 1, DepthType.Cv8U, 3))
             using (var bgr = new Mat())
             {
-                Cv2.CvtColor(hls, bgr, ColorConversionCodes.HLS2BGR);
-                Vec3b color = bgr.Get<Vec3b>(0, 0);
-                _fillColor = new Scalar(color.Item0, color.Item1, color.Item2);
+                hls.SetTo(new MCvScalar(_fillH / 2.0, _fillL * 255, _fillS * 255));
+                CvInvoke.CvtColor(hls, bgr, ColorConversion.Hls2Bgr);
+
+                // Get pixel data from the 1x1 BGR image
+                // FIX: .Data is the correct way in Emgu.CV
+                var data = (byte[,,])bgr.GetData();
+                _fillColor = new MCvScalar(data[0, 0, 0], data[0, 0, 1], data[0, 0, 2]);
             }
             UpdateFilter();
         }
@@ -901,12 +933,12 @@ namespace iSpyApplication
 
         private void _okButton_Click(object sender, EventArgs e)
         {
-
+            // This button is handled by DialogResult = OK
         }
 
         private void _huePicker_Click(object sender, EventArgs e)
         {
-
+            // No handler needed
         }
 
         private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -916,7 +948,7 @@ namespace iSpyApplication
 
         private void _filterPreview_Click(object sender, EventArgs e)
         {
-
+            // No handler needed
         }
     }
 }

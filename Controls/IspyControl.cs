@@ -51,5 +51,6 @@ namespace iSpyApplication.Controls
         void SaveFileList();
 
         Color BorderColor { get; }
+        ONVIFDevice ONVIFDevice { get; set; }
     }
 }

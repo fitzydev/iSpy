@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO.Ports;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using iSpyApplication.Controls;
 using iSpyApplication.DirectShow;
-using iSpyApplication.OnvifServices;
 using iSpyApplication.Pelco;
 using iSpyApplication.Sources.Video;
 using iSpyApplication.Utilities;

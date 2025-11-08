@@ -1,7 +1,22 @@
-﻿using iSpyApplication.Onvif;
-using iSpyApplication.Server;
+﻿using iSpyApplication.Server;
 using iSpyApplication.Utilities;
+// --- Correct SharpOnvif Usings (based on the README) ---
+using SharpOnvifClient;
+using SharpOnvifClient.Media;
+using SharpOnvifClient.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.ServiceModel; // For EndpointAddress
+using System.ServiceModel.Description; // For IEndpointBehavior
+using System.Threading;
+using System.Threading.Tasks;
 
+// --- Removed old/conflicting usings ---
+// using SharpOnvifCommon;
+// using SharpOnvifServer;
+// using OnvifDiscovery;
 
 
 namespace iSpyApplication.CameraDiscovery
@@ -18,9 +33,7 @@ namespace iSpyApplication.CameraDiscovery
         private List<Uri> _lp = new List<Uri>();
 
         public event EventHandler ScanComplete;
-
         public event EventHandler URLScan;
-
         public event EventHandler<ConnectionOptionEventArgs> URLFound;
 
         private URLDiscovery _discoverer;
@@ -40,7 +53,7 @@ namespace iSpyApplication.CameraDiscovery
             _quit = false;
             Finished.Reset();
 
-            Urlscanner = new Thread(() => ListCameras(l, Model));
+            Urlscanner = new Thread(async () => await ListCameras(l, Model));
             Urlscanner.Start();
         }
 
@@ -56,58 +69,85 @@ namespace iSpyApplication.CameraDiscovery
 
         public bool Running => Helper.ThreadRunning(Urlscanner);
 
-        private void ListCameras(IEnumerable<ManufacturersManufacturer> mm, string model)
+        private async Task ListCameras(IEnumerable<ManufacturersManufacturer> mm, string model)
         {
             model = (model ?? "").ToLowerInvariant();
-            //find http port
+
             _discoverer = new URLDiscovery(Uri);
 
-            //check for onvif support first
-            int i = 0;
+            // --- Part 1: ONVIF Discovery (Corrected with SharpOnvif) ---
             try
             {
-                var httpUri = _discoverer.BaseUri.SetPort(_discoverer.HttpPort);
+                var discoveredDevices = await OnvifDiscoveryClient.DiscoverAsync();
+                string onvifUrl = null;
 
-                //check for this devices
-                var discoveredDevices = OnvifDiscovery.IDiscovery().Result;
                 foreach (var d in discoveredDevices)
                 {
-                    if (d.Address.ToString() == Uri.DnsSafeHost)
+                    var deviceUri = d.Addresses.Select(uri => new Uri(uri)).FirstOrDefault();
+                    if (deviceUri != null && deviceUri.DnsSafeHost == Uri.DnsSafeHost)
                     {
-                        httpUri = _discoverer.BaseUri.SetPort(new Uri(d.XAddr).Port);
+                        onvifUrl = d.Addresses.First(); // Found the device's ONVIF XAddr
                         break;
                     }
                 }
 
-                var onvifurl = httpUri + "onvif/device_service";
-                var dev = new ONVIFDevice(onvifurl, Username, Password, 0, 8);
-                if (dev.Profiles != null)
+                if (onvifUrl != null && !_quit)
                 {
-                    foreach (var p in dev.Profiles)
+                    // --- This block is now based on the README ---
+                    var credentials = new NetworkCredential(Username, Password);
+                    var binding = OnvifBindingFactory.CreateBinding();
+                    var endpoint = new EndpointAddress(onvifUrl);
+
+                    // Create the specific legacy behavior for WsUsernameToken
+                    IEndpointBehavior legacyAuth = new WsUsernameTokenBehavior(credentials);
+
+                    // We need a MediaClient to get profiles
+                    using (var mediaClient = new MediaClient(binding, endpoint))
                     {
-                        var b = p?.VideoEncoderConfiguration?.Resolution;
-                        if (b != null && b.Width > 0)
+                        // Set authentication using the 3-argument method
+                        // FIX: Use 'WsUsernameToken' (lowercase 's')
+                        mediaClient.SetOnvifAuthentication(
+                            OnvifAuthentication.WsUsernameToken | OnvifAuthentication.HttpDigest,
+                            credentials,
+                            legacyAuth);
+
+                        // Call GetProfiles
+                        var profilesResponse = await mediaClient.GetProfilesAsync();
+
+                        if (profilesResponse?.Profiles != null)
                         {
-                            dev.SelectProfile(i);
-                            var co = new ConnectionOption(onvifurl, null, 9, -1, null)
+                            for (int profileIndex = 0; profileIndex < profilesResponse.Profiles.Length; profileIndex++)
                             {
-                                MediaIndex = i
-                            };
-                            URLFound?.Invoke(this,
-                                new ConnectionOptionEventArgs(co));
+                                var p = profilesResponse.Profiles[profileIndex];
+                                if (p?.VideoEncoderConfiguration?.Resolution != null && p.VideoEncoderConfiguration.Resolution.Width > 0)
+                                {
+                                    // The "9" is iSpy's internal ID for an ONVIF source
+                                    var co = new ConnectionOption(onvifUrl, null, 9, -1, null)
+                                    {
+                                        MediaIndex = profileIndex // Pass the profile index
+                                    };
+                                    URLFound?.Invoke(this, new ConnectionOptionEventArgs(co));
+                                }
+                            }
                         }
-                        i++;
                     }
+                    // --- End README-based block ---
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex);
+                Logger.LogException(ex, "SharpOnvif Discovery");
             }
 
+            if (_quit)
+            {
+                Finished.Set();
+                return;
+            }
+
+            // --- Part 2: Legacy URL Scan (Unchanged) ---
             foreach (var m in mm)
             {
-                //scan selected model first
                 var cand = m.url.Where(p => p.version.ToLowerInvariant() == model).ToList();
                 Scan(cand);
                 cand = m.url.Where(p => p.version.ToLowerInvariant() != model).ToList();

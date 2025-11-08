@@ -10,12 +10,16 @@
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <ImplicitUsings>enable</ImplicitUsings>
-    <PlatformTarget>x64</PlatformTarget>
     <AnalysisLevel>6.0-recommended</AnalysisLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Platforms>x64</Platforms>
+    
   </PropertyGroup>
-  
+    <PropertyGroup Condition="'$(Configuration)'=='x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0-beta.98" />
     <PackageReference Include="Concentus" Version="2.2.2" />
@@ -24,7 +28,8 @@
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.12.0.5764" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.12.0.5764" />
     <PackageReference Include="Emgu.CV.UI" Version="4.12.0.5764" />
-    <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
+    <PackageReference Include="Emgu.CV.Wpf" Version="4.12.0.5764" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="8.0.0" />
     <PackageReference Include="Google.Apis" Version="1.72.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
     <PackageReference Include="Google.Apis.Core" Version="1.72.0" />
@@ -34,7 +39,6 @@
     <PackageReference Include="LibVLCSharp.WinForms" Version="3.9.4" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.6" />
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.2" />
-    <PackageReference Include="Microsoft.Kinect" Version="2.0.1410.19000" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="10.0.0-rc.2.25502.107" />
     <PackageReference Include="Mono.Nat" Version="3.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -42,13 +46,25 @@
     <PackageReference Include="RestSharp" Version="112.1.1-alpha.0.4" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.DirectInput" Version="4.2.0" />
-    <PackageReference Include="SharpOnvifCommon" Version="0.5.2" />
-    <PackageReference Include="SharpOnvifServer" Version="0.5.2" />
+    <PackageReference Include="SharpOnvifClient" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.AccessControl" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.DeviceIO" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.DeviceMgmt" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.Events" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.Media" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.PTZ" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifCommon" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer.AuthenticationBehavior" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer.Credential" Version="0.6.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.ServiceModel" Version="4.10.3" />
     <PackageReference Include="System.ServiceModel.Http" Version="8.1.2" />
     <PackageReference Include="System.ServiceModel.NetFramingBase" Version="8.1.2" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="8.1.2" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="Validation" Version="2.6.68" />
+    <PackageReference Include="VxSdk.NET-Media" Version="3.0.77" />
     <PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
     <PackageReference Include="WixSharp.bin" Version="1.26.0" />
     <PackageReference Include="WixToolset.Dtf.WindowsInstaller" Version="6.0.2" />
@@ -168,9 +184,6 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\GridView.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="Kinect\TripWireEditor.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Controls\VolumeLevel.cs">
@@ -452,10 +465,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="https://www.ispyconnect.com/webservices/ispysecure.asmx">
+    <WebReferenceUrl Include="https://google.com">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\iSpyWS\</RelPath>
-      <UpdateFromURL>https://www.ispyconnect.com/webservices/ispysecure.asmx</UpdateFromURL>
+      <UpdateFromURL>https://google.com</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -463,10 +476,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>iSpy_iSpyWS_iSpy</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://www.ispyconnect.com/Webservices/reporting.asmx">
+    <WebReferenceUrl Include="https://google.com">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\Reporting\</RelPath>
-      <UpdateFromURL>http://www.ispyconnect.com/Webservices/reporting.asmx</UpdateFromURL>
+      <UpdateFromURL>https://google.com</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

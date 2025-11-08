@@ -1,7 +1,6 @@
 using FFmpeg.AutoGen;
 using iSpyApplication.Cloud;
 using iSpyApplication.DirectShow.Internals;
-using iSpyApplication.Onvif;
 using iSpyApplication.Realtime;
 using iSpyApplication.Server;
 using iSpyApplication.Sources;
@@ -10,27 +9,27 @@ using iSpyApplication.Sources.Video;
 using iSpyApplication.Sources.Video.Ximea;
 using iSpyApplication.Utilities;
 using iSpyApplication.Vision;
-using System;
+using SharpOnvifClient;
+using SharpOnvifClient.Media;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Media;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.ExceptionServices;
+using System.ServiceModel;
 using System.Text;
-using System.Threading;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using xiApi.NET;
+using Color = System.Drawing.Color;
+using IPAddress = System.Net.IPAddress;
+using Rectangle = System.Drawing.Rectangle;
 using Encoder = System.Drawing.Imaging.Encoder;
 using Image = System.Drawing.Image;
 
@@ -42,6 +41,13 @@ namespace iSpyApplication.Controls
     public sealed class CameraWindow : PictureBox, ISpyControl
     {
         #region Private
+
+        [Obsolete("This property only exists to satisfy the ISpyControl interface.")]
+        public object ONVIFDevice
+        {
+            get { return null; }
+            set { /* Do nothing */ }
+        }
 
         private int _rtindex;
         private static readonly int[] ReconnectTargets = { 2, 5, 10, 30, 60 };
@@ -81,56 +87,38 @@ namespace iSpyApplication.Controls
         }
 
         public int ObjectTypeID => 2;
+        private MediaClient _onvifMediaClient;
+        public bool ONVIFConnected => _onvifMediaClient != null;
 
-        private ONVIFDevice _onvifDevice = null;
-
-        public bool ONVIFConnected
+        public async Task<MediaClient> GetOnvifMediaClientAsync()
         {
-            get
+            if (_onvifMediaClient != null)
+                return _onvifMediaClient;
+
+            try
             {
-                return _onvifDevice != null;
+                string url = Camobject.settings.onvifident;
+                var credentials = new NetworkCredential(Camobject.settings.login, Camobject.settings.password);
+                var binding = OnvifBindingFactory.CreateBinding();
+                var endpoint = new EndpointAddress(url);
+
+                var client = new MediaClient(binding, endpoint);
+                client.SetOnvifAuthentication(
+                    OnvifAuthentication.WsUsernameToken | OnvifAuthentication.HttpDigest,
+                    credentials,
+                    new SharpOnvifClient.Security.WsUsernameTokenBehavior(credentials));
+
+                // Test the connection
+                await client.GetProfilesAsync();
+
+                _onvifMediaClient = client;
+                return _onvifMediaClient;
             }
-        }
-
-        public ONVIFDevice ONVIFDevice
-        {
-            get
+            catch (Exception ex)
             {
-                if (_onvifDevice != null)
-                    return _onvifDevice;
-
-                try
-                {
-                    var p = Camobject.settings.onvifident.Split('|');
-                    if (p.Length > 1)
-                    {
-                        Camobject.settings.onvifident = p[0];
-                        Helper.NVSet(this, "profilename", p[1]);
-                    }
-
-                    string url = Camobject.settings.onvifident;
-                    string pn = Nv("profilename");
-                    int pi = 0;
-                    int.TryParse(pn, out pi);
-
-                    _onvifDevice = new ONVIFDevice(p[0], Camobject.settings.login,
-                        Camobject.settings.password, Camobject.settings.onvif.rtspport,
-                        Camobject.settings.onvif.timeout);
-
-                    _onvifDevice.SelectProfile(pi);
-
-                    return _onvifDevice;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogException(ex, "Onvif discovery");
-                    _onvifDevice = null;
-                    return null;
-                }
-            }
-            set
-            {
-                _onvifDevice = null;
+                Logger.LogException(ex, "Onvif connection");
+                _onvifMediaClient = null;
+                return null;
             }
         }
 
@@ -154,7 +142,7 @@ namespace iSpyApplication.Controls
 
         private const int ButtonCount = 8;
 
-        private Rectangle ButtonPanel
+        private System.Drawing.Rectangle ButtonPanel
         {
             get
             {
@@ -165,7 +153,7 @@ namespace iSpyApplication.Controls
                     w = ButtonCount * (31) + 3;
                     h = 34;
                 }
-                return new Rectangle(Width / 2 - w / 2, Height - 25 - h, w, h);
+                return new System.Drawing.Rectangle(Width / 2 - w / 2, Height - 25 - h, w, h);
             }
         }
 
@@ -219,7 +207,7 @@ namespace iSpyApplication.Controls
         public double MovementCount;
         public DateTime CalibrateTarget;
         private DateTime _lastReconnect = DateTime.MinValue;
-        public Rectangle RestoreRect = Rectangle.Empty;
+        public System.Drawing.Rectangle RestoreRect = System.Drawing.Rectangle.Empty;
 
         public bool Calibrating
         {
@@ -3632,8 +3620,6 @@ namespace iSpyApplication.Controls
                         msg = s;
                     else
                     {
-                        if (sender is KinectStream)
-                            msg = "Trip Wire";
                     }
                     DoAlert("alert", msg);
                 }
@@ -4112,7 +4098,7 @@ namespace iSpyApplication.Controls
 
         private void VideoDeviceVideoFinished(object sender, PlayingFinishedEventArgs e)
         {
-            _onvifDevice = null;
+            _onvifMediaClient = null;
             switch (e.ReasonToFinishPlaying)
             {
                 case ReasonToFinishPlaying.DeviceLost:
@@ -4233,19 +4219,6 @@ namespace iSpyApplication.Controls
                                 Thread.Sleep(100);
                                 i++;
                             }
-                        }
-
-                        var source = Camera.VideoSource as KinectStream;
-                        if (source != null)
-                        {
-                            source.TripWire -= Alert;
-                        }
-
-                        var source1 = Camera.VideoSource as KinectNetworkStream;
-                        if (source1 != null)
-                        {
-                            //remove the alert handler from the source stream
-                            source1.AlertHandler -= CameraWindow_AlertHandler;
                         }
 
                         var audiostream = Camera.VideoSource as ISupportsAudio;
@@ -4443,11 +4416,7 @@ namespace iSpyApplication.Controls
             {
                 if (!string.IsNullOrEmpty(_sourceOverload))
                 {
-                    switch (_sourceOverload)
-                    {
-                        case "onvif":
-                            return ONVIFDevice?.StreamEndpoint?.Uri?.Uri.ToString();
-                    }
+                    // This will just return "onvif"
                     return _sourceOverload;
                 }
                 return Camobject.settings.videosourcestring;
@@ -4472,7 +4441,7 @@ namespace iSpyApplication.Controls
                 IsEnabled = true;
             }
             _enabling = true;
-            _onvifDevice = null;
+            _onvifMediaClient = null;
             _sourceOverload = null;
             try
             {
@@ -4521,39 +4490,79 @@ namespace iSpyApplication.Controls
                         OpenVideoSource(XimeaSource, true);
                         break;
 
-                    case 7:
-                        var ks = new KinectStream(this);
-                        OpenVideoSource(ks, true);
-                        break;
+case 9: // ONVIF
+    _sourceOverload = "onvif";
 
-                    case 8:
-                        switch (Nv(Camobject.settings.namevaluesettings, "custom"))
-                        {
-                            case "Network Kinect":
-                                // open the network kinect video stream
-                                OpenVideoSource(new KinectNetworkStream(this), true);
-                                break;
+    // Asynchronously get the ONVIF client and stream URI
+    Task.Run(async () =>
+    {
+        try
+        {
+            var mediaClient = await GetOnvifMediaClientAsync();
+            if (mediaClient == null)
+            {
+                SetErrorState("ONVIF Connection Failed");
+                return;
+            }
 
-                            default:
-                                lock (_lockobject)
-                                {
-                                    IsEnabled = false;
-                                }
-                                throw new Exception("No custom provider found for " +
-                                                    Nv(Camobject.settings.namevaluesettings, "custom"));
-                        }
-                        break;
+            // Get the profile index (MediaIndex)
+            string pn = Nv("profilename");
+            int.TryParse(pn, out int profileIndex);
 
-                    case 9:
-                        _sourceOverload = "onvif";
+            // Get all profiles
+            var profilesResponse = await mediaClient.GetProfilesAsync();
+            if (profilesResponse.Profiles.Length <= profileIndex)
+            {
+                SetErrorState("ONVIF profile not found.");
+                return;
+            }
 
-                        if (Nv("use") == "VLC")
-                        {
-                            OpenVideoSource(new VlcStream(this), true);
-                        }
-                        else
-                            OpenVideoSource(new MediaStream(this), true);
-                        break;
+            var profileToken = profilesResponse.Profiles[profileIndex].token;
+
+            // Get the stream URI for that profile
+            var streamUriResponse = await mediaClient.GetStreamUriAsync(new GetStreamUriRequest
+            {
+                ProfileToken = profileToken,
+                StreamSetup = new StreamSetup { Stream = StreamType.RTPUnicast, Transport = new Transport { Protocol = TransportProtocol.RTSP } }
+            });
+
+            if (streamUriResponse == null || string.IsNullOrEmpty(streamUriResponse.MediaUri.Uri))
+            {
+                SetErrorState("Could not get ONVIF Stream URI");
+                return;
+            }
+
+            // Inject username/password into the RTSP URI
+            var uriBuilder = new UriBuilder(streamUriResponse.MediaUri.Uri)
+            {
+                UserName = Camobject.settings.login,
+                Password = Camobject.settings.password
+            };
+
+            // Set the real video source string
+            Camobject.settings.videosourcestring = uriBuilder.Uri.ToString();
+
+            // Now, open the video source (back on the UI thread)
+            Invoke(new Action(() =>
+            {
+                if (Nv("use") == "VLC")
+                {
+                    OpenVideoSource(new VlcStream(this), true);
+                }
+                else
+                {
+                    OpenVideoSource(new MediaStream(this), true);
+                }
+                SetDetector(); // Set motion detector *after* source is open
+            }));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogException(ex, "ONVIF Enable");
+            SetErrorState("ONVIF Error: " + ex.Message);
+        }
+    });
+    break;
 
                     case 10:
                         int icam;
@@ -4580,13 +4589,11 @@ namespace iSpyApplication.Controls
                             break;
 
                         case "Custom Frame":
-                            motionDetector = new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise,
-                                Camobject.detector.keepobjectedges);
+                            motionDetector = new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise);
                             break;
 
                         case "Background Modeling":
-                            motionDetector = new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise,
-                                Camobject.detector.keepobjectedges);
+                            motionDetector = new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise);
                             break;
 
                         case "Two Frames (Color)":
@@ -5087,20 +5094,6 @@ namespace iSpyApplication.Controls
             }
             var vlcStream = source as VlcStream;
 
-            var kinectStream = source as KinectStream;
-            if (kinectStream != null)
-            {
-                kinectStream.InitTripWires(Camobject.alerts.pluginconfig);
-                kinectStream.TripWire += Alert;
-            }
-
-            var kinectNetworkStream = source as KinectNetworkStream;
-            if (kinectNetworkStream != null)
-            {
-                //add the camera alert handler hook to the provider
-                kinectNetworkStream.AlertHandler += CameraWindow_AlertHandler;
-            }
-
             var audiostream = source as ISupportsAudio;
             if (audiostream != null)
             {
@@ -5309,7 +5302,7 @@ namespace iSpyApplication.Controls
                 case "Custom Frame":
                     Camera.MotionDetector =
                         new MotionDetector(
-                            new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise, Camobject.detector.keepobjectedges));
+                            new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise));
                     SetProcessor();
                     break;
 
@@ -5449,5 +5442,11 @@ namespace iSpyApplication.Controls
                 VolumeControl.Height = 40;
             }
         }
+    }
+
+    internal class GetStreamUriRequest : StreamSetup
+    {
+        public object ProfileToken { get; set; }
+        public StreamSetup StreamSetup { get; set; }
     }
 }

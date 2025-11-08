@@ -246,7 +246,7 @@ namespace iSpyApplication.Realtime
                     var pfmt = frame.PixelFormat == PixelFormat.Format8bppIndexed ? AVPixelFormat.AV_PIX_FMT_GRAY8 : AVPixelFormat.AV_PIX_FMT_BGR24;
                     int w = _videoCodecContext->width;
                     int h = _videoCodecContext->height;
-                    _pConvertContext = ffmpeg.sws_getContext(w, h, pfmt, w, h, _videoCodecContext->pix_fmt, ffmpeg.SWS_FAST_BILINEAR, null, null, null);
+                    _pConvertContext = ffmpeg.sws_getContext(w, h, pfmt, w, h, _videoCodecContext->pix_fmt, (int)SwsFlags.SWS_FAST_BILINEAR, null, null, null);
                 }
 
                 if (Log("SWS_SCALE", ffmpeg.sws_scale(_pConvertContext, srcData, srcLinesize, 0, _videoCodecContext->height, _videoFrame->data, _videoFrame->linesize)))
@@ -664,9 +664,9 @@ namespace iSpyApplication.Realtime
             _audioCodecContext->codec_id = audioCodec;
             _audioCodecContext->codec_type = AVMediaType.AVMEDIA_TYPE_AUDIO;
             _audioCodecContext->sample_fmt = audioCodec == AVCodecID.AV_CODEC_ID_MP3 ? AVSampleFormat.AV_SAMPLE_FMT_S16P : AVSampleFormat.AV_SAMPLE_FMT_FLTP;
-            _audioCodecContext->sample_rate = 22050;
+            _audioCodecContext->sample_rate = OutSampleRate;
             
-            ffmpeg.av_channel_layout_default(&_audioCodecContext->ch_layout, 1);
+            ffmpeg.av_channel_layout_default(&_audioCodecContext->ch_layout, OutChannels);
             
             _audioStream->time_base = _audioCodecContext->time_base = new AVRational { num = 1, den = 1000 };
 
@@ -681,7 +681,7 @@ namespace iSpyApplication.Realtime
             }
             
             AVChannelLayout in_ch_layout = new AVChannelLayout();
-            ffmpeg.av_channel_layout_default(&in_ch_layout, _audioCodecContext->ch_layout.nb_channels);
+            ffmpeg.av_channel_layout_default(&in_ch_layout, InChannels);
             
             fixed(SwrContext** swrContext = &_swrContext)
             {
@@ -691,7 +691,7 @@ namespace iSpyApplication.Realtime
                     _audioCodecContext->sample_rate,
                     &in_ch_layout,
                     AVSampleFormat.AV_SAMPLE_FMT_S16,
-                    _audioCodecContext->sample_rate,
+                    InSampleRate,
                     0,
                     null);
             }

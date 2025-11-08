@@ -52,7 +52,7 @@ namespace iSpyApplication.Controls
         private readonly object _sync = new object();
 
         // --- Start of Emgu.CV Replacements ---
-        private BackgroundSubtractorMOG2 _motionDetector;
+        private MotionDetector _motionDetector;
         private Mat _fgMask = new Mat(); // A re-usable mask for motion detection
         private readonly FishEyeCorrect _feCorrect = new FishEyeCorrect(); // Assuming FishEyeCorrect is a helper class you have
         private readonly Mat _fisheyeMap1 = new Mat();
@@ -271,7 +271,7 @@ namespace iSpyApplication.Controls
             VideoSource.NewFrame += VideoNewFrame;
         }
 
-        public Camera(IVideoSource source, BackgroundSubtractorMOG2 detector) // Changed from MotionDetector
+        public Camera(IVideoSource source, MotionDetector detector) // Changed from BackgroundSubtractorMOG2
         {
             VideoSource = source;
             _motionDetector = detector;
@@ -314,13 +314,13 @@ namespace iSpyApplication.Controls
         }
 
         // motionDetector property - updated for Emgu.CV
-        public BackgroundSubtractorMOG2 MotionDetector
+        public MotionDetector MotionDetector
         {
             get { return _motionDetector; }
             set
             {
                 _motionDetector = value;
-                // Motion zones are handled differently in Emgu (applied to the _fgMask)
+                if (value != null) _motionDetector.MotionZones = MotionZoneRectangles;
             }
         }
 

@@ -1,35 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
     <AssemblyTitle>WixCA</AssemblyTitle>
     <Product>WixCA</Product>
-    <Copyright>Copyright ©  2015</Copyright>
+    <Copyright>Copyright ©  2025</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
-  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="CustomAction.config" />
     <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Emgu.CV.Bitmap" Version="4.12.0.5764" />
+    <PackageReference Include="Emgu.CV.runtime.windows" Version="4.12.0.5764" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.2" />
+    <PackageReference Include="Open.Nat" Version="2.1.0" />
     <PackageReference Include="Renci.SshNet.Async" Version="1.4.0" />
+    <PackageReference Include="SharpOnvifClient" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.AccessControl" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.DeviceIO" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.DeviceMgmt" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.Events" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.Media" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifClient.PTZ" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifCommon" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer.AuthenticationBehavior" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer.Credential" Version="0.6.0" />
+    <PackageReference Include="SSH.NET" Version="2025.1.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.ServiceModel" Version="4.10.3" />
     <PackageReference Include="System.ServiceModel.Http" Version="8.1.2" />
     <PackageReference Include="System.ServiceModel.NetFramingBase" Version="8.1.2" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="8.1.2" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="VideoXpertSdk-Media" Version="3.0.85" />
+    <PackageReference Include="VxSdk.NET-Media" Version="3.0.77" />
   </ItemGroup>
 </Project>

@@ -1,8 +1,11 @@
 ﻿using iSpyApplication.Onvif;
 using iSpyApplication.Utilities;
+using OnvifDiscovery;
+using OnvifDiscovery.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -10,6 +13,8 @@ namespace iSpyApplication.Controls
     public partial class ONVIFWizard : UserControl
     {
         public CameraWindow CameraControl;
+        private readonly Discovery _onvifDiscovery;
+        private CancellationTokenSource _cts;
 
         public ONVIFWizard()
         {
@@ -23,6 +28,7 @@ namespace iSpyApplication.Controls
             btnConnect.Text = LocRm.GetString("Next");
             btnBack.Text = LocRm.GetString("Back");
             lblURL.Text = LocRm.GetString("URL");
+            _onvifDiscovery = new Discovery();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -101,14 +107,16 @@ namespace iSpyApplication.Controls
 
         public void Deinit()
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
-
-        private void BindDevices()
+        private async void BindDevices()
         {
             ddlDeviceURL.Items.Clear();
-            foreach (var s in Discovery.DiscoveredDevices)
+            _cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            await foreach (var s in _onvifDiscovery.DiscoverAsync(1, _cts.Token))
             {
-                ddlDeviceURL.Items.Add(s);
+                ddlDeviceURL.Items.Add(s.Address);
             }
             if (ddlDeviceURL.Items.Count > 0)
                 ddlDeviceURL.SelectedIndex = 0;

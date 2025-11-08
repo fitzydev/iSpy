@@ -1,304 +1,129 @@
-﻿// AForge Vision Library
-// AForge.NET framework
-// http://www.aforgenet.com/framework/
-//
-// Copyright © AForge.NET, 2005-2011
-// contacts@aforgenet.com
-//
-
-using System.Drawing;
-using System.Drawing.Imaging;
-using AForge.Imaging;
+﻿using System.Drawing;
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using Emgu.CV.Util; // For VectorOfVectorOfPoint
+using System.Collections.Generic; // For List
 
 namespace iSpyApplication.Vision
 {
     /// <summary>
     /// Motion processing algorithm, which counts separate moving objects and highlights them.
     /// </summary>
-    /// 
-    /// <remarks><para>The aim of this motion processing algorithm is to count separate objects
-    /// in the motion frame, which is provided by <see cref="IMotionDetector">motion detection algorithm</see>.
-    /// In the case if <see cref="HighlightMotionRegions"/> property is set to <see langword="true"/>,
-    /// found objects are also highlighted on the original video frame. The algorithm
-    /// counts and highlights only those objects, which size satisfies <see cref="MinObjectsWidth"/>
-    /// and <see cref="MinObjectsHeight"/> properties.</para>
-    /// 
-    /// <para><note>The motion processing algorithm is supposed to be used only with motion detection
-    /// algorithms, which are based on finding difference with background frame
-    /// (see <see cref="SimpleBackgroundModelingDetector"/> and <see cref="CustomFrameDifferenceDetector"/>
-    /// as simple implementations) and allow extract moving objects clearly.</note></para>
-    /// 
-    /// <para>Sample usage:</para>
-    /// <code>
-    /// // create instance of motion detection algorithm
-    /// IMotionDetector motionDetector = new ... ;
-    /// // create instance of motion processing algorithm
-    /// BlobCountingObjectsProcessing motionProcessing = new BlobCountingObjectsProcessing( );
-    /// // create motion detector
-    /// MotionDetector detector = new MotionDetector( motionDetector, motionProcessing );
-    /// 
-    /// // continuously feed video frames to motion detector
-    /// while ( ... )
-    /// {
-    ///     // process new video frame and check motion level
-    ///     if ( detector.ProcessFrame( videoFrame ) > 0.02 )
-    ///     {
-    ///         // check number of detected objects
-    ///         if ( motionProcessing.ObjectsCount > 1 )
-    ///         {
-    ///             // ...
-    ///         }
-    ///     }
-    /// }
-    /// </code>
-    /// </remarks>
-    /// 
-    /// <seealso cref="MotionDetector"/>
-    /// <seealso cref="IMotionDetector"/>
-    /// 
     public class BlobCountingObjectsProcessing : IMotionProcessing
     {
-        // blob counter to detect separate blobs
-        private readonly BlobCounter _blobCounter = new BlobCounter( );
-        // color used for blobs highlighting
-        private Color _highlightColor;
-        // highlight motion regions or not
+        private Color _highlightColor = Color.Red;
         private bool _highlightMotionRegions = true;
 
-        /// <summary>
-        /// Highlight motion regions or not.
-        /// </summary>
-        /// 
-        /// <remarks><para>The property specifies if detected moving objects should be highlighted
-        /// with rectangle or not.</para>
-        /// 
-        /// <para>Default value is set to <see langword="true"/>.</para>
-        ///
-        /// <para><note>Turning the value on leads to additional processing time of video frame.</note></para>
-        /// </remarks>
-        /// 
+        private VectorOfVectorOfPoint _contours;
+        private Mat _hierarchy;
+
+        private int _minObjectsWidth = 10;
+        private int _minObjectsHeight = 10;
+        private Rectangle[] _objectRectangles = new Rectangle[0];
+
         public bool HighlightMotionRegions
         {
             get { return _highlightMotionRegions; }
             set { _highlightMotionRegions = value; }
         }
 
-        /// <summary>
-        /// Color used to highlight motion regions.
-        /// </summary>
-        /// 
-        /// <remarks>
-        /// <para>Default value is set to <b>red</b> color.</para>
-        /// </remarks>
-        /// 
         public Color HighlightColor
         {
             get { return _highlightColor; }
             set { _highlightColor = value; }
         }
 
-        /// <summary>
-        /// Minimum width of acceptable object.
-        /// </summary>
-        /// 
-        /// <remarks><para>The property sets minimum width of an object to count and highlight. If
-        /// objects have smaller width, they are not counted and are not highlighted.</para>
-        /// 
-        /// <para>Default value is set to <b>10</b>.</para>
-        /// </remarks>
-        /// 
         public int MinObjectsWidth
         {
-            get { return _blobCounter.MinWidth; }
-            set
-            {
-                lock ( _blobCounter )
-                {
-                    _blobCounter.MinWidth = value;
-                }
-            }
+            get { return _minObjectsWidth; }
+            set { _minObjectsWidth = value; }
         }
 
-        /// <summary>
-        /// Minimum height of acceptable object.
-        /// </summary>
-        /// 
-        /// <remarks><para>The property sets minimum height of an object to count and highlight. If
-        /// objects have smaller height, they are not counted and are not highlighted.</para>
-        /// 
-        /// <para>Default value is set to <b>10</b>.</para>
-        /// </remarks>
-        /// 
         public int MinObjectsHeight
         {
-            get { return _blobCounter.MinHeight; }
-            set
-            {
-                lock ( _blobCounter )
-                {
-                    _blobCounter.MinHeight = value;
-                }
-            }
+            get { return _minObjectsHeight; }
+            set { _minObjectsHeight = value; }
         }
 
-        /// <summary>
-        /// Number of detected objects.
-        /// </summary>
-        /// 
-        /// <remarks><para>The property provides number of moving objects detected by
-        /// the last call of <see cref="ProcessFrame"/> method.</para></remarks>
-        /// 
-        public int ObjectsCount
-        {
-            get
-            {
-                lock ( _blobCounter )
-                {
-                    return _blobCounter.ObjectsCount;
-                }
-            }
-        }
+        public int ObjectsCount { get; private set; }
 
-        /// <summary>
-        /// Rectangles of moving objects.
-        /// </summary>
-        /// 
-        /// <remarks><para>The property provides array of moving objects' rectangles
-        /// detected by the last call of <see cref="ProcessFrame"/> method.</para></remarks>
-        /// 
         public Rectangle[] ObjectRectangles
         {
-            get
-            {
-                lock ( _blobCounter )
-                {
-                    return _blobCounter.GetObjectsRectangles( );
-                }
-            }
+            get { return _objectRectangles; }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
-        /// </summary>
-        /// 
-        public BlobCountingObjectsProcessing( ) : this( 10, 10 ) { }
+        public BlobCountingObjectsProcessing() : this(10, 10) { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
-        /// </summary>
-        /// 
-        /// <param name="highlightMotionRegions">Highlight motion regions or not (see <see cref="HighlightMotionRegions"/> property).</param>
-        /// 
-        public BlobCountingObjectsProcessing( bool highlightMotionRegions ) : this( 10, 10, highlightMotionRegions ) { }
+        public BlobCountingObjectsProcessing(bool highlightMotionRegions) : this(10, 10, highlightMotionRegions) { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
-        /// </summary>
-        /// 
-        /// <param name="minWidth">Minimum width of acceptable object (see <see cref="MinObjectsWidth"/> property).</param>
-        /// <param name="minHeight">Minimum height of acceptable object (see <see cref="MinObjectsHeight"/> property).</param>
-        /// 
-        public BlobCountingObjectsProcessing( int minWidth, int minHeight ) :
-            this( minWidth, minHeight, Color.Red ) { }
+        public BlobCountingObjectsProcessing(int minWidth, int minHeight) :
+            this(minWidth, minHeight, Color.Red)
+        { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
-        /// </summary>
-        /// 
-        /// <param name="minWidth">Minimum width of acceptable object (see <see cref="MinObjectsWidth"/> property).</param>
-        /// <param name="minHeight">Minimum height of acceptable object (see <see cref="MinObjectsHeight"/> property).</param>
-        /// <param name="highlightColor">Color used to highlight motion regions.</param>
-        /// 
-        public BlobCountingObjectsProcessing( int minWidth, int minHeight, Color highlightColor )
+        public BlobCountingObjectsProcessing(int minWidth, int minHeight, Color highlightColor)
         {
-            _blobCounter.FilterBlobs = true;
-            _blobCounter.MinHeight   = minHeight;
-            _blobCounter.MinWidth    = minWidth;
-
-            _highlightColor     = highlightColor;
+            _minObjectsWidth = minWidth;
+            _minObjectsHeight = minHeight;
+            _highlightColor = highlightColor;
+            _contours = new VectorOfVectorOfPoint();
+            _hierarchy = new Mat();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
-        /// </summary>
-        /// 
-        /// <param name="minWidth">Minimum width of acceptable object (see <see cref="MinObjectsWidth"/> property).</param>
-        /// <param name="minHeight">Minimum height of acceptable object (see <see cref="MinObjectsHeight"/> property).</param>
-        /// <param name="highlightMotionRegions">Highlight motion regions or not (see <see cref="HighlightMotionRegions"/> property).</param>
-        /// 
-        public BlobCountingObjectsProcessing( int minWidth, int minHeight, bool highlightMotionRegions )
-            : this( minWidth, minHeight )
+        public BlobCountingObjectsProcessing(int minWidth, int minHeight, bool highlightMotionRegions)
+            : this(minWidth, minHeight)
         {
             _highlightMotionRegions = highlightMotionRegions;
         }
 
         /// <summary>
-        /// Process video and motion frames doing further post processing after
-        /// performed motion detection.
+        /// Process video and motion frames.
         /// </summary>
-        /// 
-        /// <param name="videoFrame">Original video frame.</param>
-        /// <param name="motionFrame">Motion frame provided by motion detection
-        /// algorithm (see <see cref="IMotionDetector"/>).</param>
-        /// 
-        /// <remarks><para>Processes provided motion frame and counts number of separate
-        /// objects, which size satisfies <see cref="MinObjectsWidth"/> and <see cref="MinObjectsHeight"/>
-        /// properties. In the case if <see cref="HighlightMotionRegions"/> property is
-        /// set to <see langword="true"/>, the found object are also highlighted on the
-        /// original video frame.
-        /// </para></remarks>
-        /// 
-        /// <exception cref="InvalidImagePropertiesException">Motion frame is not 8 bpp image, but it must be so.</exception>
-        /// <exception cref="UnsupportedImageFormatException">Video frame must be 8 bpp grayscale image or 24/32 bpp color image.</exception>
-        /// 
-        public void ProcessFrame( UnmanagedImage videoFrame, UnmanagedImage motionFrame )
+        public void ProcessFrame(Mat videoFrame, Mat motionFrame)
         {
-            if ( motionFrame.PixelFormat != PixelFormat.Format8bppIndexed )
+            if (motionFrame.Depth != DepthType.Cv8U || motionFrame.NumberOfChannels != 1)
             {
-                throw new InvalidImagePropertiesException( "Motion frame must be 8 bpp image." );
-            }
-
-            if ( ( videoFrame.PixelFormat != PixelFormat.Format8bppIndexed ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format24bppRgb ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format32bppRgb ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format32bppArgb ) )
-            {
-                throw new UnsupportedImageFormatException( "Video frame must be 8 bpp grayscale image or 24/32 bpp color image." );
-            } 
-
-            int width  = videoFrame.Width;
-            int height = videoFrame.Height;
-
-            if ( ( motionFrame.Width != width ) || ( motionFrame.Height != height ) )
+                //throw new InvalidImagePropertiesException( "Motion frame must be 8 bpp image." );
                 return;
-
-            lock ( _blobCounter )
-            {
-                _blobCounter.ProcessImage( motionFrame );
             }
 
-            if ( _highlightMotionRegions )
+            // Find contours
+            CvInvoke.FindContours(motionFrame, _contours, _hierarchy, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+
+            var rects = new List<Rectangle>();
+            if (_contours.Size > 0)
+            {
+                for (int i = 0; i < _contours.Size; i++)
+                {
+                    Rectangle rect = CvInvoke.BoundingRectangle(_contours[i]);
+                    if (rect.Width >= _minObjectsWidth && rect.Height >= _minObjectsHeight)
+                    {
+                        rects.Add(rect);
+                    }
+                }
+            }
+            _objectRectangles = rects.ToArray();
+            ObjectsCount = rects.Count;
+
+            if (_highlightMotionRegions && ObjectsCount > 0)
             {
                 // highlight each moving object
-                Rectangle[] rects = _blobCounter.GetObjectsRectangles( );
-
-                foreach ( Rectangle rect in rects )
+                var color = new Bgr(_highlightColor).MCvScalar;
+                foreach (Rectangle rect in _objectRectangles)
                 {
-                    Drawing.Rectangle( videoFrame, rect, _highlightColor );
+                    CvInvoke.Rectangle(videoFrame, rect, color, 1);
                 }
             }
         }
 
-        /// <summary>
-        /// Reset internal state of motion processing algorithm.
-        /// </summary>
-        /// 
-        /// <remarks><para>The method allows to reset internal state of motion processing
-        /// algorithm and prepare it for processing of next video stream or to restart
-        /// the algorithm.</para></remarks>
-        ///
-        public void Reset( )
+        public void Reset()
         {
+            _objectRectangles = new Rectangle[0];
+            ObjectsCount = 0;
+            _contours?.Dispose();
+            _hierarchy?.Dispose();
+            _contours = new VectorOfVectorOfPoint();
+            _hierarchy = new Mat();
         }
     }
 }
